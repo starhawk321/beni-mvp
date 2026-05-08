@@ -66,7 +66,20 @@ function ConnectingScreen() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    await supabase.from('profiles').update({ onboarding_complete: true }).eq('id', user.id)
+
+    // Save selected insurer and mark onboarding complete
+    await supabase
+      .from('profiles')
+      .update({ onboarding_complete: true, selected_insurer: insurer })
+      .eq('id', user.id)
+
+    // Trigger FHIR sync in background — don't block redirect on failure
+    try {
+      await fetch('/api/fhir/sync', { method: 'POST' })
+    } catch {
+      // Sync failure is non-blocking — dashboard falls back to placeholder
+    }
+
     setTimeout(() => {
       router.push('/dashboard')
       router.refresh()

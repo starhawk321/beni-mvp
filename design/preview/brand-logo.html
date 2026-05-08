@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="_card.css">
+  <style>
+    body { padding: 0; }
+    .stage { padding: 24px; min-height: 260px; display: flex; align-items: center; justify-content: center; }
+    .logo-row { display: flex; align-items: center; gap: 18px; }
+    .lockup { display: flex; align-items: center; gap: 14px; }
+    .wordmark { line-height: 1; }
+    .swatch-block {
+      background: #0D1B2A;
+      border-radius: 16px;
+      padding: 14px 22px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "case": "title",
+      "accent": true,
+      "weight": 700,
+      "tracking": -3,
+      "markStyle": "gradient",
+      "shape": 50,
+      "cornerRadius": 4
+    }/*EDITMODE-END*/;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    // Build a 12-vertex plus/sparkle polygon and round its corners.
+    // morph: 0 = pointy 4-point sparkle, 1 = rounded plus.
+    function makeMarkPath(morph, cornerR) {
+      const w  = lerp(5, 14, morph);   // shoulder offset (arm half-width)
+      const tf = lerp(0, 8,  morph);   // tip flat half-width (0 = sharp point)
+      const verts = [
+        [50 - tf, 4],   [50 + tf, 4],          // top tip (L, R)
+        [50 + w,  50 - w],                      // shoulder TR
+        [96, 50 - tf],  [96, 50 + tf],          // right tip
+        [50 + w,  50 + w],                      // shoulder BR
+        [50 + tf, 96],  [50 - tf, 96],          // bottom tip
+        [50 - w,  50 + w],                      // shoulder BL
+        [4, 50 + tf],   [4, 50 - tf],           // left tip
+        [50 - w,  50 - w],                      // shoulder TL
+      ];
+      // Dedup adjacent identical vertices (happens at morph=0 where tf=0)
+      const pts = [];
+      for (const v of verts) {
+        const last = pts[pts.length - 1];
+        if (!last || last[0] !== v[0] || last[1] !== v[1]) pts.push(v);
+      }
+      return roundedPolyPath(pts, cornerR);
+    }
+
+    function roundedPolyPath(pts, r) {
+      const n = pts.length;
+      let d = "";
+      for (let i = 0; i < n; i++) {
+        const prev = pts[(i - 1 + n) % n];
+        const cur  = pts[i];
+        const next = pts[(i + 1) % n];
+        const dxp = prev[0] - cur[0], dyp = prev[1] - cur[1];
+        const lp  = Math.hypot(dxp, dyp) || 1;
+        const dxn = next[0] - cur[0], dyn = next[1] - cur[1];
+        const ln  = Math.hypot(dxn, dyn) || 1;
+        const rA  = Math.min(r, lp / 2);
+        const rB  = Math.min(r, ln / 2);
+        const ax  = cur[0] + (dxp / lp) * rA;
+        const ay  = cur[1] + (dyp / lp) * rA;
+        const bx  = cur[0] + (dxn / ln) * rB;
+        const by  = cur[1] + (dyn / ln) * rB;
+        d += (i === 0 ? `M ${ax} ${ay}` : ` L ${ax} ${ay}`);
+        d += ` Q ${cur[0]} ${cur[1]} ${bx} ${by}`;
+      }
+      return d + " Z";
+    }
+
+    function applyCase(name, mode) {
+      // name is "Béni"
+      if (mode === "lower") return name.toLowerCase();        // "béni"
+      if (mode === "upper") return name.toUpperCase();        // "BÉNI"
+      return name;                                            // "Béni"
+    }
+
+    function Sparkle({ size = 56, style = "gradient", shape = 50, cornerR = 4 }) {
+      const id = "sp-" + Math.random().toString(36).slice(2, 7);
+      const stops =
+        style === "gradient"
+          ? [
+              ["0%",  "#7AE7FF"],
+              ["45%", "#5BA8FF"],
+              ["75%", "#9B5BFF"],
+              ["100%","#E55BB8"],
+            ]
+          : [["0%", "#0D1B2A"], ["100%", "#0D1B2A"]];
+      const d = makeMarkPath(shape / 100, cornerR);
+      return (
+        <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden>
+          <defs>
+            <linearGradient id={id} x1="10%" y1="10%" x2="90%" y2="90%">
+              {stops.map(([off, col]) => <stop key={off} offset={off} stopColor={col} />)}
+            </linearGradient>
+          </defs>
+          <path d={d} fill={`url(#${id})`} />
+        </svg>
+      );
+    }
+
+    function Wordmark({ text, weight, tracking, color = "#0D1B2A", size = 64 }) {
+      return (
+        <span className="wordmark"
+              style={{
+                fontFamily: "Manrope, system-ui, sans-serif",
+                fontWeight: weight,
+                fontSize: size,
+                letterSpacing: tracking + "px",
+                color,
+              }}>
+          {text}
+        </span>
+      );
+    }
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const base = "Béni";
+      const accentBase = t.accent ? base : base.replace("é", "e");
+      const text = applyCase(accentBase, t.case);
+
+      return (
+        <>
+          <div className="card cream" style={{ borderRadius: 0, border: 0, boxShadow: "none" }}>
+            <div className="stage">
+              <div className="logo-row">
+                <div className="lockup">
+                  <Sparkle size={64} style={t.markStyle} shape={t.shape} cornerR={t.cornerRadius} />
+                  <Wordmark text={text} weight={t.weight} tracking={t.tracking} />
+                </div>
+                <div className="swatch-block">
+                  <div className="lockup">
+                    <Sparkle size={48} style={t.markStyle} shape={t.shape} cornerR={t.cornerRadius} />
+                    <Wordmark text={text} weight={t.weight} tracking={t.tracking} color="#FFFFFF" size={48} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="label" style={{ padding: "0 24px 18px" }}>
+              Béni · 4-point sparkle mark, cyan→magenta gradient. Live tweaks: case, accent, weight, tracking, mark style.
+            </div>
+          </div>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection title="Wordmark">
+              <TweakRadio label="Case" value={t.case} onChange={(v) => setTweak("case", v)}
+                options={[
+                  { value: "title", label: "Béni" },
+                  { value: "lower", label: "béni" },
+                  { value: "upper", label: "BÉNI" },
+                ]}/>
+              <TweakToggle label="Accent on é" value={t.accent} onChange={(v) => setTweak("accent", v)} />
+              <TweakSlider label="Weight" min={400} max={900} step={100}
+                value={t.weight} onChange={(v) => setTweak("weight", v)} />
+              <TweakSlider label="Tracking" min={-6} max={2} step={0.25}
+                value={t.tracking} onChange={(v) => setTweak("tracking", v)} />
+            </TweakSection>
+            <TweakSection title="Mark">
+              <TweakSlider label="Sparkle ↔ Plus" min={0} max={100} step={1}
+                value={t.shape} onChange={(v) => setTweak("shape", v)} />
+              <TweakSlider label="Corner radius" min={0} max={10} step={0.5}
+                value={t.cornerRadius} onChange={(v) => setTweak("cornerRadius", v)} />
+              <TweakRadio label="Style" value={t.markStyle} onChange={(v) => setTweak("markStyle", v)}
+                options={[
+                  { value: "gradient", label: "Gradient" },
+                  { value: "ink",      label: "Ink" },
+                ]}/>
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

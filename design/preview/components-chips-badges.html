@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .chip { display:inline-flex;align-items:center;gap:6px; height:30px; padding:0 12px; border-radius:999px; font:600 12px var(--font-sans); letter-spacing:.02em; }
+  .chip .dot { width:6px;height:6px;border-radius:999px }
+  .badge { display:inline-flex;align-items:center;justify-content:center; height:22px; padding:0 8px; border-radius:6px; font:600 11px var(--font-sans); letter-spacing:.04em; text-transform:uppercase }
+</style>
+</head>
+<body><div class="card">
+  <div class="row" style="flex-wrap:wrap;gap:8px">
+    <span class="chip" style="background:#e0e9f3;color:#004383"><span class="dot" style="background:#004383"></span>Medical</span>
+    <span class="chip" style="background:#dff0f8;color:#0586C3"><span class="dot" style="background:#0586C3"></span>Dental</span>
+    <span class="chip" style="background:#ece6fb;color:#5a3eb0"><span class="dot" style="background:#6A4FBE"></span>Vision</span>
+    <span class="chip" style="background:#ffe2dd;color:#a4423a"><span class="dot" style="background:#FFA199"></span>FSA</span>
+    <span class="chip" style="background:#ffeedd;color:#a36129"><span class="dot" style="background:#FFC799"></span>HSA</span>
+  </div>
+  <div class="row" style="margin-top:14px;flex-wrap:wrap;gap:8px">
+    <span class="badge" style="background:#e3f1e7;color:#2f7d4f">Active</span>
+    <span class="badge" style="background:#fdecd1;color:#b56a16">Pending</span>
+    <span class="badge" style="background:#fde0dd;color:#b3322a">Action needed</span>
+    <span class="badge" style="background:#FFFF99;color:#0D1B2A">New</span>
+    <span class="badge" style="background:#0D1B2A;color:#FFE9CF">In review</span>
+  </div>
+</div></body></html>

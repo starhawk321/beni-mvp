@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Beni — Web App UI Kit</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <style>
+    html,body { margin:0; padding:0; background: var(--bg-canvas); }
+    #root { min-height: 100vh; }
+    a { color: inherit; }
+    button { font: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="Primitives.jsx"></script>
+  <script type="text/babel" src="Auth.jsx"></script>
+  <script type="text/babel" src="Onboarding.jsx"></script>
+  <script type="text/babel" src="Dashboard.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function App() {
+      const [screen, setScreen] = useState("login"); // login | signup | confirm | onboarding | dashboard
+      const [email, setEmail] = useState("maya@example.com");
+
+      if (screen === "login") {
+        return <AuthShell><LoginCard onLogin={() => setScreen("dashboard")} onSwitch={() => setScreen("signup")} /></AuthShell>;
+      }
+      if (screen === "signup") {
+        return <AuthShell><SignupCard onSignup={(e) => { setEmail(e); setScreen("confirm"); }} onSwitch={() => setScreen("login")} /></AuthShell>;
+      }
+      if (screen === "confirm") {
+        return <AuthShell><ConfirmCard email={email} /></AuthShell>;
+      }
+      if (screen === "onboarding") {
+        return <OnboardingScreen onConnect={() => setScreen("dashboard")} onSkip={() => setScreen("dashboard")} />;
+      }
+      return <Dashboard user="Maya" onLogout={() => setScreen("login")} />;
+    }
+
+    // Floating "Demo" jumper so reviewers can hop screens
+    function DemoSwitcher({ value, onChange }) {
+      const items = [
+        ["login", "Login"], ["signup", "Sign up"], ["confirm", "Confirm"],
+        ["onboarding", "Onboarding"], ["dashboard", "Dashboard"],
+      ];
+      return (
+        <div style={{ position: "fixed", bottom: 16, left: "50%", transform: "translateX(-50%)",
+                      display: "flex", gap: 4, padding: 6, borderRadius: 999,
+                      background: "rgba(13,27,42,.92)", boxShadow: "var(--shadow-3)", zIndex: 999, backdropFilter: "blur(8px)" }}>
+          {items.map(([id, label]) => (
+            <button key={id} onClick={() => onChange(id)}
+                    style={{ height: 32, padding: "0 14px", borderRadius: 999, border: 0,
+                             cursor: "pointer", fontWeight: 600, fontSize: 12,
+                             color: value === id ? "#0D1B2A" : "#FFE9CF",
+                             background: value === id ? "#FFC799" : "transparent" }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    function Root() {
+      const [screen, setScreen] = useState("dashboard");
+      let body;
+      if (screen === "login") body = <AuthShell><LoginCard onLogin={() => setScreen("dashboard")} onSwitch={() => setScreen("signup")} /></AuthShell>;
+      else if (screen === "signup") body = <AuthShell><SignupCard onSignup={(e) => setScreen("confirm")} onSwitch={() => setScreen("login")} /></AuthShell>;
+      else if (screen === "confirm") body = <AuthShell><ConfirmCard email="maya@example.com" /></AuthShell>;
+      else if (screen === "onboarding") body = <OnboardingScreen onConnect={() => setScreen("dashboard")} onSkip={() => setScreen("dashboard")} />;
+      else body = <Dashboard user="Maya" onLogout={() => setScreen("login")} />;
+      return <>{body}<DemoSwitcher value={screen} onChange={setScreen} /></>;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<Root />);
+  </script>
+</body>
+</html>

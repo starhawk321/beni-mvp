@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import Logo from '@/components/Logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,66 +32,100 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-blue-600">Beni</h1>
-          <p className="mt-1 text-sm text-gray-500">Understand your health insurance, finally.</p>
+    <div className="auth-shell">
+      <div className="auth-card">
+        {/* Logo */}
+        <div style={{ marginBottom: 28 }}>
+          <Logo height={36} />
+          <p className="t-body-s" style={{ color: 'var(--fg-3)', marginTop: 8, fontStyle: 'italic', fontFamily: 'var(--font-instrument-serif), serif' }}>
+            Understand your health insurance, finally.
+          </p>
         </div>
 
-        <h2 className="mb-6 text-xl font-semibold text-gray-900">Welcome back</h2>
+        <h1 className="t-h2" style={{ color: 'var(--fg-1)', marginBottom: 24 }}>Welcome back</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label className="t-caption" style={{ color: 'var(--fg-2)', display: 'block', marginBottom: 6 }}>
               Email
             </label>
             <input
-              id="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               placeholder="you@example.com"
+              className="input"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label className="t-caption" style={{ color: 'var(--fg-2)', display: 'block', marginBottom: 6 }}>
               Password
             </label>
             <input
-              id="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               placeholder="Your password"
+              className="input"
             />
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>
+            <div style={{
+              background: 'var(--status-critical-bg)',
+              color: 'var(--status-critical)',
+              borderRadius: 'var(--r-3)',
+              padding: '10px 14px',
+              fontSize: 14,
+              fontWeight: 500,
+            }}>
+              {error}
+            </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+            className="btn btn-primary"
+            style={{ width: '100%', marginTop: 4 }}
           >
             {loading ? 'Logging in...' : 'Log in'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="t-body-s" style={{ color: 'var(--fg-3)', textAlign: 'center', marginTop: 24 }}>
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-medium text-blue-600 hover:underline">
+          <Link href="/signup" style={{ color: 'var(--beni-sky)', fontWeight: 600, textDecoration: 'none' }}>
             Sign up
           </Link>
         </p>
       </div>
+
+      <style>{`
+        .auth-shell {
+          min-height: 100vh;
+          background-color: var(--bg-canvas);
+          background-image: radial-gradient(ellipse 80% 60% at 15% 15%, rgba(255,199,153,0.55) 0%, transparent 70%),
+                            radial-gradient(ellipse 70% 50% at 85% 10%, rgba(255,161,153,0.45) 0%, transparent 65%),
+                            radial-gradient(ellipse 60% 50% at 50% 90%, rgba(255,255,153,0.35) 0%, transparent 60%),
+                            radial-gradient(ellipse 50% 40% at 10% 80%, rgba(5,134,195,0.18) 0%, transparent 55%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+        }
+        .auth-card {
+          background: var(--bg-surface);
+          border-radius: var(--r-6);
+          padding: 36px;
+          width: 100%;
+          max-width: 440px;
+          box-shadow: var(--shadow-3);
+        }
+      `}</style>
     </div>
   )
 }

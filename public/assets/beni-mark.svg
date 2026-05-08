@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="sparkle" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#7AE7FF"/>
+      <stop offset="45%" stop-color="#5BA8FF"/>
+      <stop offset="75%" stop-color="#9B5BFF"/>
+      <stop offset="100%" stop-color="#E55BB8"/>
+    </linearGradient>
+  </defs>
+  <path d="M50 4 C50 27 73 50 96 50 C73 50 50 73 50 96 C50 73 27 50 4 50 C27 50 50 27 50 4 Z" fill="url(#sparkle)"/>
+</svg>

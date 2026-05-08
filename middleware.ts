@@ -44,7 +44,10 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check onboarding status for app routes
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding')) {
+    const appPaths = ['/dashboard', '/plan', '/terms', '/settings']
+    const isAppPath = appPaths.some(p => pathname.startsWith(p))
+
+    if (isAppPath || pathname.startsWith('/onboarding')) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('onboarding_complete')
@@ -53,7 +56,7 @@ export async function middleware(request: NextRequest) {
 
       const onboardingComplete = profile?.onboarding_complete ?? false
 
-      if (!onboardingComplete && pathname.startsWith('/dashboard')) {
+      if (!onboardingComplete && isAppPath) {
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
 

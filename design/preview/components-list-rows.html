@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .row-item { display:flex;align-items:center;gap:14px; padding:14px 16px; background:#fff; border-radius:14px; border:1px solid var(--beni-line); }
+  .row-item + .row-item { margin-top:8px }
+  .ico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; }
+  .title { font:600 15px var(--font-sans); color:var(--fg-1) }
+  .sub   { font:500 12px var(--font-sans); color:var(--fg-3); margin-top:2px }
+  .amt   { margin-left:auto; font:700 16px var(--font-sans); font-variant-numeric:tabular-nums; letter-spacing:-.01em }
+  .amt.neg { color:#0D1B2A }
+  .amt.pos { color:#2f7d4f }
+</style></head>
+<body><div class="card cream">
+  <div class="row-item">
+    <div class="ico" style="background:#dff0f8;color:#0586C3">⚕︎</div>
+    <div><div class="title">CVS MinuteClinic</div><div class="sub">Mar 14 · Approved · FSA</div></div>
+    <div class="amt neg">−$48.00</div>
+  </div>
+  <div class="row-item">
+    <div class="ico" style="background:#fdecd1;color:#b56a16">⏱</div>
+    <div><div class="title">Dr. Patel · annual cleaning</div><div class="sub">Mar 11 · Pending claim · Dental</div></div>
+    <div class="amt neg">−$120.00</div>
+  </div>
+  <div class="row-item">
+    <div class="ico" style="background:#e3f1e7;color:#2f7d4f">↻</div>
+    <div><div class="title">Reimbursement received</div><div class="sub">Mar 8 · Vanguard · HSA</div></div>
+    <div class="amt pos">+$210.00</div>
+  </div>
+</div></body></html>

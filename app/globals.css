@@ -1,26 +1,208 @@
 @import "tailwindcss";
 
+/* ── Beni Design Tokens ─────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette */
+  --beni-navy:        #004383;
+  --beni-sky:         #0586c3;
+  --beni-sun:         #ffff99;
+  --beni-peach:       #ffc799;
+  --beni-coral:       #ffa199;
+
+  /* Tints */
+  --beni-navy-12:     #e0e9f3;
+  --beni-navy-24:     #c2d3e6;
+  --beni-sky-12:      #dff0f8;
+  --beni-sky-24:      #bfe1f0;
+  --beni-sun-40:      #fffadb;
+  --beni-peach-40:    #ffeedd;
+  --beni-coral-40:    #ffe2dd;
+  --beni-cream:       #fbf6ee;
+  --beni-paper:       #ffffff;
+  --beni-ink:         #0d1b2a;
+  --beni-ink-2:       #2a3a4d;
+  --beni-ink-3:       #5b6b7d;
+  --beni-ink-4:       #8a96a4;
+  --beni-line:        #e8e3d8;
+  --beni-line-strong: #d6cfc1;
+
+  /* Semantic foreground */
+  --fg-1:             #0d1b2a;
+  --fg-2:             #2a3a4d;
+  --fg-3:             #5b6b7d;
+  --fg-4:             #8a96a4;
+  --fg-on-navy:       #f4ecde;
+  --fg-on-sky:        #ffffff;
+
+  /* Semantic backgrounds */
+  --bg-canvas:        #fbf6ee;
+  --bg-surface:       #ffffff;
+  --bg-sunken:        #f3ede1;
+  --bg-navy:          #004383;
+  --bg-sky:           #0586c3;
+
+  /* Actions */
+  --action-primary:         #004383;
+  --action-primary-hover:   #003266;
+  --action-primary-press:   #002653;
+  --action-secondary:       #0586c3;
+  --action-secondary-hover: #0570a3;
+
+  /* Status */
+  --status-positive:        #2f7d4f;
+  --status-positive-bg:     #e3f1e7;
+  --status-warning:         #b56a16;
+  --status-warning-bg:      #fdecd1;
+  --status-critical:        #b3322a;
+  --status-critical-bg:     #fde0dd;
+  --status-info:            #0586c3;
+  --status-info-bg:         #dff0f8;
+
+  /* Spacing (4-pt grid) */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  40px;
+  --space-9:  56px;
+  --space-10: 72px;
+  --space-11: 96px;
+
+  /* Radii */
+  --r-1:    4px;
+  --r-2:    8px;
+  --r-3:    12px;
+  --r-4:    16px;
+  --r-5:    20px;
+  --r-6:    28px;
+  --r-pill: 999px;
+
+  /* Borders */
+  --border-hairline: 1px solid #e8e3d8;
+  --border-strong:   1px solid #d6cfc1;
+  --border-ink:      1px solid #0d1b2a;
+
+  /* Shadows */
+  --shadow-1:     0 1px 2px rgba(13,27,42,.04), 0 1px 1px rgba(13,27,42,.03);
+  --shadow-2:     0 4px 12px rgba(13,27,42,.06), 0 1px 2px rgba(13,27,42,.04);
+  --shadow-3:     0 12px 28px rgba(13,27,42,.08), 0 2px 6px rgba(13,27,42,.04);
+  --shadow-4:     0 24px 48px rgba(13,27,42,.12), 0 4px 10px rgba(13,27,42,.05);
+  --shadow-inner: inset 0 0 0 1px rgba(13,27,42,.04);
+  --shadow-focus: 0 0 0 3px rgba(5,134,195,.32);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 520ms;
+
+  /* Layout */
+  --container-web: 1200px;
 }
 
+/* ── Tailwind theme bridge ───────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope), sans-serif;
+  --font-serif: var(--font-instrument-serif), serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ── Base reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-family: var(--font-manrope), sans-serif; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-canvas);
+  color: var(--fg-1);
+  font-family: var(--font-manrope), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Semantic type classes ───────────────────────────────────────────── */
+.t-display-xl { font-family: var(--font-instrument-serif), serif; font-style: italic; font-size: 56px; line-height: 1.02; letter-spacing: -0.02em; }
+.t-display-l  { font-family: var(--font-instrument-serif), serif; font-style: italic; font-size: 44px; line-height: 1.05; letter-spacing: -0.02em; }
+.t-display-m  { font-family: var(--font-instrument-serif), serif; font-style: italic; font-size: 34px; line-height: 1.08; letter-spacing: -0.015em; }
+.t-h1         { font-family: var(--font-manrope), sans-serif; font-weight: 700; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; }
+.t-h2         { font-family: var(--font-manrope), sans-serif; font-weight: 700; font-size: 22px; line-height: 1.20; letter-spacing: -0.01em; }
+.t-h3         { font-family: var(--font-manrope), sans-serif; font-weight: 600; font-size: 18px; line-height: 1.30; letter-spacing: -0.005em; }
+.t-body       { font-family: var(--font-manrope), sans-serif; font-weight: 400; font-size: 16px; line-height: 1.50; }
+.t-body-strong{ font-family: var(--font-manrope), sans-serif; font-weight: 600; font-size: 16px; line-height: 1.50; }
+.t-body-s     { font-family: var(--font-manrope), sans-serif; font-weight: 400; font-size: 14px; line-height: 1.45; }
+.t-caption    { font-family: var(--font-manrope), sans-serif; font-weight: 500; font-size: 12px; line-height: 1.35; letter-spacing: 0.02em; }
+.t-overline   { font-family: var(--font-manrope), sans-serif; font-weight: 600; font-size: 11px; line-height: 1.20; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-numeric-xl { font-family: var(--font-manrope), sans-serif; font-weight: 700; font-size: 48px; line-height: 1.0; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.t-numeric-l  { font-family: var(--font-manrope), sans-serif; font-weight: 700; font-size: 32px; line-height: 1.0; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; }
+.t-mono       { font-family: var(--font-jetbrains-mono), monospace; font-size: 13px; }
+
+/* ── Component primitives ────────────────────────────────────────────── */
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 48px; padding: 0 22px;
+  border-radius: var(--r-pill); border: none; cursor: pointer;
+  font-family: var(--font-manrope), sans-serif; font-weight: 600; font-size: 15px;
+  transition: background var(--dur-2) var(--ease-standard),
+              transform var(--dur-1) var(--ease-standard);
+  text-decoration: none;
+}
+.btn:active { transform: scale(0.98); }
+.btn-sm { height: 36px; padding: 0 16px; font-size: 13px; }
+.btn-lg { height: 52px; padding: 0 28px; font-size: 16px; }
+
+.btn-primary { background: var(--action-primary); color: #ffe9cf; }
+.btn-primary:hover { background: var(--action-primary-hover); }
+
+.btn-secondary { background: #fff; color: var(--fg-1); border: var(--border-strong); }
+.btn-secondary:hover { background: var(--bg-sunken); }
+
+.btn-ghost { background: transparent; color: var(--action-primary); }
+.btn-ghost:hover { background: var(--beni-navy-12); }
+
+.btn-danger { background: #b3322a; color: #fff; }
+
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Inputs */
+.input {
+  height: 48px; padding: 0 14px;
+  border-radius: var(--r-3); border: var(--border-strong);
+  background: #fff; width: 100%;
+  font-family: var(--font-manrope), sans-serif; font-weight: 500; font-size: 15px;
+  color: var(--fg-1); outline: none;
+  transition: border-color var(--dur-2) var(--ease-standard),
+              box-shadow var(--dur-2) var(--ease-standard);
+}
+.input::placeholder { color: var(--fg-4); }
+.input:focus { border-color: var(--beni-sky); box-shadow: var(--shadow-focus); }
+.input-error { border-color: #b3322a; }
+
+/* Cards */
+.card {
+  background: #fff; border: var(--border-hairline);
+  border-radius: var(--r-5); box-shadow: var(--shadow-1);
+  transition: box-shadow var(--dur-2) var(--ease-standard);
+}
+.card:hover { box-shadow: var(--shadow-2); }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center;
+  height: 22px; padding: 0 8px; border-radius: var(--r-2);
+  font-family: var(--font-manrope), sans-serif; font-weight: 600;
+  font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.badge-positive { background: var(--status-positive-bg); color: var(--status-positive); }
+.badge-warning  { background: var(--status-warning-bg);  color: var(--status-warning); }
+.badge-critical { background: var(--status-critical-bg); color: var(--status-critical); }
+.badge-info     { background: var(--status-info-bg);     color: var(--status-info); }
+.badge-new      { background: var(--beni-sun); color: var(--beni-ink); }

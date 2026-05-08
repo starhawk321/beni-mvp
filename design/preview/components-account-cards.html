@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .acct { background:#fff; border-radius:20px; padding:18px 20px; box-shadow:var(--shadow-2); position:relative; overflow:hidden;
+          border:1px solid var(--beni-line); }
+  .acct::before { content:""; position:absolute; left:0; top:0; bottom:0; width:6px; }
+  .acct.fsa::before { background:#FFA199 } .acct.hsa::before { background:#FFC799 }
+  .acct .top { display:flex; justify-content:space-between; align-items:flex-start; }
+  .acct .label { font:600 11px var(--font-sans); letter-spacing:.14em; text-transform:uppercase; color:var(--fg-3); }
+  .acct .name { font:700 17px var(--font-sans); color:var(--fg-1); margin-top:2px }
+  .acct .bal { font:700 32px var(--font-sans); font-variant-numeric:tabular-nums; letter-spacing:-.015em; margin-top:14px }
+  .acct .meta { font:500 12px var(--font-sans); color:var(--fg-3); margin-top:4px }
+  .pct { height:6px; background:#f3ede1; border-radius:999px; margin-top:12px; overflow:hidden }
+  .pct > div { height:100%; border-radius:999px }
+</style></head>
+<body><div class="card cream">
+  <div class="grid-2">
+    <div class="acct fsa">
+      <div class="top"><div><div class="label">FSA · Healthcare</div><div class="name">Flexible spending</div></div></div>
+      <div class="bal">$1,842.50</div>
+      <div class="meta">$2,300 of $3,300 used</div>
+      <div class="pct"><div style="width:69%;background:#FFA199"></div></div>
+    </div>
+    <div class="acct hsa">
+      <div class="top"><div><div class="label">HSA</div><div class="name">Fidelity HSA</div></div></div>
+      <div class="bal">$6,114.20</div>
+      <div class="meta">+$120 this month · invested 60%</div>
+      <div class="pct"><div style="width:42%;background:#FFC799"></div></div>
+    </div>
+  </div>
+</div></body></html>

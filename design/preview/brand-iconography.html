@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .ico-grid { display:grid;grid-template-columns:repeat(8,1fr);gap:14px;align-items:center;justify-items:center }
+  .ico-grid svg { width:28px;height:28px; color:#0D1B2A; stroke:#0D1B2A }
+  .ico-cell { display:flex;flex-direction:column;align-items:center;gap:6px }
+  .ico-cell span { font:500 10px var(--font-mono); color:var(--fg-3) }
+</style>
+</head>
+<body><div class="card">
+  <!-- Lucide icons via CDN — Beni's icon system is Lucide, 1.75 stroke -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <div class="ico-grid">
+    <div class="ico-cell"><i data-lucide="heart-pulse"></i><span>heart-pulse</span></div>
+    <div class="ico-cell"><i data-lucide="stethoscope"></i><span>stethoscope</span></div>
+    <div class="ico-cell"><i data-lucide="pill"></i><span>pill</span></div>
+    <div class="ico-cell"><i data-lucide="eye"></i><span>eye</span></div>
+    <div class="ico-cell"><i data-lucide="smile"></i><span>smile</span></div>
+    <div class="ico-cell"><i data-lucide="wallet"></i><span>wallet</span></div>
+    <div class="ico-cell"><i data-lucide="receipt"></i><span>receipt</span></div>
+    <div class="ico-cell"><i data-lucide="credit-card"></i><span>credit-card</span></div>
+    <div class="ico-cell"><i data-lucide="file-text"></i><span>file-text</span></div>
+    <div class="ico-cell"><i data-lucide="shield-check"></i><span>shield-check</span></div>
+    <div class="ico-cell"><i data-lucide="bell"></i><span>bell</span></div>
+    <div class="ico-cell"><i data-lucide="calendar"></i><span>calendar</span></div>
+    <div class="ico-cell"><i data-lucide="search"></i><span>search</span></div>
+    <div class="ico-cell"><i data-lucide="user-round"></i><span>user-round</span></div>
+    <div class="ico-cell"><i data-lucide="settings"></i><span>settings</span></div>
+    <div class="ico-cell"><i data-lucide="arrow-up-right"></i><span>arrow-up-right</span></div>
+  </div>
+  <div class="label" style="margin-top:14px">Lucide icons, 1.75 px stroke, ink color. Loaded from CDN — see ICONOGRAPHY in README.</div>
+  <script>lucide.createIcons({attrs:{"stroke-width":1.75}});</script>
+</div></body></html>

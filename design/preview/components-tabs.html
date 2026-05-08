@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .nav { display:flex; gap:4px; padding:8px; background:#fff; border-radius:999px; border:1px solid var(--beni-line); width:fit-content }
+  .tab { padding:10px 16px; border-radius:999px; font:600 13px var(--font-sans); color:var(--fg-3); cursor:pointer }
+  .tab.on { background:#0D1B2A; color:#fff }
+  .seg { display:flex; padding:4px; background:#f3ede1; border-radius:12px; width:fit-content }
+  .seg div { padding:8px 14px; border-radius:9px; font:600 12px var(--font-sans); color:var(--fg-2); cursor:pointer }
+  .seg div.on { background:#fff; color:var(--fg-1); box-shadow:var(--shadow-1) }
+</style></head>
+<body><div class="card">
+  <div class="nav">
+    <div class="tab on">Overview</div>
+    <div class="tab">Accounts</div>
+    <div class="tab">Claims</div>
+    <div class="tab">Documents</div>
+  </div>
+  <div class="seg" style="margin-top:14px">
+    <div class="on">Month</div><div>Quarter</div><div>Year</div>
+  </div>
+</div></body></html>

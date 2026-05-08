@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .nav { background:#fff; border-radius:24px; padding:10px; display:flex; justify-content:space-around; box-shadow:var(--shadow-2); border:1px solid var(--beni-line); }
+  .item { display:flex;flex-direction:column;align-items:center;gap:4px; padding:8px 14px; border-radius:16px; min-width:64px }
+  .item .lbl { font:600 11px var(--font-sans); color:var(--fg-3); letter-spacing:.02em }
+  .item.on { background:#0D1B2A }
+  .item.on .lbl { color:#FFE9CF }
+  .glyph { width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--fg-3) }
+  .item.on .glyph { color:#FFC799 }
+</style></head>
+<body><div class="card cream">
+  <div class="nav">
+    <div class="item on"><div class="glyph">⌂</div><div class="lbl">Home</div></div>
+    <div class="item"><div class="glyph">▢</div><div class="lbl">Accounts</div></div>
+    <div class="item"><div class="glyph">⊕</div><div class="lbl">Claim</div></div>
+    <div class="item"><div class="glyph">▤</div><div class="lbl">Records</div></div>
+    <div class="item"><div class="glyph">◔</div><div class="lbl">You</div></div>
+  </div>
+  <div class="label" style="margin-top:12px">Five-tab bottom nav. Active tab is ink-filled with a peach glyph.</div>
+</div></body></html>

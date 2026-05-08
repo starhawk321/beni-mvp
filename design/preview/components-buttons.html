@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css">
+<style>
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; height:48px; padding:0 22px;
+         border-radius:999px; font-family:var(--font-sans); font-weight:600; font-size:15px; border:0; cursor:pointer;
+         transition: transform var(--dur-1) var(--ease-standard), background var(--dur-2), color var(--dur-2); }
+  .btn-primary { background: var(--action-primary); color: #FFE9CF; }
+  .btn-primary:hover { background: var(--action-primary-hover); }
+  .btn-secondary { background: var(--bg-surface); color: var(--fg-1); border: 1px solid var(--beni-line-strong); }
+  .btn-secondary:hover { background: #f7f1e3; }
+  .btn-ghost { background: transparent; color: var(--action-primary); }
+  .btn-ghost:hover { background: var(--beni-navy-12); }
+  .btn-danger { background: #b3322a; color: #fff; }
+  .btn-sm { height: 36px; padding: 0 14px; font-size: 13px; }
+</style>
+</head>
+<body><div class="card">
+  <div class="row" style="flex-wrap:wrap;gap:10px">
+    <button class="btn btn-primary">Add a benefit</button>
+    <button class="btn btn-secondary">Skip for now</button>
+    <button class="btn btn-ghost">Learn more →</button>
+    <button class="btn btn-danger">Cancel claim</button>
+  </div>
+  <div class="row" style="margin-top:12px;gap:10px">
+    <button class="btn btn-primary btn-sm">Continue</button>
+    <button class="btn btn-secondary btn-sm">Edit</button>
+    <button class="btn btn-ghost btn-sm">View receipt</button>
+  </div>
+  <div class="label" style="margin-top:12px">Pill buttons. Primary is navy on cream. Default 48 / Compact 36.</div>
+</div></body></html>

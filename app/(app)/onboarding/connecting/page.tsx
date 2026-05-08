@@ -32,24 +32,34 @@ function ConnectingScreen() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    let step = 0
+    const timeouts: ReturnType<typeof setTimeout>[] = []
+    let cancelled = false
 
-    const advance = () => {
-      if (step >= STEPS.length) {
-        setDone(true)
-        markComplete()
-        return
-      }
-      setCurrentStep(step)
-      setTimeout(() => {
-        setCompletedSteps(prev => [...prev, step])
-        step++
-        setTimeout(advance, 300)
-      }, 900)
+    function runStep(index: number, delay: number) {
+      const t1 = setTimeout(() => {
+        if (cancelled) return
+        if (index >= STEPS.length) {
+          setDone(true)
+          markComplete()
+          return
+        }
+        setCurrentStep(index)
+        const t2 = setTimeout(() => {
+          if (cancelled) return
+          setCompletedSteps(prev => [...prev, index])
+          runStep(index + 1, 300)
+        }, 900)
+        timeouts.push(t2)
+      }, delay)
+      timeouts.push(t1)
     }
 
-    const timer = setTimeout(advance, 400)
-    return () => clearTimeout(timer)
+    runStep(0, 400)
+
+    return () => {
+      cancelled = true
+      timeouts.forEach(clearTimeout)
+    }
   }, [])
 
   async function markComplete() {

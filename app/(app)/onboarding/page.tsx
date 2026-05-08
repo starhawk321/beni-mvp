@@ -15,18 +15,8 @@ const insurers = [
 export default function OnboardingPage() {
   const router = useRouter()
 
-  async function handleSelect(insurerName: string) {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    await supabase
-      .from('profiles')
-      .update({ onboarding_complete: true })
-      .eq('id', user.id)
-
-    router.push('/dashboard')
-    router.refresh()
+  function handleSelect(insurerName: string) {
+    router.push(`/onboarding/connecting?insurer=${encodeURIComponent(insurerName)}`)
   }
 
   return (

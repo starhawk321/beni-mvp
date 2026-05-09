@@ -18,6 +18,14 @@ const CLAIM_ICONS: Record<string, string> = {
   vision:        '👁',
 }
 
+const CLAIM_LABELS: Record<string, string> = {
+  institutional: 'Hospital / Facility',
+  professional:  'Doctor Visit',
+  oral:          'Dental',
+  pharmacy:      'Prescription',
+  vision:        'Vision',
+}
+
 function fmt(n: number) {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 }
@@ -35,10 +43,11 @@ export default async function DashboardPage() {
   const initials = email.slice(0, 1).toUpperCase()
   const greeting = email.split('@')[0]
 
-  // Fetch real FHIR data from Supabase
-  const [{ data: coverage }, { data: claims }] = await Promise.all([
+  // Fetch real FHIR data + profile from Supabase
+  const [{ data: coverage }, { data: claims }, { data: profile }] = await Promise.all([
     supabase.from('fhir_coverage').select('*').eq('user_id', user!.id).single(),
     supabase.from('fhir_claims').select('*').eq('user_id', user!.id).order('service_date', { ascending: false }).limit(6),
+    supabase.from('profiles').select('selected_insurer').eq('id', user!.id).single(),
   ])
 
   const hasFHIRData = !!coverage || (!!claims && claims.length > 0)
@@ -49,7 +58,9 @@ export default async function DashboardPage() {
 
   const planName    = coverage?.plan_name    ?? 'Your plan'
   const planType    = coverage?.plan_type    ?? '—'
-  const insurerName = coverage?.insurer_name ?? (user ? 'Aetna' : '—')
+  const insurerName = coverage?.insurer_name && coverage.insurer_name !== 'Your insurer'
+    ? coverage.insurer_name
+    : (profile?.selected_insurer ?? 'Your insurer')
 
   // Mock deductible/OOP for now since FHIR sandbox doesn't expose these directly
   const deductibleMet   = Math.min(totalPatient, 3000)
@@ -171,8 +182,8 @@ export default async function DashboardPage() {
                         {CLAIM_ICONS[claim.claim_type] ?? '🏥'}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="t-body-strong" style={{ color: 'var(--fg-1)', textTransform: 'capitalize' }}>
-                          {claim.claim_type} claim
+                        <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>
+                          {CLAIM_LABELS[claim.claim_type] ?? 'Medical Claim'}
                         </p>
                         <p className="t-caption" style={{ color: 'var(--fg-4)' }}>{formatDate(claim.service_date)}</p>
                       </div>

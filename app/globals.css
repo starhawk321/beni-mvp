@@ -108,7 +108,7 @@
 }
 
 /* ── Dark mode token overrides ──────────────────────────────────────── */
-.dark {
+html.dark {
   /* Backgrounds */
   --bg-canvas:        #0d1b2a;
   --bg-surface:       #162234;

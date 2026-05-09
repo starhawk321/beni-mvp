@@ -108,7 +108,7 @@
 }
 
 /* ── Dark mode token overrides ──────────────────────────────────────── */
-html.dark {
+html[data-theme="dark"] {
   /* Backgrounds */
   --bg-canvas:        #0d1b2a;
   --bg-surface:       #162234;
@@ -205,7 +205,7 @@ body {
 .btn-primary { background: var(--action-primary); color: #ffe9cf; }
 .btn-primary:hover { background: var(--action-primary-hover); }
 
-.btn-secondary { background: #fff; color: var(--fg-1); border: var(--border-strong); }
+.btn-secondary { background: var(--bg-surface); color: var(--fg-1); border: var(--border-strong); }
 .btn-secondary:hover { background: var(--bg-sunken); }
 
 .btn-ghost { background: transparent; color: var(--action-primary); }
@@ -219,7 +219,7 @@ body {
 .input {
   height: 48px; padding: 0 14px;
   border-radius: var(--r-3); border: var(--border-strong);
-  background: #fff; width: 100%;
+  background: var(--bg-surface); width: 100%;
   font-family: var(--font-manrope), sans-serif; font-weight: 500; font-size: 15px;
   color: var(--fg-1); outline: none;
   transition: border-color var(--dur-2) var(--ease-standard),
@@ -231,7 +231,7 @@ body {
 
 /* Cards */
 .card {
-  background: #fff; border: var(--border-hairline);
+  background: var(--bg-surface); border: var(--border-hairline);
   border-radius: var(--r-5); box-shadow: var(--shadow-1);
   transition: box-shadow var(--dur-2) var(--ease-standard);
 }

@@ -7,7 +7,7 @@
     </linearGradient>
   </defs>
   <g transform="scale(0.88)">
-    <path fill-rule="evenodd" fill="url(#g2)" d="M 50 8 C 56 20, 80 44, 92 50 C 80 56, 56 80, 50 92 C 44 80, 20 56, 8 50 C 20 44, 44 20, 50 8 Z M 50 30 C 50 40 60 50 70 50 C 60 50 50 60 50 70 C 50 60 40 50 30 50 C 40 50 50 40 50 30 Z"/>
+    <path fill-rule="evenodd" fill="url(#g2)" d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z M 50 30 C 50 42 58 50 70 50 C 58 50 50 58 50 70 C 50 58 42 50 30 50 C 42 50 50 42 50 30 Z"/>
   </g>
   <text x="98" y="62" font-family="Manrope, system-ui, sans-serif" font-weight="800" font-size="64" fill="#FFFFFF" letter-spacing="-3">Béni</text>
 </svg>

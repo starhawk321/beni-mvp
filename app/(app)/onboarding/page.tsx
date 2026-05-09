@@ -24,7 +24,7 @@ export default function OnboardingPage() {
       {/* Sticky header */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(251,246,238,0.88)', backdropFilter: 'blur(12px)',
+        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
         borderBottom: 'var(--border-hairline)',
         padding: '0 28px', height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',

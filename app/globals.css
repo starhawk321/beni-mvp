@@ -105,10 +105,15 @@
 
   /* Layout */
   --container-web: 1200px;
+
+  /* Nav */
+  --nav-bg: rgba(251,246,238,0.88);
 }
 
 /* ── Dark mode token overrides ──────────────────────────────────────── */
 html[data-theme="dark"] {
+  --nav-bg: rgba(13,27,42,0.92);
+
   /* Backgrounds */
   --bg-canvas:        #0d1b2a;
   --bg-surface:       #162234;

@@ -16,7 +16,7 @@ export default function Logo({ height = 32 }: LogoProps) {
 
   const isDark = mounted && resolvedTheme === 'dark'
   const src = isDark ? '/assets/beni-logo-wordmark-dark.svg' : '/assets/beni-logo-wordmark.svg'
-  const width = height * (280 / 80)
+  const width = height * (320 / 88)
 
   return (
     <Image

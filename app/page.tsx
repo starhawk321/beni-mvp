@@ -62,7 +62,7 @@ export default function LandingPage() {
         }}>
           {/* Wordmark */}
           <div style={{ marginBottom: 40 }}>
-            <Logo height={48} />
+            <Logo height={72} />
           </div>
 
           {/* Pill badge */}

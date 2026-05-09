@@ -7,5 +7,5 @@
       <stop offset="100%" stop-color="#E55BB8"/>
     </linearGradient>
   </defs>
-  <path d="M50 4 C55 20 80 45 96 50 C80 55 55 80 50 96 C45 80 20 55 4 50 C20 45 45 20 50 4 Z" fill="url(#sparkle)"/>
+  <path d="M50 4 C66 4 96 34 96 50 C96 66 66 96 50 96 C34 96 4 66 4 50 C4 34 34 4 50 4 Z" fill="url(#sparkle)"/>
 </svg>

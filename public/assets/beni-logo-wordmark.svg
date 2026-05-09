@@ -8,7 +8,7 @@
     </linearGradient>
   </defs>
   <g transform="translate(3,3) scale(0.86)">
-    <path d="M50 4 C55 20 80 45 96 50 C80 55 55 80 50 96 C45 80 20 55 4 50 C20 45 45 20 50 4 Z" fill="url(#g)"/>
+    <path d="M50 4 C66 4 96 34 96 50 C96 66 66 96 50 96 C34 96 4 66 4 50 C4 34 34 4 50 4 Z" fill="url(#g)"/>
   </g>
   <text x="94" y="64" font-family="Manrope, system-ui, sans-serif" font-weight="800" font-size="64" fill="#0D1B2A" letter-spacing="-3">Béni</text>
 </svg>

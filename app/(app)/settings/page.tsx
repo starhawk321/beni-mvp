@@ -54,6 +54,14 @@ export default async function SettingsPage() {
         <section style={{ marginBottom: 28 }}>
           <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Account</p>
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            {(profile?.first_name || profile?.last_name) && (
+              <div style={{ padding: '16px 20px', borderBottom: 'var(--border-hairline)' }}>
+                <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Name</p>
+                <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>
+                  {[profile.first_name, profile.last_name].filter(Boolean).join(' ')}
+                </p>
+              </div>
+            )}
             <div style={{ padding: '16px 20px', borderBottom: 'var(--border-hairline)' }}>
               <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Email</p>
               <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>{user?.email}</p>

@@ -39,18 +39,20 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const email    = user?.email ?? ''
-  const initials = email.slice(0, 1).toUpperCase()
-  const greeting = email.split('@')[0]
+  const email = user?.email ?? ''
 
   // Fetch real FHIR data + profile from Supabase
   const [{ data: coverage }, { data: claims }, { data: profile }] = await Promise.all([
     supabase.from('fhir_coverage').select('*').eq('user_id', user!.id).single(),
     supabase.from('fhir_claims').select('*').eq('user_id', user!.id).order('service_date', { ascending: false }).limit(6),
-    supabase.from('profiles').select('selected_insurer').eq('id', user!.id).single(),
+    supabase.from('profiles').select('selected_insurer, first_name').eq('id', user!.id).single(),
   ])
 
   const hasFHIRData = !!coverage || (!!claims && claims.length > 0)
+
+  // Greeting — use first_name if available, fall back to email prefix
+  const greeting = profile?.first_name ?? email.split('@')[0]
+  const initials = (profile?.first_name ?? email).slice(0, 1).toUpperCase()
 
   // Spending calculations from real claims
   const totalPaid    = claims?.reduce((s, c) => s + (c.amount_paid ?? 0), 0) ?? 0

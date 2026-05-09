@@ -107,6 +107,49 @@
   --container-web: 1200px;
 }
 
+/* ── Dark mode token overrides ──────────────────────────────────────── */
+.dark {
+  /* Backgrounds */
+  --bg-canvas:        #0d1b2a;
+  --bg-surface:       #162234;
+  --bg-sunken:        #091420;
+
+  /* Foreground */
+  --fg-1:             #f0e8d8;
+  --fg-2:             #c8bfb0;
+  --fg-3:             #7a8a9a;
+  --fg-4:             #4a5a6a;
+  --fg-on-navy:       #f4ecde;
+
+  /* Tints — darker versions */
+  --beni-navy-12:     #0e2035;
+  --beni-navy-24:     #162840;
+  --beni-sky-12:      #0b2535;
+  --beni-sky-24:      #0e3045;
+  --beni-sun-40:      #2a2a00;
+  --beni-peach-40:    #2a1a00;
+  --beni-coral-40:    #2a0f0f;
+
+  /* Lines */
+  --beni-line:        #1e3045;
+  --beni-line-strong: #2a3d55;
+
+  /* Shadows — stronger in dark mode */
+  --shadow-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 1px rgba(0,0,0,.2);
+  --shadow-2: 0 4px 12px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  --shadow-3: 0 12px 28px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.3);
+
+  /* Borders */
+  --border-hairline: 1px solid #1e3045;
+  --border-strong:   1px solid #2a3d55;
+
+  /* Status backgrounds — muted for dark */
+  --status-positive-bg: rgba(47,125,79,.2);
+  --status-warning-bg:  rgba(181,106,22,.2);
+  --status-critical-bg: rgba(179,50,42,.2);
+  --status-info-bg:     rgba(5,134,195,.2);
+}
+
 /* ── Tailwind theme bridge ───────────────────────────────────────────── */
 @theme inline {
   --font-sans: var(--font-manrope), sans-serif;

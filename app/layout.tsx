@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -33,7 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full ${manrope.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="min-h-full flex flex-col antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

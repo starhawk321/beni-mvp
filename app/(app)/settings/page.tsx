@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Logo from '@/components/Logo'
 import SignOutButton from '@/components/SignOutButton'
+import ThemeToggle from '@/components/ThemeToggle'
 import Link from 'next/link'
 
 const navTabs = [
@@ -99,7 +100,19 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Danger zone */}
+        {/* Appearance */}
+        <section style={{ marginBottom: 28 }}>
+          <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Appearance</p>
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>Theme</p>
+              <p className="t-caption" style={{ color: 'var(--fg-4)' }}>Switch between light and dark mode</p>
+            </div>
+            <ThemeToggle />
+          </div>
+        </section>
+
+        {/* Session */}
         <section>
           <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Session</p>
           <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

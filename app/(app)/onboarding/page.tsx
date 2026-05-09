@@ -38,7 +38,7 @@ export default function OnboardingPage() {
         </div>
       </header>
 
-      <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '56px 28px' }}>
+      <main className="beni-main">
         <h1 className="t-display-l" style={{ color: 'var(--fg-1)', marginBottom: 12, maxWidth: 600 }}>
           Pick your insurer. We'll do the rest.
         </h1>
@@ -58,7 +58,7 @@ export default function OnboardingPage() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, maxWidth: 680 }}>
+        <div className="beni-insurer-grid">
           {insurers.map((ins) => (
             <button
               key={ins.name}

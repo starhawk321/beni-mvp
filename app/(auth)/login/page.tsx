@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { friendlyAuthError } from '@/lib/auth/errors'
 import Logo from '@/components/Logo'
 
 export default function LoginPage() {
@@ -22,7 +23,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError(error.message)
+      setError(friendlyAuthError(error.message))
       setLoading(false)
       return
     }

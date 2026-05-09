@@ -88,7 +88,7 @@ export default async function DashboardPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Logo height={28} />
-        <nav style={{ display: 'flex', gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
+        <nav className="beni-nav-pills" style={{ gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
           {navTabs.map((tab) => (
             <Link key={tab.label} href={tab.href} style={{
               height: 32, padding: '0 16px', borderRadius: 'var(--r-pill)',
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
+      <main className="beni-main">
         <h1 className="t-display-l" style={{ color: 'var(--fg-1)', marginBottom: 28 }}>
           Hello, {greeting}.
         </h1>
@@ -128,7 +128,7 @@ export default async function DashboardPage() {
           <div style={{ position: 'absolute', bottom: -60, right: -20, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,153,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
           <p className="t-overline" style={{ color: 'rgba(244,236,222,0.6)', marginBottom: 8 }}>Total out-of-pocket this year</p>
-          <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 64, color: '#fff', fontVariantNumeric: 'tabular-nums', marginBottom: 24 }}>
+          <p className="beni-hero-number" style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 64, color: '#fff', fontVariantNumeric: 'tabular-nums', marginBottom: 24 }}>
             {fmt(hasFHIRData ? totalPatient : 0)}
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -145,13 +145,13 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, alignItems: 'start' }}>
+        <div className="beni-dashboard-grid">
           {/* Main column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {/* Account cards */}
             <div>
               <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 14 }}>Your accounts</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="beni-accounts-grid">
                 {accountCards.map((acct) => (
                   <Link key={acct.label} href="/plan" style={{ textDecoration: 'none' }}>
                     <div className="card" style={{ padding: 22, borderLeft: `6px solid ${acct.color}`, cursor: 'pointer' }}>

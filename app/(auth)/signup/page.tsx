@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { friendlyAuthError } from '@/lib/auth/errors'
 import Logo from '@/components/Logo'
 
 const GENDER_OPTIONS = ['Male', 'Female', 'Non-binary', 'Prefer not to say']
@@ -51,7 +52,7 @@ export default function SignupPage() {
     })
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(friendlyAuthError(signUpError.message))
       setLoading(false)
       return
     }

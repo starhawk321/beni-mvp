@@ -80,7 +80,7 @@ export default function TermsPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Logo height={28} />
-        <nav style={{ display: 'flex', gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
+        <nav className="beni-nav-pills" style={{ gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
           {navTabs.map((tab) => (
             <Link key={tab.label} href={tab.href} style={{
               height: 32, padding: '0 16px', borderRadius: 'var(--r-pill)',

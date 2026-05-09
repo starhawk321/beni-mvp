@@ -254,3 +254,61 @@ body {
 .badge-critical { background: var(--status-critical-bg); color: var(--status-critical); }
 .badge-info     { background: var(--status-info-bg);     color: var(--status-info); }
 .badge-new      { background: var(--beni-sun); color: var(--beni-ink); }
+
+/* ── Responsive layout helpers ───────────────────────────────────────── */
+.beni-page      { min-height: 100vh; background: var(--bg-canvas); }
+.beni-main      { max-width: var(--container-web); margin: 0 auto; padding: 40px 28px; }
+
+/* Dashboard: main + sidebar side-by-side on desktop, stacked on mobile */
+.beni-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* 2-column account cards on desktop, 1 column on mobile */
+.beni-accounts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 2-column onboarding insurer grid on desktop, 1 column on mobile */
+.beni-insurer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 680px;
+}
+
+/* 3-column landing features on desktop, 1 column on mobile */
+.beni-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Nav pills — hide on small screens */
+.beni-nav-pills { display: flex; }
+
+@media (max-width: 768px) {
+  .beni-main { padding: 20px 16px; }
+
+  .beni-dashboard-grid { grid-template-columns: 1fr; }
+  .beni-accounts-grid  { grid-template-columns: 1fr; }
+  .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
+  .beni-features-grid  { grid-template-columns: 1fr; }
+  .beni-nav-pills      { display: none; }
+
+  .auth-card { padding: 24px 20px; }
+
+  /* Smaller hero balance number on mobile */
+  .beni-hero-number { font-size: 40px !important; }
+
+  /* Hero card padding */
+  .beni-hero-card { padding: 24px 20px !important; }
+
+  /* Greeting size */
+  .t-display-l { font-size: 28px !important; }
+}

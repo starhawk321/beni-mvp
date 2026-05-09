@@ -7,8 +7,8 @@
       <stop offset="100%" stop-color="#E55BB8"/>
     </linearGradient>
   </defs>
-  <g transform="translate(4,4) scale(0.8)">
-    <path d="M50 4 C50 27 73 50 96 50 C73 50 50 73 50 96 C50 73 27 50 4 50 C27 50 50 27 50 4 Z" fill="url(#g2)"/>
+  <g transform="translate(3,3) scale(0.86)">
+    <path d="M50 4 C55 20 80 45 96 50 C80 55 55 80 50 96 C45 80 20 55 4 50 C20 45 45 20 50 4 Z" fill="url(#g2)"/>
   </g>
   <text x="94" y="64" font-family="Manrope, system-ui, sans-serif" font-weight="800" font-size="64" fill="#FFFFFF" letter-spacing="-3">Béni</text>
 </svg>

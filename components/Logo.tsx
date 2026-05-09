@@ -1,12 +1,21 @@
+'use client'
+
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 
 interface LogoProps {
   height?: number
-  dark?: boolean
 }
 
-export default function Logo({ height = 32, dark = false }: LogoProps) {
-  const src = dark ? '/assets/beni-logo-wordmark-dark.svg' : '/assets/beni-logo-wordmark.svg'
+export default function Logo({ height = 32 }: LogoProps) {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  const isDark = mounted && resolvedTheme === 'dark'
+  const src = isDark ? '/assets/beni-logo-wordmark-dark.svg' : '/assets/beni-logo-wordmark.svg'
   const width = height * (280 / 80)
 
   return (

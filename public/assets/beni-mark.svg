@@ -6,19 +6,5 @@
       <stop offset="100%" stop-color="#9B5BFF"/>
     </linearGradient>
   </defs>
-  <!--
-    5-petal flower: waist points at diagonals (37,32)(63,32)(71,57)(50,72)(29,57)
-    Petal tips at: top(50,8) upper-right(90,37) lower-right(75,84) lower-left(25,84) upper-left(10,37)
-    Inner sparkle cutout via evenodd
-  -->
-  <path fill-rule="evenodd" fill="url(#g)" d="
-    M 37 32
-    C 45 13, 55 13, 63 32
-    C 81 35, 84 44, 71 57
-    C 74 75, 67 80, 50 72
-    C 33 80, 26 75, 29 57
-    C 16 44, 19 35, 37 32
-    Z
-    M 50 30 C 50 40 60 50 70 50 C 60 50 50 60 50 70 C 50 60 40 50 30 50 C 40 50 50 40 50 30 Z
-  "/>
+  <path fill-rule="evenodd" fill="url(#g)" d="M 37 32 C 45 13, 55 13, 63 32 C 81 35, 84 44, 71 57 C 74 75, 67 80, 50 72 C 33 80, 26 75, 29 57 C 16 44, 19 35, 37 32 Z M 50 36 C 57 36 64 43 64 50 C 64 57 57 64 50 64 C 43 64 36 57 36 50 C 36 43 43 36 50 36 Z"/>
 </svg>

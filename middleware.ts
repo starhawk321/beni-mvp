@@ -50,19 +50,28 @@ export async function middleware(request: NextRequest) {
     const isVerifying  = pathname.startsWith('/onboarding/verify')
 
     if (isAppPath || pathname.startsWith('/onboarding')) {
-      const { data: profile } = await supabase
+      // Skip onboarding check while on connecting/verify — those pages handle their own redirects
+      if (isConnecting || isVerifying) return supabaseResponse
+
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_complete')
         .eq('id', user.id)
         .single()
 
-      const onboardingComplete = profile?.onboarding_complete ?? false
+      // If profile row missing, let them through to onboarding to create it
+      if (profileError || !profile) {
+        if (isAppPath) return NextResponse.redirect(new URL('/onboarding', request.url))
+        return supabaseResponse
+      }
+
+      const onboardingComplete = profile.onboarding_complete ?? false
 
       if (!onboardingComplete && isAppPath) {
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
 
-      if (onboardingComplete && pathname.startsWith('/onboarding') && !isConnecting && !isVerifying) {
+      if (onboardingComplete && pathname.startsWith('/onboarding')) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     }

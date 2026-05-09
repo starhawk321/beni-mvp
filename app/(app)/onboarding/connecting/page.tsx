@@ -67,11 +67,15 @@ function ConnectingScreen() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // Save selected insurer and mark onboarding complete
+    // Upsert profile — handles case where trigger didn't create the row
     await supabase
       .from('profiles')
-      .update({ onboarding_complete: true, selected_insurer: insurer })
-      .eq('id', user.id)
+      .upsert({
+        id:                  user.id,
+        email:               user.email ?? '',
+        onboarding_complete: true,
+        selected_insurer:    insurer,
+      }, { onConflict: 'id' })
 
     // Trigger FHIR sync — check for conflicts in response
     let destination = '/dashboard'

@@ -60,6 +60,11 @@ export default function LandingPage() {
           padding: '96px 28px 80px',
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
         }}>
+          {/* Wordmark */}
+          <div style={{ marginBottom: 40 }}>
+            <Logo height={48} />
+          </div>
+
           {/* Pill badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,

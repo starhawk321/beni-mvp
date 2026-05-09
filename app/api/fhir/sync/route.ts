@@ -23,9 +23,10 @@ export async function POST() {
     const claims = parseEOBs(eobResources)
     const spending = calculateSpending(claims)
 
-    // Upsert coverage into Supabase
+    // Store coverage — delete then insert to avoid upsert unique constraint issues
     if (coverage) {
-      await supabase.from('fhir_coverage').upsert({
+      await supabase.from('fhir_coverage').delete().eq('user_id', user.id)
+      await supabase.from('fhir_coverage').insert({
         user_id:       user.id,
         insurer_name:  coverage.insurerName,
         plan_name:     coverage.planName,
@@ -36,7 +37,7 @@ export async function POST() {
         status:        coverage.status,
         raw:           coverageResources[0],
         synced_at:     new Date().toISOString(),
-      }, { onConflict: 'user_id' })
+      })
     }
 
     // Insert claims (delete old ones first to avoid duplicates)

@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     supabase.from('fhir_claims').select('*').eq('user_id', user!.id).order('service_date', { ascending: false }).limit(6),
   ])
 
-  const hasFHIRData = !!coverage
+  const hasFHIRData = !!coverage || (!!claims && claims.length > 0)
 
   // Spending calculations from real claims
   const totalPaid    = claims?.reduce((s, c) => s + (c.amount_paid ?? 0), 0) ?? 0

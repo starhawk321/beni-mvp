@@ -1,5 +1,9 @@
 -- Run this in Supabase SQL Editor
 
+-- Add pending_conflicts column to profiles
+alter table public.profiles
+  add column if not exists pending_conflicts jsonb;
+
 -- 1. Add selected_insurer to profiles
 alter table public.profiles
   add column if not exists selected_insurer text;

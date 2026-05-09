@@ -73,15 +73,18 @@ function ConnectingScreen() {
       .update({ onboarding_complete: true, selected_insurer: insurer })
       .eq('id', user.id)
 
-    // Trigger FHIR sync in background — don't block redirect on failure
+    // Trigger FHIR sync — check for conflicts in response
+    let destination = '/dashboard'
     try {
-      await fetch('/api/fhir/sync', { method: 'POST' })
+      const res  = await fetch('/api/fhir/sync', { method: 'POST' })
+      const data = await res.json()
+      if (data.hasConflicts) destination = '/onboarding/verify'
     } catch {
-      // Sync failure is non-blocking — dashboard falls back to placeholder
+      // Sync failure is non-blocking — fall through to dashboard
     }
 
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push(destination)
       router.refresh()
     }, 2200)
   }

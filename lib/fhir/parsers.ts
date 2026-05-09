@@ -1,4 +1,4 @@
-import type { FHIRCoverage, FHIRExplanationOfBenefit } from './client'
+import type { FHIRCoverage, FHIRExplanationOfBenefit, FHIRPatient } from './client'
 
 export type ParsedCoverage = {
   id: string
@@ -126,4 +126,34 @@ function resolveContainedCoverage(eob: FHIRExplanationOfBenefit): string | null 
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100
+}
+
+// ── Patient parser ────────────────────────────────────────────────────────────
+
+export type ParsedPatient = {
+  firstName: string | null
+  lastName: string | null
+  dateOfBirth: string | null
+  gender: string | null
+  memberId: string | null
+}
+
+export function parsePatient(resource: FHIRPatient): ParsedPatient {
+  const name = resource.name?.[0]
+
+  const rawGender = resource.gender ?? null
+  const gender = rawGender
+    ? rawGender.charAt(0).toUpperCase() + rawGender.slice(1)
+    : null
+
+  const memberId =
+    resource.id ?? null
+
+  return {
+    firstName:   name?.given?.[0] ?? null,
+    lastName:    name?.family ?? null,
+    dateOfBirth: resource.birthDate ?? null,
+    gender,
+    memberId,
+  }
 }

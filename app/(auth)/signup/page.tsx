@@ -64,21 +64,19 @@ export default function SignupPage() {
     // or pending confirmation. Update profile either way.
     const userId = data.user?.id
     if (userId) {
-      await supabase.from('profiles').update({
+      await supabase.from('profiles').upsert({
+        id:            userId,
+        email:         form.email,
         first_name:    form.firstName,
         last_name:     form.lastName,
         date_of_birth: form.dob || null,
         gender:        form.gender || null,
-      }).eq('id', userId)
+      }, { onConflict: 'id' })
     }
 
-    // If email confirmation is off, user is immediately logged in
-    if (data.session) {
-      router.push('/onboarding')
-      router.refresh()
-    } else {
-      setConfirmed(true)
-    }
+    // Redirect to onboarding — works whether email confirmation is on or off
+    router.push('/onboarding')
+    router.refresh()
 
     setLoading(false)
   }

@@ -65,10 +65,15 @@ function ConnectingScreen() {
   async function markComplete() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
 
-    // Upsert profile — handles case where trigger didn't create the row
-    await supabase
+    // If no session, redirect to login
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    // Upsert profile — handles missing row and RLS insert policy
+    const { error: upsertError } = await supabase
       .from('profiles')
       .upsert({
         id:                  user.id,
@@ -76,6 +81,14 @@ function ConnectingScreen() {
         onboarding_complete: true,
         selected_insurer:    insurer,
       }, { onConflict: 'id' })
+
+    // If upsert failed (e.g. RLS), fall back to update
+    if (upsertError) {
+      await supabase
+        .from('profiles')
+        .update({ onboarding_complete: true, selected_insurer: insurer })
+        .eq('id', user.id)
+    }
 
     // Trigger FHIR sync — check for conflicts in response
     let destination = '/dashboard'

@@ -46,6 +46,7 @@ export default async function SettingsPage() {
           ))}
         </nav>
         <SignOutButton />
+        <HamburgerMenu />
       </header>
       <main style={{ maxWidth: 640, margin: '0 auto', padding: '40px 28px' }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 32 }}>Settings</h1>

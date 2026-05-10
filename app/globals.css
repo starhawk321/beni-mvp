@@ -299,7 +299,30 @@ body {
   .beni-accounts-grid  { grid-template-columns: 1fr; }
   .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
   .beni-features-grid  { grid-template-columns: 1fr; }
-  .beni-nav-pills      { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .beni-nav-pills {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border-top: var(--border-hairline);
+    padding: 8px 12px;
+    gap: 4px;
+    z-index: 20;
+    box-shadow: 0 -2px 12px rgba(13,27,42,.08);
+  }
+  .beni-nav-pills a {
+    flex: 1;
+    justify-content: center;
+    font-size: 11px !important;
+    padding: 0 8px !important;
+    height: 36px !important;
+  }
+  /* Add bottom padding to pages so content isn't hidden behind nav */
+  .beni-main { padding-bottom: 80px; }
 
   .auth-card { padding: 24px 20px; }
 

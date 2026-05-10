@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Logo from '@/components/Logo'
+import MobileNav from '@/components/MobileNav'
 import SignOutButton from '@/components/SignOutButton'
 import ThemeToggle from '@/components/ThemeToggle'
 import Link from 'next/link'
@@ -46,6 +47,7 @@ export default async function SettingsPage() {
         </nav>
         <SignOutButton />
       </header>
+      <MobileNav />
 
       <main style={{ maxWidth: 640, margin: '0 auto', padding: '40px 28px' }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 32 }}>Settings</h1>

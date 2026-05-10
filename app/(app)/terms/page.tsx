@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
-import MobileNav from '@/components/MobileNav'
+import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 
 const navTabs = [
@@ -96,8 +96,6 @@ export default function TermsPage() {
         </nav>
         <SignOutButton />
       </header>
-      <MobileNav />
-
       <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 8 }}>Insurance terms, plain English</h1>
         <p className="t-body" style={{ color: 'var(--fg-3)', marginBottom: 40 }}>

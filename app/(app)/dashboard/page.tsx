@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Logo from '@/components/Logo'
-import MobileNav from '@/components/MobileNav'
+import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 import Link from 'next/link'
 
@@ -112,10 +112,9 @@ export default async function DashboardPage() {
             {initials}
           </div>
           <SignOutButton />
+          <HamburgerMenu />
         </div>
       </header>
-      <MobileNav />
-
       <main className="beni-main">
         <h1 className="t-display-l" style={{ color: 'var(--fg-1)', marginBottom: 28 }}>
           Hello, {greeting}.

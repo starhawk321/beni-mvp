@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
-import MobileNav from '@/components/MobileNav'
+import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 
 const navTabs = [
@@ -87,10 +87,9 @@ export default function PlanPage() {
         </nav>
         <div style={{ display: 'flex', gap: 12 }}>
           <SignOutButton />
+          <HamburgerMenu />
         </div>
       </header>
-      <MobileNav />
-
       <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>Plan details</h1>
         <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 36 }}>Aetna Choice POS II · PPO · Effective Jan 1, 2026</p>

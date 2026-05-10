@@ -256,7 +256,7 @@ body {
 .badge-new      { background: var(--beni-sun); color: var(--beni-ink); }
 
 /* Hamburger: hidden on desktop, shown on mobile */
-.beni-hamburger { display: none; }
+.beni-hamburger { display: none !important; }
 
 /* ── Responsive layout helpers ───────────────────────────────────────── */
 .beni-page      { min-height: 100vh; background: var(--bg-canvas); }
@@ -302,8 +302,8 @@ body {
   .beni-accounts-grid  { grid-template-columns: 1fr; }
   .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
   .beni-features-grid  { grid-template-columns: 1fr; }
-  .beni-nav-pills  { display: none; }
-  .beni-hamburger  { display: flex; }
+  .beni-nav-pills  { display: none !important; }
+  .beni-hamburger  { display: flex !important; }
 
   .auth-card { padding: 24px 20px; }
 

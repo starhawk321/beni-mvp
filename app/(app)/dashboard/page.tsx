@@ -127,9 +127,11 @@ export default async function DashboardPage() {
           <div style={{ position: 'absolute', top: -40, right: 80, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,161,153,0.35) 0%, transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: -60, right: -20, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,153,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-          <p className="t-overline" style={{ color: 'rgba(244,236,222,0.6)', marginBottom: 8 }}>Total out-of-pocket this year</p>
+          <p className="t-overline" style={{ color: 'rgba(244,236,222,0.6)', marginBottom: 8 }}>
+            {hasFHIRData ? 'Total out-of-pocket this year' : 'No insurer connected'}
+          </p>
           <p className="beni-hero-number" style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 64, color: '#fff', fontVariantNumeric: 'tabular-nums', marginBottom: 24 }}>
-            {fmt(hasFHIRData ? totalPatient : 0)}
+            {hasFHIRData ? fmt(totalPatient) : '—'}
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {[
@@ -151,17 +153,45 @@ export default async function DashboardPage() {
             {/* Account cards */}
             <div>
               <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 14 }}>Your accounts</p>
-              <div className="beni-accounts-grid">
-                {accountCards.map((acct) => (
-                  <Link key={acct.label} href="/plan" style={{ textDecoration: 'none' }}>
-                    <div className="card" style={{ padding: 22, borderLeft: `6px solid ${acct.color}`, cursor: 'pointer' }}>
-                      <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 8 }}>{acct.label}</p>
-                      <p className="t-numeric-l" style={{ color: 'var(--fg-1)', marginBottom: 4 }}>{acct.balance}</p>
-                      <p className="t-caption" style={{ color: 'var(--fg-4)' }}>{acct.sub}</p>
-                    </div>
+              {hasFHIRData ? (
+                <div className="beni-accounts-grid">
+                  {accountCards.map((acct) => (
+                    <Link key={acct.label} href="/plan" style={{ textDecoration: 'none' }}>
+                      <div className="card" style={{ padding: 22, borderLeft: `6px solid ${acct.color}`, cursor: 'pointer' }}>
+                        <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 8 }}>{acct.label}</p>
+                        <p className="t-numeric-l" style={{ color: 'var(--fg-1)', marginBottom: 4 }}>{acct.balance}</p>
+                        <p className="t-caption" style={{ color: 'var(--fg-4)' }}>{acct.sub}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  background: 'var(--bg-surface)', border: 'var(--border-hairline)',
+                  borderRadius: 'var(--r-5)', padding: '36px 24px',
+                  textAlign: 'center', boxShadow: 'var(--shadow-1)',
+                }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 'var(--r-3)',
+                    background: 'var(--beni-navy-12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 22, margin: '0 auto 16px',
+                  }}>🔗</div>
+                  <p className="t-body-strong" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>No accounts synced</p>
+                  <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 20 }}>
+                    Connect your insurer to see your plan details, deductible, and spending.
+                  </p>
+                  <Link href="/onboarding" style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    height: 36, padding: '0 18px', borderRadius: 'var(--r-pill)',
+                    background: 'var(--action-primary)', color: '#ffe9cf',
+                    fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                    fontFamily: 'var(--font-manrope), sans-serif',
+                  }}>
+                    Connect insurer
                   </Link>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Claims feed */}

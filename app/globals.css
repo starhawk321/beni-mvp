@@ -299,7 +299,7 @@ body {
   .beni-accounts-grid  { grid-template-columns: 1fr; }
   .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
   .beni-features-grid  { grid-template-columns: 1fr; }
-  .beni-nav-pills      { display: none; }
+  .beni-nav-pills      { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
   .auth-card { padding: 24px 20px; }
 

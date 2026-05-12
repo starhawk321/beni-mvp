@@ -1,0 +1,72 @@
+import { NextResponse, type NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+
+const CMS_TOKEN_URL = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const code  = searchParams.get('code')
+  const state = searchParams.get('state')
+
+  if (!code || !state) {
+    return NextResponse.redirect(new URL('/dashboard?error=missing_params', request.url))
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Retrieve stored state + code_verifier
+  const { data: oauthState } = await supabase
+    .from('cms_oauth_state')
+    .select('state, code_verifier')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!oauthState || oauthState.state !== state) {
+    return NextResponse.redirect(new URL('/dashboard?error=invalid_state', request.url))
+  }
+
+  // Exchange code for access token
+  const tokenRes = await fetch(CMS_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type:    'authorization_code',
+      code,
+      redirect_uri:  process.env.FHIR_CMS_REDIRECT_URI!,
+      client_id:     process.env.FHIR_CMS_CLIENT_ID!,
+      client_secret: process.env.FHIR_CMS_CLIENT_SECRET!,
+      code_verifier: oauthState.code_verifier,
+    }),
+  })
+
+  if (!tokenRes.ok) {
+    console.error('CMS token exchange failed:', await tokenRes.text())
+    return NextResponse.redirect(new URL('/dashboard?error=token_exchange_failed', request.url))
+  }
+
+  const token = await tokenRes.json()
+  const accessToken = token.access_token
+  const patientId   = token.patient
+
+  // Store token + patient ID in Supabase
+  await supabase.from('fhir_tokens').upsert({
+    user_id:      user.id,
+    payer:        'cms',
+    access_token: accessToken,
+    patient_id:   patientId,
+    expires_at:   new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
+  }, { onConflict: 'user_id,payer' })
+
+  // Clean up oauth state
+  await supabase.from('cms_oauth_state').delete().eq('user_id', user.id)
+
+  // Trigger FHIR sync with the real token
+  await fetch(new URL('/api/fhir/sync', request.url), { method: 'POST' })
+
+  return NextResponse.redirect(new URL('/dashboard', request.url))
+}

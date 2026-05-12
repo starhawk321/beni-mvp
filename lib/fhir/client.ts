@@ -1,4 +1,5 @@
-const FHIR_BASE = 'https://r4.smarthealthit.org'
+const SMART_BASE = 'https://r4.smarthealthit.org'
+const CMS_BASE   = 'https://sandbox.bluebutton.cms.gov/v2/fhir'
 
 // Test patient IDs with confirmed data in the SMART sandbox
 export const SANDBOX_PATIENTS = {
@@ -12,15 +13,23 @@ export type FHIRBundle<T> = {
   entry?: Array<{ resource: T }>
 }
 
-async function fetchFHIR<T>(path: string): Promise<FHIRBundle<T>> {
-  const res = await fetch(`${FHIR_BASE}/${path}`, {
-    headers: { Accept: 'application/fhir+json' },
+async function fetchFHIR<T>(
+  path: string,
+  options: { base?: string; token?: string } = {}
+): Promise<FHIRBundle<T>> {
+  const base    = options.base ?? SMART_BASE
+  const headers: Record<string, string> = { Accept: 'application/fhir+json' }
+  if (options.token) headers['Authorization'] = `Bearer ${options.token}`
+
+  const res = await fetch(`${base}/${path}`, {
+    headers,
     next: { revalidate: 0 },
   })
   if (!res.ok) throw new Error(`FHIR fetch failed: ${res.status} ${path}`)
   return res.json()
 }
 
+// Open SMART sandbox (no auth)
 export async function fetchCoverage(patientId: string) {
   return fetchFHIR<FHIRCoverage>(`Coverage?patient=${patientId}&_count=10`)
 }
@@ -30,11 +39,38 @@ export async function fetchEOBs(patientId: string) {
 }
 
 export async function fetchPatient(patientId: string) {
-  const res = await fetch(`${FHIR_BASE}/Patient/${patientId}`, {
+  const res = await fetch(`${SMART_BASE}/Patient/${patientId}`, {
     headers: { Accept: 'application/fhir+json' },
     next: { revalidate: 0 },
   })
   if (!res.ok) throw new Error(`FHIR patient fetch failed: ${res.status}`)
+  return res.json() as Promise<FHIRPatient>
+}
+
+// CMS Blue Button (authenticated)
+export async function fetchCMSCoverage(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverage>(
+    `Coverage?patient=${patientId}&_count=10`,
+    { base: CMS_BASE, token }
+  )
+}
+
+export async function fetchCMSEOBs(patientId: string, token: string) {
+  return fetchFHIR<FHIRExplanationOfBenefit>(
+    `ExplanationOfBenefit?patient=${patientId}&_count=10`,
+    { base: CMS_BASE, token }
+  )
+}
+
+export async function fetchCMSPatient(patientId: string, token: string) {
+  const res = await fetch(`${CMS_BASE}/Patient/${patientId}`, {
+    headers: {
+      Accept:        'application/fhir+json',
+      Authorization: `Bearer ${token}`,
+    },
+    next: { revalidate: 0 },
+  })
+  if (!res.ok) throw new Error(`CMS Patient fetch failed: ${res.status}`)
   return res.json() as Promise<FHIRPatient>
 }
 

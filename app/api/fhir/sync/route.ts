@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { fetchCoverage, fetchEOBs, fetchPatient, SANDBOX_PATIENTS } from '@/lib/fhir/client'
+import { fetchCoverage, fetchEOBs, fetchPatient, fetchCMSCoverage, fetchCMSEOBs, fetchCMSPatient, SANDBOX_PATIENTS } from '@/lib/fhir/client'
 import { parseCoverage, parseEOBs, parsePatient, calculateSpending } from '@/lib/fhir/parsers'
 import { detectConflicts, detectAutoFills } from '@/lib/fhir/conflicts'
 
@@ -13,12 +13,30 @@ export async function POST() {
   }
 
   try {
-    // Fetch all FHIR resources in parallel
-    const [coverageBundle, eobBundle, patientResource] = await Promise.all([
-      fetchCoverage(SANDBOX_PATIENTS.coverage),
-      fetchEOBs(SANDBOX_PATIENTS.claims),
-      fetchPatient(SANDBOX_PATIENTS.coverage),
-    ])
+    // Check if user has a CMS token
+    const { data: cmsToken } = await supabase
+      .from('fhir_tokens')
+      .select('access_token, patient_id')
+      .eq('user_id', user.id)
+      .eq('payer', 'cms')
+      .single()
+
+    // Use CMS Blue Button if token exists, otherwise fall back to SMART sandbox
+    const useCMS = !!cmsToken?.access_token && !!cmsToken?.patient_id
+
+    const [coverageBundle, eobBundle, patientResource] = await Promise.all(
+      useCMS
+        ? [
+            fetchCMSCoverage(cmsToken.patient_id, cmsToken.access_token),
+            fetchCMSEOBs(cmsToken.patient_id, cmsToken.access_token),
+            fetchCMSPatient(cmsToken.patient_id, cmsToken.access_token),
+          ]
+        : [
+            fetchCoverage(SANDBOX_PATIENTS.coverage),
+            fetchEOBs(SANDBOX_PATIENTS.claims),
+            fetchPatient(SANDBOX_PATIENTS.coverage),
+          ]
+    )
 
     // Parse
     const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []

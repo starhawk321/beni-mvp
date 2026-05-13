@@ -5,18 +5,24 @@ import { createClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
 
 const insurers = [
-  { name: 'Aetna',               color: '#7B2D8E', initials: 'Ae', recommended: true  },
-  { name: 'Cigna',               color: '#FF7A00', initials: 'Ci', recommended: true  },
-  { name: 'UnitedHealthcare',    color: '#002677', initials: 'U',  recommended: false },
-  { name: 'Anthem / Blue Cross', color: '#005EB8', initials: 'An', recommended: false },
-  { name: 'Humana',              color: '#5C9A1B', initials: 'H',  recommended: false },
+  { name: 'Medicare (CMS)',      color: '#1565C0', initials: 'Mc', recommended: true,  cms: true  },
+  { name: 'Aetna',               color: '#7B2D8E', initials: 'Ae', recommended: true,  cms: false },
+  { name: 'Cigna',               color: '#FF7A00', initials: 'Ci', recommended: true,  cms: false },
+  { name: 'UnitedHealthcare',    color: '#002677', initials: 'U',  recommended: false, cms: false },
+  { name: 'Anthem / Blue Cross', color: '#005EB8', initials: 'An', recommended: false, cms: false },
+  { name: 'Humana',              color: '#5C9A1B', initials: 'H',  recommended: false, cms: false },
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
 
-  function handleSelect(insurerName: string) {
-    router.push(`/onboarding/connecting?insurer=${encodeURIComponent(insurerName)}`)
+  function handleSelect(insurer: typeof insurers[0]) {
+    if (insurer.cms) {
+      // Trigger real CMS Blue Button OAuth flow
+      window.location.href = '/api/fhir/cms/authorize'
+    } else {
+      router.push(`/onboarding/connecting?insurer=${encodeURIComponent(insurer.name)}`)
+    }
   }
 
   return (
@@ -62,7 +68,7 @@ export default function OnboardingPage() {
           {insurers.map((ins) => (
             <button
               key={ins.name}
-              onClick={() => handleSelect(ins.name)}
+              onClick={() => handleSelect(ins)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 14,
                 background: 'var(--bg-surface)', border: 'var(--border-hairline)',

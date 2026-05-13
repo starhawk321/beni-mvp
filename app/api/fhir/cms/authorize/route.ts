@@ -25,14 +25,18 @@ export async function GET(request: NextRequest) {
   const state = base64url(randomBytes(12))
 
   // Store verifier + state in Supabase for the callback to retrieve
-  await supabase.from('cms_oauth_state').upsert({
+  const { error: upsertError } = await supabase.from('cms_oauth_state').upsert({
     user_id:       user.id,
     state,
     code_verifier: codeVerifier,
     created_at:    new Date().toISOString(),
   }, { onConflict: 'user_id' })
 
-  const params = new URLSearchParams({
+  if (upsertError) {
+    console.error('cms_oauth_state upsert failed:', upsertError)
+  }
+
+  const redirectUrl = `${CMS_AUTH_URL}?${new URLSearchParams({
     client_id:             process.env.FHIR_CMS_CLIENT_ID!,
     redirect_uri:          process.env.FHIR_CMS_REDIRECT_URI!,
     response_type:         'code',
@@ -40,7 +44,8 @@ export async function GET(request: NextRequest) {
     state,
     code_challenge:        codeChallenge,
     code_challenge_method: 'S256',
-  })
+  })}`
 
-  return NextResponse.redirect(`${CMS_AUTH_URL}?${params}`)
+  console.log('Redirecting to CMS:', redirectUrl)
+  return NextResponse.redirect(redirectUrl)
 }

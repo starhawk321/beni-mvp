@@ -62,6 +62,14 @@ export async function GET(request: NextRequest) {
     expires_at:   new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
   }, { onConflict: 'user_id,payer' })
 
+  // Mark onboarding complete and store selected insurer
+  await supabase.from('profiles').upsert({
+    id:                  user.id,
+    email:               user.email ?? '',
+    onboarding_complete: true,
+    selected_insurer:    'Medicare (CMS)',
+  }, { onConflict: 'id' })
+
   // Clean up oauth state
   await supabase.from('cms_oauth_state').delete().eq('user_id', user.id)
 

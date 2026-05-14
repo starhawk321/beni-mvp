@@ -84,7 +84,7 @@ export type FHIRCoverage = {
   subscriberId?: string
   beneficiary?: { reference: string }
   period?: { start?: string; end?: string }
-  payor?: Array<{ reference?: string; display?: string }>
+  payor?: Array<{ reference?: string; display?: string; identifier?: { value?: string } }>
   class?: Array<{ type: { coding: Array<{ code: string }> }; value: string; name?: string }>
 }
 
@@ -106,19 +106,28 @@ export type FHIRExplanationOfBenefit = {
   resourceType: 'ExplanationOfBenefit'
   id: string
   status: string
-  type?: { coding?: Array<{ code: string }> }
+  type?: { coding?: Array<{ code: string; display?: string }> }
   use?: string
   patient?: { reference: string }
   billablePeriod?: { start?: string; end?: string }
   created?: string
-  insurer?: { reference?: string; display?: string }
+  insurer?: { reference?: string; display?: string; identifier?: { value?: string } }
   outcome?: string
   contained?: Array<{ resourceType: string; id: string; type?: { text?: string }; payor?: Array<{ display?: string }> }>
   insurance?: Array<{ focal: boolean; coverage: { reference: string; display?: string } }>
   item?: FHIRItem[]
   total?: Array<{ category: { coding: Array<{ code: string; display?: string }> }; amount: { value: number; currency: string } }>
   payment?: { amount?: { value: number; currency: string } }
-  benefitBalance?: unknown[]
+  benefitBalance?: Array<{
+    category?: { coding?: Array<{ code?: string }> }
+    financial?: Array<{
+      type: { coding: Array<{ code: string }> }
+      usedMoney?:    { value: number; currency: string }
+      allowedMoney?: { value: number; currency: string }
+      usedUnsignedInt?:    number
+      allowedUnsignedInt?: number
+    }>
+  }>
 }
 
 export type FHIRPatient = {

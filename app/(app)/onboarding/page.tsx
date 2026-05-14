@@ -60,7 +60,7 @@ export default function OnboardingPage() {
         }}>
           <span style={{ fontSize: 16 }}>🔒</span>
           <span className="t-body-s" style={{ color: 'var(--beni-sky)' }}>
-            Read-only access. We never store your insurer credentials.
+            Your health records stay with your insurer. We only read them, never copy them.
           </span>
         </div>
 

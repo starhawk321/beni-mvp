@@ -3,6 +3,12 @@ import Logo from '@/components/Logo'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 import Link from 'next/link'
+import {
+  fetchCMSCoverage, fetchCMSEOBs,
+} from '@/lib/fhir/client'
+import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance } from '@/lib/fhir/parsers'
+import { getValidAccessToken } from '@/lib/fhir/token'
+import { encryptToken } from '@/lib/fhir/crypto'
 
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: true  },
@@ -36,46 +42,87 @@ function formatDate(dateStr: string | null) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const email = user?.email ?? ''
 
-  // Fetch real FHIR data + profile from Supabase
-  const [{ data: coverage }, { data: claims }, { data: profile }] = await Promise.all([
-    supabase.from('fhir_coverage').select('*').eq('user_id', user!.id).single(),
-    supabase.from('fhir_claims').select('*').eq('user_id', user!.id).order('service_date', { ascending: false }).limit(6),
-    supabase.from('profiles').select('selected_insurer, first_name').eq('id', user!.id).single(),
+  const [{ data: tokenRow }, { data: profile }] = await Promise.all([
+    supabase
+      .from('fhir_tokens')
+      .select('access_token, refresh_token, patient_id, expires_at')
+      .eq('user_id', user!.id)
+      .eq('payer', 'cms')
+      .single(),
+    supabase
+      .from('profiles')
+      .select('selected_insurer, first_name')
+      .eq('id', user!.id)
+      .single(),
   ])
 
-  const hasFHIRData = !!coverage || (!!claims && claims.length > 0)
+  const isConnected = !!tokenRow || !!profile?.selected_insurer
 
-  // Greeting — use first_name if available, fall back to email prefix
+  // Live FHIR fetch — no PHI stored in DB
+  let coverage      = null
+  let claims: ReturnType<typeof parseEOBs> = []
+  let benefitBalance: ReturnType<typeof parseBenefitBalance> = {
+    deductibleMet: null, deductibleTotal: null, oopMet: null, oopTotal: null,
+  }
+
+  if (tokenRow) {
+    try {
+      const accessToken = await getValidAccessToken(tokenRow)
+      if (accessToken) {
+        // Persist refreshed token encrypted if it changed
+        if (accessToken !== tokenRow.access_token) {
+          await supabase.from('fhir_tokens').update({
+            access_token: encryptToken(accessToken),
+            expires_at:   new Date(Date.now() + 3600_000).toISOString(),
+          }).eq('user_id', user!.id).eq('payer', 'cms')
+        }
+
+        const [coverageBundle, eobBundle] = await Promise.all([
+          fetchCMSCoverage(tokenRow.patient_id, accessToken),
+          fetchCMSEOBs(tokenRow.patient_id, accessToken),
+        ])
+
+        const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
+        const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []
+        coverage = coverageResources[0] ? parseCoverage(coverageResources[0]) : null
+        claims   = parseEOBs(eobResources)
+        benefitBalance = parseBenefitBalance(eobResources)
+      }
+    } catch (err) {
+      console.error('Live FHIR fetch failed:', err)
+    }
+  }
+
+  const hasFHIRData = !!coverage || claims.length > 0
+
+  // Greeting
   const greeting = profile?.first_name ?? email.split('@')[0]
-  const initials = (profile?.first_name ?? email).slice(0, 1).toUpperCase()
+  const initials  = (profile?.first_name ?? email).slice(0, 1).toUpperCase()
 
-  // Spending calculations from real claims
-  const totalPaid    = claims?.reduce((s, c) => s + (c.amount_paid ?? 0), 0) ?? 0
-  const totalPatient = claims?.reduce((s, c) => s + (c.amount_patient ?? 0), 0) ?? 0
+  const { totalPatient } = calculateSpending(claims)
 
-  const planName    = coverage?.plan_name    ?? 'Your plan'
-  const planType    = coverage?.plan_type    ?? '—'
-  const insurerName = coverage?.insurer_name && coverage.insurer_name !== 'Your insurer'
-    ? coverage.insurer_name
-    : (profile?.selected_insurer ?? 'Your insurer')
+  const planName    = coverage?.planName    ?? 'Your plan'
+  const planType    = coverage?.planType    ?? '—'
+  const insurerName = coverage?.insurerName ?? profile?.selected_insurer ?? 'Your insurer'
 
-  // Mock deductible/OOP for now since FHIR sandbox doesn't expose these directly
-  const deductibleMet   = Math.min(totalPatient, 3000)
-  const deductibleTotal = 3000
-  const oopMet          = Math.min(totalPatient, 6000)
-  const oopTotal        = 6000
+  // Use real benefitBalance values when available, fall back to estimates
+  const deductibleTotal = benefitBalance.deductibleTotal ?? 3000
+  const oopTotal        = benefitBalance.oopTotal        ?? 6000
+  const deductibleMet   = benefitBalance.deductibleMet   ?? Math.min(totalPatient, deductibleTotal)
+  const oopMet          = benefitBalance.oopMet          ?? Math.min(totalPatient, oopTotal)
 
   const accountCards = [
-    { label: 'Medical', color: '#B8D0E8', balance: hasFHIRData ? fmt(totalPatient) : '$0', sub: `${insurerName} ${planType} · Active` },
-    { label: 'Dental',  color: '#C7E5F2', balance: '$0',      sub: `${insurerName} Dental · Active` },
-    { label: 'FSA',     color: '#FFC4BE', balance: '$842.50', sub: 'Expires Dec 31' },
-    { label: 'Vision',  color: '#D8CDF2', balance: '$150.00', sub: 'Annual benefit' },
+    { label: 'Medical', color: '#B8D0E8', balance: fmt(totalPatient), sub: `${insurerName} ${planType} · Active` },
+    { label: 'Dental',  color: '#C7E5F2', balance: '$0.00',           sub: `${insurerName} Dental · Active` },
+    { label: 'FSA',     color: '#FFC4BE', balance: '$842.50',         sub: 'Expires Dec 31' },
+    { label: 'Vision',  color: '#D8CDF2', balance: '$150.00',         sub: 'Annual benefit' },
   ]
 
   return (
@@ -115,6 +162,7 @@ export default async function DashboardPage() {
           <HamburgerMenu />
         </div>
       </header>
+
       <main className="beni-main">
         <h1 className="t-display-l" style={{ color: 'var(--fg-1)', marginBottom: 28 }}>
           Hello, {greeting}.
@@ -129,16 +177,16 @@ export default async function DashboardPage() {
           <div style={{ position: 'absolute', bottom: -60, right: -20, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,153,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
           <p className="t-overline" style={{ color: 'rgba(244,236,222,0.6)', marginBottom: 8 }}>
-            {hasFHIRData ? 'Total out-of-pocket this year' : 'No insurer connected'}
+            {hasFHIRData ? 'Total out-of-pocket this year' : isConnected ? 'Connected — fetching your data…' : 'No insurer connected'}
           </p>
           <p className="beni-hero-number" style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 64, color: '#fff', fontVariantNumeric: 'tabular-nums', marginBottom: 24 }}>
             {hasFHIRData ? fmt(totalPatient) : '—'}
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {[
-              { label: 'Deductible met',  value: `${fmt(deductibleMet)} / ${fmt(deductibleTotal)}` },
-              { label: 'Out-of-pocket',   value: `${fmt(oopMet)} / ${fmt(oopTotal)}`               },
-              { label: 'Claims paid',     value: hasFHIRData ? String(claims?.length ?? 0) : '—'   },
+              { label: 'Deductible met', value: `${fmt(deductibleMet)} / ${fmt(deductibleTotal)}` },
+              { label: 'Out-of-pocket',  value: `${fmt(oopMet)} / ${fmt(oopTotal)}`               },
+              { label: 'Claims paid',    value: isConnected ? String(claims.length) : '—'          },
             ].map((item) => (
               <div key={item.label} style={{ background: 'rgba(255,231,194,.18)', backdropFilter: 'blur(4px)', borderRadius: 'var(--r-pill)', padding: '8px 16px' }}>
                 <span className="t-caption" style={{ color: 'rgba(244,236,222,0.7)', display: 'block', marginBottom: 2 }}>{item.label}</span>
@@ -154,7 +202,7 @@ export default async function DashboardPage() {
             {/* Account cards */}
             <div>
               <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 14 }}>Your accounts</p>
-              {hasFHIRData ? (
+              {isConnected ? (
                 <div className="beni-accounts-grid">
                   {accountCards.map((acct) => (
                     <Link key={acct.label} href="/plan" style={{ textDecoration: 'none' }}>
@@ -198,10 +246,10 @@ export default async function DashboardPage() {
             {/* Claims feed */}
             <div>
               <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 14 }}>Recent activity</p>
-              {hasFHIRData && claims && claims.length > 0 ? (
+              {claims.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {claims.map((claim) => (
-                    <div key={claim.id} style={{
+                  {claims.slice(0, 6).map((claim) => (
+                    <div key={claim.eobId} style={{
                       display: 'flex', alignItems: 'center', gap: 14,
                       background: 'var(--bg-surface)', border: 'var(--border-hairline)',
                       borderRadius: 'var(--r-4)', padding: '14px 16px', boxShadow: 'var(--shadow-1)',
@@ -212,17 +260,17 @@ export default async function DashboardPage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 18, flexShrink: 0,
                       }}>
-                        {CLAIM_ICONS[claim.claim_type] ?? '🏥'}
+                        {CLAIM_ICONS[claim.claimType] ?? '🏥'}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>
-                          {CLAIM_LABELS[claim.claim_type] ?? 'Medical Claim'}
+                          {CLAIM_LABELS[claim.claimType] ?? 'Medical Claim'}
                         </p>
-                        <p className="t-caption" style={{ color: 'var(--fg-4)' }}>{formatDate(claim.service_date)}</p>
+                        <p className="t-caption" style={{ color: 'var(--fg-4)' }}>{formatDate(claim.serviceDate)}</p>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--fg-1)', fontVariantNumeric: 'tabular-nums' }}>
-                          {fmt(claim.amount_patient)}
+                          {fmt(claim.amountPatient)}
                         </p>
                         <span className="badge badge-positive" style={{ marginTop: 4 }}>Processed</span>
                       </div>
@@ -230,7 +278,6 @@ export default async function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                /* Empty state */
                 <div style={{
                   background: 'var(--bg-surface)', border: 'var(--border-hairline)',
                   borderRadius: 'var(--r-4)', padding: '32px 24px', textAlign: 'center',
@@ -272,24 +319,18 @@ export default async function DashboardPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Plan',       value: planName       },
-                  { label: 'Type',       value: planType       },
-                  { label: 'Insurer',    value: insurerName    },
+                  { label: 'Plan',       value: planName            },
+                  { label: 'Type',       value: planType            },
+                  { label: 'Insurer',    value: insurerName         },
                   { label: 'Deductible', value: fmt(deductibleTotal) },
-                  { label: 'OOP max',    value: fmt(oopTotal)  },
+                  { label: 'OOP max',    value: fmt(oopTotal)       },
                 ].map((row) => (
-                  <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 10, borderBottom: 'var(--border-hairline)' }}>
-                    <span className="t-body-s" style={{ color: 'var(--fg-3)' }}>{row.label}</span>
-                    <span className="t-body-s" style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{row.value}</span>
+                  <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, paddingBottom: 10, borderBottom: 'var(--border-hairline)' }}>
+                    <span className="t-body-s" style={{ color: 'var(--fg-3)', flexShrink: 0 }}>{row.label}</span>
+                    <span className="t-body-s" style={{ color: 'var(--fg-1)', fontWeight: 600, textAlign: 'right' }}>{row.value}</span>
                   </div>
                 ))}
               </div>
-
-              {!hasFHIRData && (
-                <div style={{ marginTop: 14, padding: '10px 12px', background: 'var(--beni-sky-12)', borderRadius: 'var(--r-3)' }}>
-                  <p className="t-caption" style={{ color: 'var(--beni-sky)' }}>Syncing your plan data…</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

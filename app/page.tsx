@@ -27,7 +27,7 @@ export default function LandingPage() {
         padding: '0 28px', height: 64,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         borderBottom: 'var(--border-hairline)',
-        background: 'rgba(251,246,238,0.9)', backdropFilter: 'blur(12px)',
+        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
         position: 'sticky', top: 0, zIndex: 10,
       }}>
         <Logo height={28} />
@@ -170,6 +170,19 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
+      {/* Privacy trust bar */}
+      <div style={{
+        background: 'var(--beni-sky-12)',
+        borderTop: 'var(--border-hairline)',
+        padding: '14px 28px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+      }}>
+        <span style={{ fontSize: 15 }}>🔒</span>
+        <p className="t-caption" style={{ color: 'var(--beni-sky)', margin: 0 }}>
+          Your health records stay with your insurer. We only read them, never copy them.
+        </p>
+      </div>
+
       <footer style={{
         borderTop: 'var(--border-hairline)', padding: '24px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',

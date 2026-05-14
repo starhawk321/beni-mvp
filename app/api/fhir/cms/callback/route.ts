@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { encryptToken } from '@/lib/fhir/crypto'
 
 const CMS_TOKEN_URL = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
 
@@ -50,19 +51,18 @@ export async function GET(request: NextRequest) {
   }
 
   const token = await tokenRes.json()
-  const accessToken = token.access_token
-  const patientId   = token.patient
 
-  // Store token + patient ID in Supabase
+  // Store tokens encrypted — refresh token grants access to health data so must be protected at rest
   await supabase.from('fhir_tokens').upsert({
-    user_id:      user.id,
-    payer:        'cms',
-    access_token: accessToken,
-    patient_id:   patientId,
-    expires_at:   new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
+    user_id:       user.id,
+    payer:         'cms',
+    access_token:  encryptToken(token.access_token),
+    refresh_token: token.refresh_token ? encryptToken(token.refresh_token) : null,
+    patient_id:    token.patient,
+    expires_at:    new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
   }, { onConflict: 'user_id,payer' })
 
-  // Mark onboarding complete and store selected insurer
+  // Mark onboarding complete
   await supabase.from('profiles').upsert({
     id:                  user.id,
     email:               user.email ?? '',
@@ -72,9 +72,6 @@ export async function GET(request: NextRequest) {
 
   // Clean up oauth state
   await supabase.from('cms_oauth_state').delete().eq('user_id', user.id)
-
-  // Trigger FHIR sync with the real token
-  await fetch(new URL('/api/fhir/sync', request.url), { method: 'POST' })
 
   return NextResponse.redirect(new URL('/dashboard', request.url))
 }

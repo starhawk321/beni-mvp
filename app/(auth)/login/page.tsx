@@ -103,6 +103,7 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
+
       </div>
 
       <style>{`

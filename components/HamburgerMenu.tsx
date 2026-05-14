@@ -46,9 +46,9 @@ export default function HamburgerMenu() {
           onClick={() => setOpen(false)}
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(13,27,42,0.4)',
+            background: 'rgba(13,27,42,0.6)',
             backdropFilter: 'blur(4px)',
-            zIndex: 40,
+            zIndex: 100,
           }}
         />
       )}
@@ -59,7 +59,7 @@ export default function HamburgerMenu() {
         width: 260, height: '100vh',
         background: 'var(--bg-surface)',
         boxShadow: 'var(--shadow-4)',
-        zIndex: 50,
+        zIndex: 110,
         display: 'flex', flexDirection: 'column',
         padding: '24px 16px',
         transform: open ? 'translateX(0)' : 'translateX(100%)',

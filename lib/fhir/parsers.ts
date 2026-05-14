@@ -23,21 +23,26 @@ export type ParsedClaim = {
   status: string
 }
 
+function normalizeInsurerName(raw: string): string {
+  if (/centers for medicare|^cms$/i.test(raw)) return 'Medicare'
+  return raw
+}
+
 export function parseCoverage(resource: FHIRCoverage): ParsedCoverage {
-  const planType =
-    resource.type?.text ??
-    resource.type?.coding?.[0]?.display ??
-    resource.type?.coding?.[0]?.code ??
-    'Health'
-
-  const insurerName =
+  // CMS uses payor[0].identifier.value; standard FHIR uses payor[0].display
+  const insurerName = normalizeInsurerName(
     resource.payor?.[0]?.display ??
+    resource.payor?.[0]?.identifier?.value ??
     'Your insurer'
-
-  const planClass = resource.class?.find(
-    c => c.type?.coding?.[0]?.code === 'plan'
   )
-  const planName = planClass?.name ?? planClass?.value ?? `${insurerName} ${planType} Plan`
+
+  // CMS Coverage.class has "group" (e.g. "Medicare") and "plan" (e.g. "Part A")
+  const planClass  = resource.class?.find(c => c.type?.coding?.[0]?.code === 'plan')
+  const groupClass = resource.class?.find(c => c.type?.coding?.[0]?.code === 'group')
+
+  const planType = planClass?.value ?? resource.type?.text ?? resource.type?.coding?.[0]?.display ?? 'Health'
+  const groupName = groupClass?.value ?? insurerName
+  const planName  = planClass?.name ?? `${groupName} ${planType}`
 
   return {
     id:           resource.id,
@@ -52,15 +57,21 @@ export function parseCoverage(resource: FHIRCoverage): ParsedCoverage {
 }
 
 export function parseEOB(resource: FHIRExplanationOfBenefit): ParsedClaim {
-  // Insurer name — most reliable from insurer.display
-  const insurerName =
+  // CMS uses insurer.identifier.value; standard FHIR uses insurer.display
+  const insurerName = normalizeInsurerName(
     resource.insurer?.display ??
+    resource.insurer?.identifier?.value ??
     resource.insurance?.[0]?.coverage?.display ??
     resolveContainedCoverage(resource) ??
-    'Insurer'
+    'Medicare'
+  )
 
-  // Claim type
-  const claimType = resource.type?.coding?.[0]?.code ?? 'unknown'
+  // CMS EOBs have multiple type codings — pick the standard claim-type code
+  const CLAIM_TYPES = new Set(['institutional', 'professional', 'oral', 'pharmacy', 'vision'])
+  const claimType =
+    resource.type?.coding?.find(c => CLAIM_TYPES.has(c.code ?? ''))?.code ??
+    resource.type?.coding?.[0]?.code ??
+    'unknown'
 
   // Service date from billablePeriod or created
   const rawDate = resource.billablePeriod?.start ?? resource.created ?? null
@@ -69,13 +80,18 @@ export function parseEOB(resource: FHIRExplanationOfBenefit): ParsedClaim {
   // Provider — use insurer display as fallback since practitioner is a reference
   const provider = insurerName
 
-  // Amounts
+  // Amounts — try multiple category codes since CMS and standard FHIR differ
+  const totalCode = (t: { category?: { coding?: Array<{ code?: string }> } }) =>
+    t.category?.coding?.[0]?.code ?? ''
   const amountCharged =
-    resource.total?.find(t => t.category?.coding?.[0]?.code?.includes('submitted'))?.amount?.value ??
+    resource.total?.find(t => /submitted|eligible|clm_tot_chrg_amt/.test(totalCode(t)))?.amount?.value ??
     resource.item?.reduce((sum, item) => sum + (item.net?.value ?? 0), 0) ??
     0
 
-  const amountPaid = resource.payment?.amount?.value ?? 0
+  const amountPaid =
+    resource.payment?.amount?.value ??
+    resource.total?.find(t => /^benefit$|clm_pmt_amt|prpayamt/.test(totalCode(t)))?.amount?.value ??
+    0
 
   // Patient responsibility = charged - paid (simplified)
   const amountPatient = Math.max(0, amountCharged - amountPaid)
@@ -102,6 +118,41 @@ export function parseEOBs(resources: FHIRExplanationOfBenefit[]): ParsedClaim[] 
       if (!b.serviceDate) return -1
       return b.serviceDate.localeCompare(a.serviceDate)
     })
+}
+
+export type BenefitBalanceSummary = {
+  deductibleMet:   number | null
+  deductibleTotal: number | null
+  oopMet:          number | null
+  oopTotal:        number | null
+}
+
+const DEDUCTIBLE_CODES = new Set(['deductible', 'medicaldeductible', 'medDeductible'])
+const OOP_CODES        = new Set(['out-of-pocket-maximum', 'out-of-pocket', 'maxOutOfPocket', 'annualOopMax'])
+
+export function parseBenefitBalance(eobs: FHIRExplanationOfBenefit[]): BenefitBalanceSummary {
+  let deductibleMet:   number | null = null
+  let deductibleTotal: number | null = null
+  let oopMet:          number | null = null
+  let oopTotal:        number | null = null
+
+  for (const eob of eobs) {
+    for (const bb of eob.benefitBalance ?? []) {
+      for (const fin of bb.financial ?? []) {
+        const code = fin.type?.coding?.[0]?.code ?? ''
+        if (DEDUCTIBLE_CODES.has(code)) {
+          if (fin.usedMoney?.value    != null) deductibleMet   = fin.usedMoney.value
+          if (fin.allowedMoney?.value != null) deductibleTotal = fin.allowedMoney.value
+        }
+        if (OOP_CODES.has(code)) {
+          if (fin.usedMoney?.value    != null) oopMet   = fin.usedMoney.value
+          if (fin.allowedMoney?.value != null) oopTotal = fin.allowedMoney.value
+        }
+      }
+    }
+  }
+
+  return { deductibleMet, deductibleTotal, oopMet, oopTotal }
 }
 
 export function calculateSpending(claims: ParsedClaim[]) {

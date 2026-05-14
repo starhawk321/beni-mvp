@@ -68,6 +68,38 @@ const eobWithContainedCoverage: FHIRExplanationOfBenefit = {
   insurance: [{ focal: true, coverage: { reference: '#coverage' } }],
 }
 
+// CMS-style fixtures
+const cmsCoveragePartA: FHIRCoverage = {
+  resourceType: 'Coverage',
+  id: 'part-a--10000010254618',
+  status: 'active',
+  type: { coding: [{ code: 'SUBSIDIZ' }] },
+  subscriberId: '1S00EU7JH19',
+  beneficiary: { reference: 'Patient/-10000010254618' },
+  period: { start: '1999-09-08' },
+  payor: [{ identifier: { value: 'Centers for Medicare and Medicaid Services' } }],
+  class: [
+    { type: { coding: [{ code: 'group' }] }, value: 'Medicare' },
+    { type: { coding: [{ code: 'plan' }] },  value: 'Part A'   },
+  ],
+}
+
+const cmsEOB: FHIRExplanationOfBenefit = {
+  resourceType: 'ExplanationOfBenefit',
+  id: 'inpatient--10000930037831',
+  status: 'active',
+  type: {
+    coding: [
+      { code: '60',          display: 'Inpatient claim' },
+      { code: 'INPATIENT' },
+      { code: 'institutional', display: 'Institutional' },
+    ],
+  },
+  billablePeriod: { start: '2015-03-25', end: '2015-03-25' },
+  insurer: { identifier: { value: 'CMS' } },
+  payment: { amount: { value: 0, currency: 'USD' } },
+}
+
 // ── Coverage parser tests ─────────────────────────────────────────────────────
 
 describe('parseCoverage', () => {
@@ -116,6 +148,32 @@ describe('parseCoverage', () => {
   it('handles missing subscriberId gracefully', () => {
     const result = parseCoverage({ ...coverageWithText, subscriberId: undefined })
     expect(result.subscriberId).toBe('—')
+  })
+
+  // CMS-specific
+  it('reads insurer name from payor[0].identifier.value (CMS format)', () => {
+    const result = parseCoverage(cmsCoveragePartA)
+    expect(result.insurerName).toBe('Medicare')
+  })
+
+  it('normalizes "Centers for Medicare and Medicaid Services" to "Medicare"', () => {
+    const result = parseCoverage(cmsCoveragePartA)
+    expect(result.insurerName).toBe('Medicare')
+  })
+
+  it('normalizes "CMS" to "Medicare"', () => {
+    const cov: FHIRCoverage = { ...cmsCoveragePartA, payor: [{ identifier: { value: 'CMS' } }] }
+    expect(parseCoverage(cov).insurerName).toBe('Medicare')
+  })
+
+  it('derives planType from class[plan].value (CMS format)', () => {
+    const result = parseCoverage(cmsCoveragePartA)
+    expect(result.planType).toBe('Part A')
+  })
+
+  it('builds planName from group + plan class values', () => {
+    const result = parseCoverage(cmsCoveragePartA)
+    expect(result.planName).toBe('Medicare Part A')
   })
 })
 
@@ -166,6 +224,17 @@ describe('parseEOB', () => {
   it('handles missing total gracefully', () => {
     const result = parseEOB({ ...basicEOB, total: undefined })
     expect(result.amountCharged).toBe(0)
+  })
+
+  // CMS-specific
+  it('picks standard claim type from multi-coding CMS EOB (skips "60", uses "institutional")', () => {
+    const result = parseEOB(cmsEOB)
+    expect(result.claimType).toBe('institutional')
+  })
+
+  it('reads insurer name from insurer.identifier.value (CMS format)', () => {
+    const result = parseEOB(cmsEOB)
+    expect(result.insurerName).toBe('Medicare')
   })
 })
 

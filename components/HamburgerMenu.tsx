@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -12,35 +13,15 @@ const tabs = [
 ]
 
 export default function HamburgerMenu() {
-  const [open, setOpen] = useState(false)
-  const pathname = usePathname()
+  const [open, setOpen]       = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const pathname              = usePathname()
 
-  return (
+  useEffect(() => { setMounted(true) }, [])
+
+  const overlay = (
     <>
-      {/* Hamburger button */}
-      <button
-        className="beni-hamburger"
-        onClick={() => setOpen(true)}
-        aria-label="Open menu"
-        style={{
-          width: 36, height: 36,
-          borderRadius: 'var(--r-2)',
-          border: 'var(--border-hairline)',
-          background: 'var(--bg-surface)',
-          cursor: 'pointer',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 5,
-          padding: 8,
-        }}
-      >
-        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
-        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
-        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
-      </button>
-
-      {/* Backdrop */}
+      {/* Backdrop — clicks outside close the drawer */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -48,7 +29,7 @@ export default function HamburgerMenu() {
             position: 'fixed', inset: 0,
             background: 'rgba(13,27,42,0.6)',
             backdropFilter: 'blur(4px)',
-            zIndex: 100,
+            zIndex: 1000,
           }}
         />
       )}
@@ -59,13 +40,12 @@ export default function HamburgerMenu() {
         width: 260, height: '100vh',
         background: 'var(--bg-surface)',
         boxShadow: 'var(--shadow-4)',
-        zIndex: 110,
+        zIndex: 1001,
         display: 'flex', flexDirection: 'column',
         padding: '24px 16px',
         transform: open ? 'translateX(0)' : 'translateX(100%)',
         transition: 'transform 280ms var(--ease-standard)',
       }}>
-        {/* Close button */}
         <button
           onClick={() => setOpen(false)}
           style={{
@@ -77,7 +57,6 @@ export default function HamburgerMenu() {
           }}
         >✕</button>
 
-        {/* Nav links */}
         <nav style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {tabs.map((tab) => {
             const active = pathname.startsWith(tab.href)
@@ -105,6 +84,36 @@ export default function HamburgerMenu() {
           })}
         </nav>
       </div>
+    </>
+  )
+
+  return (
+    <>
+      {/* Hamburger button — stays in normal flow */}
+      <button
+        className="beni-hamburger"
+        onClick={() => setOpen(true)}
+        aria-label="Open menu"
+        style={{
+          width: 36, height: 36,
+          borderRadius: 'var(--r-2)',
+          border: 'var(--border-hairline)',
+          background: 'var(--bg-surface)',
+          cursor: 'pointer',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 5,
+          padding: 8,
+        }}
+      >
+        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
+        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
+        <span style={{ display: 'block', width: 18, height: 2, background: 'var(--fg-1)', borderRadius: 2 }} />
+      </button>
+
+      {/* Backdrop + drawer rendered into document.body to escape stacking contexts */}
+      {mounted && createPortal(overlay, document.body)}
     </>
   )
 }

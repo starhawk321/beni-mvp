@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Logo from '@/components/Logo'
 import HamburgerMenu from '@/components/HamburgerMenu'
-import SignOutButton from '@/components/SignOutButton'
 import Link from 'next/link'
 import {
   fetchCMSCoverage, fetchCMSEOBs,
@@ -104,7 +103,6 @@ export default async function DashboardPage() {
 
   // Greeting
   const greeting = profile?.first_name ?? email.split('@')[0]
-  const initials  = (profile?.first_name ?? email).slice(0, 1).toUpperCase()
 
   const { totalPatient } = calculateSpending(claims)
 
@@ -149,16 +147,7 @@ export default async function DashboardPage() {
             </Link>
           ))}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'var(--beni-navy)', color: 'var(--fg-on-navy)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 13,
-          }}>
-            {initials}
-          </div>
-          <SignOutButton />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <HamburgerMenu />
         </div>
       </header>

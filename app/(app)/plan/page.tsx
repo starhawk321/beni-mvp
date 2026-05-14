@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import HamburgerMenu from '@/components/HamburgerMenu'
-import SignOutButton from '@/components/SignOutButton'
 
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: false },
@@ -85,8 +84,7 @@ export default function PlanPage() {
             </Link>
           ))}
         </nav>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <SignOutButton />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <HamburgerMenu />
         </div>
       </header>

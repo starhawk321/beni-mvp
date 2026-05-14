@@ -303,7 +303,7 @@ body {
   .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
   .beni-features-grid  { grid-template-columns: 1fr; }
   .beni-nav-pills  { display: none !important; }
-  .beni-hamburger  { display: flex !important; }
+  .beni-hamburger        { display: flex !important; }
 
   .auth-card { padding: 24px 20px; }
 

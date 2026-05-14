@@ -7,7 +7,7 @@ import {
 } from '@/lib/fhir/client'
 import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance } from '@/lib/fhir/parsers'
 import { getValidAccessToken } from '@/lib/fhir/token'
-import { encryptToken } from '@/lib/fhir/crypto'
+import { encryptToken, decryptToken } from '@/lib/fhir/crypto'
 
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: true  },
@@ -83,9 +83,12 @@ export default async function DashboardPage() {
           }).eq('user_id', user!.id).eq('payer', 'cms')
         }
 
+        const patientId = decryptToken(tokenRow.patient_id)
+        if (!patientId) throw new Error('Failed to decrypt patient_id')
+
         const [coverageBundle, eobBundle] = await Promise.all([
-          fetchCMSCoverage(tokenRow.patient_id, accessToken),
-          fetchCMSEOBs(tokenRow.patient_id, accessToken),
+          fetchCMSCoverage(patientId, accessToken),
+          fetchCMSEOBs(patientId, accessToken),
         ])
 
         const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
@@ -110,11 +113,17 @@ export default async function DashboardPage() {
   const planType    = coverage?.planType    ?? '—'
   const insurerName = coverage?.insurerName ?? profile?.selected_insurer ?? 'Your insurer'
 
-  // Use real benefitBalance values when available, fall back to estimates
-  const deductibleTotal = benefitBalance.deductibleTotal ?? 3000
-  const oopTotal        = benefitBalance.oopTotal        ?? 6000
-  const deductibleMet   = benefitBalance.deductibleMet   ?? Math.min(totalPatient, deductibleTotal)
-  const oopMet          = benefitBalance.oopMet          ?? Math.min(totalPatient, oopTotal)
+  const deductibleTotal = benefitBalance.deductibleTotal
+  const oopTotal        = benefitBalance.oopTotal
+  const deductibleMet   = benefitBalance.deductibleMet ?? (deductibleTotal != null ? Math.min(totalPatient, deductibleTotal) : null)
+  const oopMet          = benefitBalance.oopMet        ?? (oopTotal        != null ? Math.min(totalPatient, oopTotal)        : null)
+
+  function fmtProgress(met: number | null, total: number | null): string {
+    if (met == null && total == null) return '—'
+    if (total == null) return `${fmt(met!)} / —`
+    if (met  == null) return `— / ${fmt(total)}`
+    return `${fmt(met)} / ${fmt(total)}`
+  }
 
   const accountCards = [
     { label: 'Medical', color: '#B8D0E8', balance: fmt(totalPatient), sub: `${insurerName} ${planType} · Active` },
@@ -173,8 +182,8 @@ export default async function DashboardPage() {
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {[
-              { label: 'Deductible met', value: `${fmt(deductibleMet)} / ${fmt(deductibleTotal)}` },
-              { label: 'Out-of-pocket',  value: `${fmt(oopMet)} / ${fmt(oopTotal)}`               },
+              { label: 'Deductible met', value: fmtProgress(deductibleMet, deductibleTotal) },
+              { label: 'Out-of-pocket',  value: fmtProgress(oopMet, oopTotal)             },
               { label: 'Claims paid',    value: isConnected ? String(claims.length) : '—'          },
             ].map((item) => (
               <div key={item.label} style={{ background: 'rgba(255,231,194,.18)', backdropFilter: 'blur(4px)', borderRadius: 'var(--r-pill)', padding: '8px 16px' }}>
@@ -298,6 +307,14 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
+
+              {deductibleTotal == null && isConnected && (
+                <div style={{ marginTop: 14, padding: '10px 12px', background: 'var(--bg-sunken)', borderRadius: 'var(--r-3)' }}>
+                  <p className="t-caption" style={{ color: 'var(--fg-3)' }}>
+                    Deductible limits aren't reported by your insurer via this connection. Check your plan documents or insurer portal.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Plan card */}
@@ -311,8 +328,8 @@ export default async function DashboardPage() {
                   { label: 'Plan',       value: planName            },
                   { label: 'Type',       value: planType            },
                   { label: 'Insurer',    value: insurerName         },
-                  { label: 'Deductible', value: fmt(deductibleTotal) },
-                  { label: 'OOP max',    value: fmt(oopTotal)       },
+                  { label: 'Deductible', value: deductibleTotal != null ? fmt(deductibleTotal) : '—' },
+                  { label: 'OOP max',    value: oopTotal        != null ? fmt(oopTotal)        : '—' },
                 ].map((row) => (
                   <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, paddingBottom: 10, borderBottom: 'var(--border-hairline)' }}>
                     <span className="t-body-s" style={{ color: 'var(--fg-3)', flexShrink: 0 }}>{row.label}</span>

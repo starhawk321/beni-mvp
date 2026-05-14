@@ -52,13 +52,13 @@ export async function GET(request: NextRequest) {
 
   const token = await tokenRes.json()
 
-  // Store tokens encrypted — refresh token grants access to health data so must be protected at rest
+  // Store tokens and patient_id encrypted — patient_id is a healthcare identifier
   await supabase.from('fhir_tokens').upsert({
     user_id:       user.id,
     payer:         'cms',
     access_token:  encryptToken(token.access_token),
     refresh_token: token.refresh_token ? encryptToken(token.refresh_token) : null,
-    patient_id:    token.patient,
+    patient_id:    encryptToken(token.patient),
     expires_at:    new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
   }, { onConflict: 'user_id,payer' })
 

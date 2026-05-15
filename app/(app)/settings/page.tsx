@@ -3,6 +3,7 @@ import Logo from '@/components/Logo'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 import ThemeToggle from '@/components/ThemeToggle'
+import DeleteAccountButton from '@/components/DeleteAccountButton'
 import Link from 'next/link'
 
 const navTabs = [
@@ -15,11 +16,10 @@ const navTabs = [
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user!.id)
-    .single()
+  const [{ data: profile }, { data: fhirToken }] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user!.id).single(),
+    supabase.from('fhir_tokens').select('payer').eq('user_id', user!.id).single(),
+  ])
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
@@ -74,10 +74,6 @@ export default async function SettingsPage() {
                 {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
               </p>
             </div>
-            <div style={{ padding: '16px 20px' }}>
-              <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Account ID</p>
-              <p className="t-mono" style={{ color: 'var(--fg-3)', fontSize: 12 }}>{user?.id}</p>
-            </div>
           </div>
         </section>
 
@@ -88,9 +84,14 @@ export default async function SettingsPage() {
             <div style={{ padding: '16px 20px', borderBottom: 'var(--border-hairline)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Connected insurer</p>
-                <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>Aetna</p>
+                <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>
+                  {fhirToken ? (profile?.selected_insurer ?? 'Connected') : 'None connected'}
+                </p>
               </div>
-              <span className="badge badge-positive">Active</span>
+              {fhirToken
+                ? <span className="badge badge-positive">Active</span>
+                : <Link href="/onboarding" style={{ fontSize: 13, fontWeight: 600, color: 'var(--beni-sky)', textDecoration: 'none', fontFamily: 'var(--font-manrope), sans-serif' }}>Connect →</Link>
+              }
             </div>
             <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -123,7 +124,7 @@ export default async function SettingsPage() {
         </section>
 
         {/* Session */}
-        <section>
+        <section style={{ marginBottom: 28 }}>
           <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Session</p>
           <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -131,6 +132,18 @@ export default async function SettingsPage() {
               <p className="t-caption" style={{ color: 'var(--fg-4)' }}>You can sign back in any time</p>
             </div>
             <SignOutButton />
+          </div>
+        </section>
+
+        {/* Danger zone */}
+        <section>
+          <p className="t-overline" style={{ color: 'var(--status-critical)', marginBottom: 12 }}>Danger zone</p>
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderColor: 'var(--status-critical-bg)' }}>
+            <div>
+              <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>Delete account</p>
+              <p className="t-caption" style={{ color: 'var(--fg-4)' }}>Permanently deletes your account and disconnects all insurers</p>
+            </div>
+            <DeleteAccountButton />
           </div>
         </section>
       </main>

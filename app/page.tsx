@@ -1,5 +1,5 @@
 import WaitlistForm from '@/components/WaitlistForm'
-import Logo from '@/components/Logo'
+import Image from 'next/image'
 
 export default function StealthPage() {
   return (
@@ -69,7 +69,7 @@ export default function StealthPage() {
       }}>
         {/* Header */}
         <header style={{ display: 'flex', alignItems: 'center' }}>
-          <Logo height={28} />
+          <Image src="/assets/beni-logo-wordmark-dark.svg" alt="Béni" width={144} height={48} priority />
         </header>
 
         {/* Hero */}
@@ -128,7 +128,7 @@ export default function StealthPage() {
                 </radialGradient>
               </defs>
               <circle cx="50" cy="50" r="50" fill="url(#glow)" opacity="0.45"/>
-              <path d="M50 4 Q 54 46 96 50 Q 54 54 50 96 Q 46 54 4 50 Q 46 46 50 4 Z" fill="url(#big)"/>
+              <path fillRule="evenodd" fill="url(#big)" d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z M 50 30 C 50 42 58 50 70 50 C 58 50 50 58 50 70 C 50 58 42 50 30 50 C 42 50 50 42 50 30 Z"/>
             </svg>
           </div>
         </main>

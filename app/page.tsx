@@ -1,4 +1,5 @@
 import WaitlistForm from '@/components/WaitlistForm'
+import MarkStage from '@/components/MarkStage'
 import Image from 'next/image'
 
 export default function StealthPage() {
@@ -27,29 +28,14 @@ export default function StealthPage() {
           mask-image: radial-gradient(900px 600px at 50% 40%, #000 60%, transparent 100%);
         }
         .mark-stage {
-          position: relative; aspect-ratio: 1 / 1; max-width: 480px; justify-self: end;
-          filter: drop-shadow(0 30px 80px rgba(91,168,255,0.20)) drop-shadow(0 10px 40px rgba(229,91,184,0.18));
+          max-width: 480px; justify-self: end;
           animation: float 9s ease-in-out infinite;
         }
         @keyframes float {
-          0%,100% { transform: translateY(0) rotate(0); }
+          0%,100% { transform: translateY(0) rotate(0deg); }
           50%      { transform: translateY(-12px) rotate(-1.5deg); }
         }
-        .mark-stage svg { width: 100%; height: 100%; }
-        .orbit {
-          position: absolute; inset: 0; pointer-events: none;
-          border-radius: 999px; border: 1px dashed rgba(255,255,255,0.16);
-          animation: spin 60s linear infinite;
-        }
-        .orbit.o2 { inset: 10%; animation-duration: 90s; animation-direction: reverse; border-color: rgba(255,255,255,0.08); }
-        .orbit.o3 { inset: 22%; animation-duration: 120s; border-color: rgba(255,255,255,0.08); }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .satellite {
-          position: absolute; width: 8px; height: 8px; border-radius: 999px;
-          background: #7AE7FF; box-shadow: 0 0 12px #7AE7FF;
-          top: -4px; left: 50%; transform: translateX(-50%);
-        }
-        .satellite.s2 { background: #E55BB8; box-shadow: 0 0 12px #E55BB8; }
         @media (max-width: 980px) {
           .mark-stage { display: none !important; }
           .hero { grid-template-columns: 1fr !important; }
@@ -109,27 +95,9 @@ export default function StealthPage() {
             </div>
           </div>
 
-          {/* Animated mark */}
-          <div className="mark-stage" aria-hidden="true">
-            <div className="orbit"><span className="satellite" /></div>
-            <div className="orbit o2"><span className="satellite s2" /></div>
-            <div className="orbit o3" />
-            <svg viewBox="0 0 100 100">
-              <defs>
-                <linearGradient id="big" x1="10%" y1="10%" x2="90%" y2="90%">
-                  <stop offset="0%"   stopColor="#7AE7FF"/>
-                  <stop offset="45%"  stopColor="#5BA8FF"/>
-                  <stop offset="75%"  stopColor="#9B5BFF"/>
-                  <stop offset="100%" stopColor="#E55BB8"/>
-                </linearGradient>
-                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%"  stopColor="rgba(255,255,255,0.9)"/>
-                  <stop offset="40%" stopColor="rgba(255,255,255,0)"/>
-                </radialGradient>
-              </defs>
-              <circle cx="50" cy="50" r="50" fill="url(#glow)" opacity="0.45"/>
-              <path fillRule="evenodd" fill="url(#big)" d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z M 50 30 C 50 42 58 50 70 50 C 58 50 50 58 50 70 C 50 58 42 50 30 50 C 42 50 50 42 50 30 Z"/>
-            </svg>
+          {/* Interactive mark */}
+          <div className="mark-stage">
+            <MarkStage />
           </div>
         </main>
 

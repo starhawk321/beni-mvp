@@ -57,11 +57,8 @@ export default function MarkStage() {
     <div style={{
       position: 'relative',
       width: '100%',
-      aspectRatio: '1 / 1',
-      maxWidth: 480,
-      justifySelf: 'end',
+      height: '100%',
       filter: 'drop-shadow(0 30px 80px rgba(91,168,255,0.20)) drop-shadow(0 10px 40px rgba(229,91,184,0.18))',
-      animation: 'float 9s ease-in-out infinite',
     }}>
       {/* Orbit rings */}
       {ORBITS.map((orbit, i) => (

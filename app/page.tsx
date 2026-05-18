@@ -28,7 +28,11 @@ export default function StealthPage() {
           mask-image: radial-gradient(900px 600px at 50% 40%, #000 60%, transparent 100%);
         }
         .mark-stage {
-          max-width: 480px; justify-self: end;
+          position: relative;
+          width: 100%;
+          aspect-ratio: 1 / 1;
+          max-width: 480px;
+          justify-self: end;
           animation: float 9s ease-in-out infinite;
         }
         @keyframes float {

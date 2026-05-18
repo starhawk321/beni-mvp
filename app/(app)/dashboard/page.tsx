@@ -4,6 +4,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import Link from 'next/link'
 import {
   fetchCMSCoverage, fetchCMSEOBs,
+  fetchCignaCoverage, fetchCignaEOBs,
 } from '@/lib/fhir/client'
 import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance } from '@/lib/fhir/parsers'
 import { getValidAccessToken } from '@/lib/fhir/token'
@@ -48,21 +49,17 @@ export default async function DashboardPage() {
 
   const email = user?.email ?? ''
 
-  const [{ data: tokenRow }, { data: profile }] = await Promise.all([
-    supabase
-      .from('fhir_tokens')
-      .select('access_token, refresh_token, patient_id, expires_at')
-      .eq('user_id', user!.id)
-      .eq('payer', 'cms')
-      .single(),
-    supabase
-      .from('profiles')
-      .select('selected_insurer, first_name')
-      .eq('id', user!.id)
-      .single(),
+  const [{ data: cmsToken }, { data: cignaToken }, { data: profile }] = await Promise.all([
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cms').single(),
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cigna').single(),
+    supabase.from('profiles').select('selected_insurer, first_name').eq('id', user!.id).single(),
   ])
 
-  const isConnected = !!tokenRow || !!profile?.selected_insurer
+  // Use whichever payer token exists — CMS takes priority for now
+  const tokenRow = cmsToken ?? cignaToken
+  const activePayer = cmsToken ? 'cms' : cignaToken ? 'cigna' : null
+
+  const isConnected = !!activePayer || !!profile?.selected_insurer
 
   // Live FHIR fetch — no PHI stored in DB
   let coverage      = null
@@ -80,16 +77,17 @@ export default async function DashboardPage() {
           await supabase.from('fhir_tokens').update({
             access_token: encryptToken(accessToken),
             expires_at:   new Date(Date.now() + 3600_000).toISOString(),
-          }).eq('user_id', user!.id).eq('payer', 'cms')
+          }).eq('user_id', user!.id).eq('payer', activePayer!)
         }
 
         const patientId = decryptToken(tokenRow.patient_id)
         if (!patientId) throw new Error('Failed to decrypt patient_id')
 
-        const [coverageBundle, eobBundle] = await Promise.all([
-          fetchCMSCoverage(patientId, accessToken),
-          fetchCMSEOBs(patientId, accessToken),
-        ])
+        const [coverageBundle, eobBundle] = await Promise.all(
+          activePayer === 'cigna'
+            ? [fetchCignaCoverage(patientId, accessToken), fetchCignaEOBs(patientId, accessToken)]
+            : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
+        )
 
         const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
         const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []

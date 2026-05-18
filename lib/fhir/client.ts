@@ -1,5 +1,6 @@
-const SMART_BASE = 'https://r4.smarthealthit.org'
-const CMS_BASE   = 'https://sandbox.bluebutton.cms.gov/v2/fhir'
+const SMART_BASE  = 'https://r4.smarthealthit.org'
+const CMS_BASE    = 'https://sandbox.bluebutton.cms.gov/v2/fhir'
+const CIGNA_BASE  = 'https://fhir.cigna.com/PatientAccess/v1-devportal'
 
 // Test patient IDs with confirmed data in the SMART sandbox
 export const SANDBOX_PATIENTS = {
@@ -60,6 +61,33 @@ export async function fetchCMSEOBs(patientId: string, token: string) {
     `ExplanationOfBenefit?patient=${patientId}&_count=10`,
     { base: CMS_BASE, token }
   )
+}
+
+// Cigna (authenticated)
+export async function fetchCignaCoverage(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverage>(
+    `Coverage?patient=${patientId}&_count=10`,
+    { base: CIGNA_BASE, token }
+  )
+}
+
+export async function fetchCignaEOBs(patientId: string, token: string) {
+  return fetchFHIR<FHIRExplanationOfBenefit>(
+    `ExplanationOfBenefit?patient=${patientId}&_count=10`,
+    { base: CIGNA_BASE, token }
+  )
+}
+
+export async function fetchCignaPatient(patientId: string, token: string) {
+  const res = await fetch(`${CIGNA_BASE}/Patient/${patientId}`, {
+    headers: {
+      Accept:        'application/fhir+json',
+      Authorization: `Bearer ${token}`,
+    },
+    next: { revalidate: 0 },
+  })
+  if (!res.ok) throw new Error(`Cigna Patient fetch failed: ${res.status}`)
+  return res.json() as Promise<FHIRPatient>
 }
 
 export async function fetchCMSPatient(patientId: string, token: string) {

@@ -5,21 +5,20 @@ import { createClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
 
 const insurers = [
-  { name: 'Medicare (CMS)',      color: '#1565C0', initials: 'Mc', recommended: true,  cms: true  },
-  { name: 'Aetna',               color: '#7B2D8E', initials: 'Ae', recommended: true,  cms: false },
-  { name: 'Cigna',               color: '#FF7A00', initials: 'Ci', recommended: true,  cms: false },
-  { name: 'UnitedHealthcare',    color: '#002677', initials: 'U',  recommended: false, cms: false },
-  { name: 'Anthem / Blue Cross', color: '#005EB8', initials: 'An', recommended: false, cms: false },
-  { name: 'Humana',              color: '#5C9A1B', initials: 'H',  recommended: false, cms: false },
+  { name: 'Medicare (CMS)',      color: '#1565C0', initials: 'Mc', recommended: true,  oauthPath: '/api/fhir/cms/authorize'   },
+  { name: 'Cigna',               color: '#FF7A00', initials: 'Ci', recommended: true,  oauthPath: '/api/fhir/cigna/authorize' },
+  { name: 'Aetna',               color: '#7B2D8E', initials: 'Ae', recommended: true,  oauthPath: null },
+  { name: 'UnitedHealthcare',    color: '#002677', initials: 'U',  recommended: false, oauthPath: null },
+  { name: 'Anthem / Blue Cross', color: '#005EB8', initials: 'An', recommended: false, oauthPath: null },
+  { name: 'Humana',              color: '#5C9A1B', initials: 'H',  recommended: false, oauthPath: null },
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
 
   function handleSelect(insurer: typeof insurers[0]) {
-    if (insurer.cms) {
-      // Trigger real CMS Blue Button OAuth flow
-      window.location.href = '/api/fhir/cms/authorize'
+    if (insurer.oauthPath) {
+      window.location.href = insurer.oauthPath
     } else {
       router.push(`/onboarding/connecting?insurer=${encodeURIComponent(insurer.name)}`)
     }

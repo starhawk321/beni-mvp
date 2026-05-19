@@ -5,6 +5,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: false },
   { label: 'Plan',     href: '/plan',      active: false },
+  { label: 'Health',   href: '/health',    active: false },
   { label: 'Terms',    href: '/terms',     active: true  },
   { label: 'Settings', href: '/settings',  active: false },
 ]

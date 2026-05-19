@@ -90,6 +90,40 @@ export async function fetchCignaPatient(patientId: string, token: string) {
   return res.json() as Promise<FHIRPatient>
 }
 
+// CMS — clinical resources
+export async function fetchCMSConditions(patientId: string, token: string) {
+  return fetchFHIR<FHIRCondition>(`Condition?patient=${patientId}&_count=50`, { base: CMS_BASE, token })
+}
+
+export async function fetchCMSMedications(patientId: string, token: string) {
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=${patientId}&_count=50`, { base: CMS_BASE, token })
+}
+
+export async function fetchCMSObservations(patientId: string, token: string) {
+  return fetchFHIR<FHIRObservation>(`Observation?patient=${patientId}&category=laboratory&_count=50`, { base: CMS_BASE, token })
+}
+
+export async function fetchCMSImmunizations(patientId: string, token: string) {
+  return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: CMS_BASE, token })
+}
+
+// Cigna — clinical resources
+export async function fetchCignaConditions(patientId: string, token: string) {
+  return fetchFHIR<FHIRCondition>(`Condition?patient=${patientId}&_count=50`, { base: CIGNA_BASE, token })
+}
+
+export async function fetchCignaMedications(patientId: string, token: string) {
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=${patientId}&_count=50`, { base: CIGNA_BASE, token })
+}
+
+export async function fetchCignaObservations(patientId: string, token: string) {
+  return fetchFHIR<FHIRObservation>(`Observation?patient=${patientId}&category=laboratory&_count=50`, { base: CIGNA_BASE, token })
+}
+
+export async function fetchCignaImmunizations(patientId: string, token: string) {
+  return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: CIGNA_BASE, token })
+}
+
 export async function fetchCMSPatient(patientId: string, token: string) {
   const res = await fetch(`${CMS_BASE}/Patient/${patientId}`, {
     headers: {
@@ -164,4 +198,48 @@ export type FHIRPatient = {
   name?: Array<{ family?: string; given?: string[] }>
   birthDate?: string
   gender?: string
+}
+
+export type FHIRCondition = {
+  resourceType: 'Condition'
+  id: string
+  clinicalStatus?: { coding?: Array<{ code: string }> }
+  verificationStatus?: { coding?: Array<{ code: string }> }
+  code?: { coding?: Array<{ code: string; display?: string; system?: string }>; text?: string }
+  onsetDateTime?: string
+  onsetPeriod?: { start?: string }
+  recordedDate?: string
+}
+
+export type FHIRMedicationRequest = {
+  resourceType: 'MedicationRequest'
+  id: string
+  status: string
+  medicationCodeableConcept?: { coding?: Array<{ code: string; display?: string }>; text?: string }
+  medicationReference?: { display?: string }
+  authoredOn?: string
+  dosageInstruction?: Array<{ text?: string }>
+}
+
+export type FHIRObservation = {
+  resourceType: 'Observation'
+  id: string
+  status: string
+  category?: Array<{ coding?: Array<{ code: string }> }>
+  code?: { coding?: Array<{ code: string; display?: string }>; text?: string }
+  effectiveDateTime?: string
+  effectivePeriod?: { start?: string }
+  valueQuantity?: { value: number; unit?: string }
+  valueString?: string
+  valueCodeableConcept?: { text?: string }
+  interpretation?: Array<{ coding?: Array<{ code: string; display?: string }> }>
+}
+
+export type FHIRImmunization = {
+  resourceType: 'Immunization'
+  id: string
+  status: string
+  vaccineCode?: { coding?: Array<{ code: string; display?: string }>; text?: string }
+  occurrenceDateTime?: string
+  occurrenceString?: string
 }

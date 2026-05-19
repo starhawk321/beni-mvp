@@ -9,6 +9,7 @@ import Link from 'next/link'
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: false },
   { label: 'Plan',     href: '/plan',      active: false },
+  { label: 'Health',   href: '/health',    active: false },
   { label: 'Terms',    href: '/terms',     active: false },
   { label: 'Settings', href: '/settings',  active: true  },
 ]

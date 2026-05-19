@@ -1,4 +1,7 @@
-import type { FHIRCoverage, FHIRExplanationOfBenefit, FHIRPatient } from './client'
+import type {
+  FHIRCoverage, FHIRExplanationOfBenefit, FHIRPatient,
+  FHIRCondition, FHIRMedicationRequest, FHIRObservation, FHIRImmunization,
+} from './client'
 
 export type ParsedCoverage = {
   id: string
@@ -197,14 +200,117 @@ export function parsePatient(resource: FHIRPatient): ParsedPatient {
     ? rawGender.charAt(0).toUpperCase() + rawGender.slice(1)
     : null
 
-  const memberId =
-    resource.id ?? null
-
   return {
     firstName:   name?.given?.[0] ?? null,
     lastName:    name?.family ?? null,
     dateOfBirth: resource.birthDate ?? null,
     gender,
-    memberId,
+    memberId:    resource.id ?? null,
   }
+}
+
+// ── Health resource parsers ───────────────────────────────────────────────────
+
+export type ParsedCondition = {
+  id: string
+  display: string
+  status: string
+  onsetDate: string | null
+}
+
+export function parseConditions(resources: FHIRCondition[]): ParsedCondition[] {
+  return resources
+    .filter(r => r.clinicalStatus?.coding?.[0]?.code !== 'inactive')
+    .map(r => ({
+      id:        r.id,
+      display:   r.code?.text ?? r.code?.coding?.[0]?.display ?? 'Unknown condition',
+      status:    r.clinicalStatus?.coding?.[0]?.code ?? 'unknown',
+      onsetDate: r.onsetDateTime ?? r.onsetPeriod?.start ?? r.recordedDate ?? null,
+    }))
+}
+
+export type ParsedMedication = {
+  id: string
+  name: string
+  dosage: string | null
+  status: string
+  authoredOn: string | null
+}
+
+export function parseMedications(resources: FHIRMedicationRequest[]): ParsedMedication[] {
+  return resources
+    .filter(r => r.status === 'active' || r.status === 'completed')
+    .map(r => ({
+      id:         r.id,
+      name:       r.medicationCodeableConcept?.text
+                  ?? r.medicationCodeableConcept?.coding?.[0]?.display
+                  ?? r.medicationReference?.display
+                  ?? 'Unknown medication',
+      dosage:     r.dosageInstruction?.[0]?.text ?? null,
+      status:     r.status,
+      authoredOn: r.authoredOn ?? null,
+    }))
+}
+
+export type ParsedObservation = {
+  id: string
+  name: string
+  value: string
+  unit: string | null
+  date: string | null
+  category: string
+  interpretation: string | null
+}
+
+export function parseObservations(resources: FHIRObservation[]): ParsedObservation[] {
+  return resources
+    .filter(r => r.status === 'final' || r.status === 'amended')
+    .map(r => {
+      let value = '—'
+      if (r.valueQuantity?.value != null) {
+        value = String(r.valueQuantity.value)
+      } else if (r.valueString) {
+        value = r.valueString
+      } else if (r.valueCodeableConcept?.text) {
+        value = r.valueCodeableConcept.text
+      }
+
+      return {
+        id:             r.id,
+        name:           r.code?.text ?? r.code?.coding?.[0]?.display ?? 'Unknown observation',
+        value,
+        unit:           r.valueQuantity?.unit ?? null,
+        date:           r.effectiveDateTime ?? r.effectivePeriod?.start ?? null,
+        category:       r.category?.[0]?.coding?.[0]?.code ?? 'laboratory',
+        interpretation: r.interpretation?.[0]?.coding?.[0]?.display ?? null,
+      }
+    })
+    .sort((a, b) => {
+      if (!a.date) return 1
+      if (!b.date) return -1
+      return b.date.localeCompare(a.date)
+    })
+}
+
+export type ParsedImmunization = {
+  id: string
+  vaccine: string
+  date: string | null
+  status: string
+}
+
+export function parseImmunizations(resources: FHIRImmunization[]): ParsedImmunization[] {
+  return resources
+    .filter(r => r.status === 'completed')
+    .map(r => ({
+      id:      r.id,
+      vaccine: r.vaccineCode?.text ?? r.vaccineCode?.coding?.[0]?.display ?? 'Unknown vaccine',
+      date:    r.occurrenceDateTime ?? r.occurrenceString ?? null,
+      status:  r.status,
+    }))
+    .sort((a, b) => {
+      if (!a.date) return 1
+      if (!b.date) return -1
+      return b.date.localeCompare(a.date)
+    })
 }

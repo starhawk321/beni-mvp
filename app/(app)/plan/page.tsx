@@ -10,6 +10,7 @@ import { decryptToken } from '@/lib/fhir/crypto'
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: false },
   { label: 'Plan',     href: '/plan',      active: true  },
+  { label: 'Health',   href: '/health',    active: false },
   { label: 'Terms',    href: '/terms',     active: false },
   { label: 'Settings', href: '/settings',  active: false },
 ]

@@ -23,7 +23,16 @@ export async function GET() {
   const patientId   = decryptToken(tokenRow.patient_id)
 
   if (!accessToken || !patientId) {
-    return NextResponse.json({ error: 'Could not decrypt token or patient ID' })
+    return NextResponse.json({
+      error: 'Could not decrypt token or patient ID',
+      debug: {
+        accessTokenDecrypted: !!decryptToken(tokenRow.access_token),
+        patientIdDecrypted:   !!patientId,
+        hasRefreshToken:      !!tokenRow.refresh_token,
+        expiresAt:            tokenRow.expires_at,
+        isExpired:            tokenRow.expires_at ? new Date(tokenRow.expires_at) <= new Date() : null,
+      }
+    })
   }
 
   const headers = {

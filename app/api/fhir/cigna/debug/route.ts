@@ -19,7 +19,7 @@ export async function GET() {
 
   if (!tokenRow) return NextResponse.json({ error: 'No Cigna token found' })
 
-  const accessToken = await getValidAccessToken(tokenRow)
+  const accessToken = await getValidAccessToken(tokenRow, 'cigna')
   const patientId   = decryptToken(tokenRow.patient_id)
 
   if (!accessToken || !patientId) {

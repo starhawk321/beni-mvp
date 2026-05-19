@@ -70,7 +70,7 @@ export default async function DashboardPage() {
 
   if (tokenRow) {
     try {
-      const accessToken = await getValidAccessToken(tokenRow)
+      const accessToken = await getValidAccessToken(tokenRow, activePayer as 'cms' | 'cigna')
       if (accessToken) {
         // Persist refreshed token encrypted if it changed
         if (accessToken !== tokenRow.access_token) {

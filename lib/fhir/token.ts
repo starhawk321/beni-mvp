@@ -1,6 +1,9 @@
 import { decryptToken } from '@/lib/fhir/crypto'
+import https from 'node:https'
 
-const CMS_TOKEN_URL = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
+const CMS_TOKEN_URL   = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
+const CIGNA_TOKEN_HOST = 'r-hi2.cigna.com'
+const CIGNA_TOKEN_PATH = '/mga/sps/oauth/oauth20/token'
 
 export type StoredToken = {
   access_token: string
@@ -31,9 +34,55 @@ export async function refreshCMSToken(refreshToken: string): Promise<RefreshedTo
   return { access_token: data.access_token, expires_in: data.expires_in ?? 3600 }
 }
 
+// Cigna returns malformed HTTP headers — must use insecureHTTPParser
+export function refreshCignaToken(refreshToken: string): Promise<RefreshedToken | null> {
+  return new Promise((resolve) => {
+    const credentials = Buffer.from(
+      `${process.env.FHIR_CIGNA_CLIENT_ID}:${process.env.FHIR_CIGNA_CLIENT_SECRET}`
+    ).toString('base64')
+
+    const body = new URLSearchParams({
+      grant_type:    'refresh_token',
+      refresh_token: refreshToken,
+    }).toString()
+
+    const req = https.request(
+      {
+        hostname: CIGNA_TOKEN_HOST,
+        path:     CIGNA_TOKEN_PATH,
+        method:   'POST',
+        headers: {
+          'Content-Type':   'application/x-www-form-urlencoded',
+          'Authorization':  `Basic ${credentials}`,
+          'Content-Length': Buffer.byteLength(body),
+        },
+        insecureHTTPParser: true,
+      },
+      (res) => {
+        let data = ''
+        res.on('data', chunk => { data += chunk })
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data)
+            if (!parsed.access_token) { resolve(null); return }
+            resolve({ access_token: parsed.access_token, expires_in: parsed.expires_in ?? 3600 })
+          } catch {
+            resolve(null)
+          }
+        })
+      }
+    )
+    req.on('error', () => resolve(null))
+    req.write(body)
+    req.end()
+  })
+}
+
 // Returns a valid access token — decrypts, refreshes silently if expired.
-// Returns null if decryption fails, refresh fails, or no refresh token available.
-export async function getValidAccessToken(tokenRow: StoredToken): Promise<string | null> {
+export async function getValidAccessToken(
+  tokenRow: StoredToken,
+  payer: 'cms' | 'cigna' = 'cms'
+): Promise<string | null> {
   const isExpired = tokenRow.expires_at
     ? new Date(tokenRow.expires_at) <= new Date(Date.now() + 60_000)
     : false
@@ -47,6 +96,9 @@ export async function getValidAccessToken(tokenRow: StoredToken): Promise<string
   const refreshToken = decryptToken(tokenRow.refresh_token)
   if (!refreshToken) return null
 
-  const refreshed = await refreshCMSToken(refreshToken)
+  const refreshed = payer === 'cigna'
+    ? await refreshCignaToken(refreshToken)
+    : await refreshCMSToken(refreshToken)
+
   return refreshed?.access_token ?? null
 }

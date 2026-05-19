@@ -37,7 +37,7 @@ Note: HCSC plans (BCBS TX/IL/OK) represent ~10% but their FHIR API is effectivel
 | Anthem / Elevance | ✅ | ~12% | `anthem.com/developers` | ⭐ Best — synthetic sandbox, great docs | Not registered |
 | Aetna (CVS) | ✅ | ~10% | `developerportal.aetna.com` | ✅ Good — you already applied | ✅ Submitted |
 | BCBS TX/IL/OK (HCSC) | ⚠️ | ~10% | `interoperability.hcsc.com` | ❌ Skip — effectively non-functional | Skip |
-| Cigna | ✅ | ~8% | `developer.cigna.com` | ✅ Good — credentials via email | Not registered |
+| Cigna | ✅ | ~8% | `developer.cigna.com` | ✅ Good — credentials via email | ✅ Integrated |
 | Humana | ✅ | ~4% | `developers.humana.com` | ⭐ Best — instant sandbox credentials | Not registered |
 | Kaiser Permanente | ✅ | ~4% | `developer.kp.org` | ⚠️ Moderate — Epic-backed | Not registered |
 | Highmark BCBS | ✅ | regional | `cmsapiportal.hmhs.com` | ✅ Good — active community | Not registered |

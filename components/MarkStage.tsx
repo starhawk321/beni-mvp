@@ -90,11 +90,12 @@ export default function MarkStage() {
           </radialGradient>
         </defs>
         <circle cx="50" cy="50" r="50" fill="url(#mark-glow)" opacity="0.45"/>
-        <path
-          fillRule="evenodd"
-          fill="url(#mark-g)"
-          d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z M 50 30 C 50 42 58 50 70 50 C 58 50 50 58 50 70 C 50 58 42 50 30 50 C 42 50 50 42 50 30 Z"
-        />
+        <g fill="url(#mark-g)">
+          <path transform="rotate(0 50 50)"   d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path transform="rotate(90 50 50)"  d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path transform="rotate(180 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path transform="rotate(270 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+        </g>
       </svg>
     </div>
   )

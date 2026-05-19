@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80">
+  <svg x="6" y="6" width="68" height="68" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="g" x1="15%" y1="5%" x2="85%" y2="95%">
+        <stop offset="0%" stop-color="#7AE7FF"></stop>
+        <stop offset="60%" stop-color="#5BA8FF"></stop>
+        <stop offset="100%" stop-color="#9B5BFF"></stop>
+      </linearGradient>
+      <filter id="shrink" x="-10%" y="-10%" width="120%" height="120%">
+        <feMorphology operator="erode" radius="4"></feMorphology>
+      </filter>
+    </defs>
+    <path d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z" fill="none" stroke="#F1EDE2" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path>
+    <g filter="url(#shrink)">
+      <path d="M 35 35 C 35 18, 42 8, 50 8 C 58 8, 65 18, 65 35 C 82 35, 92 42, 92 50 C 92 58, 82 65, 65 65 C 65 82, 58 92, 50 92 C 42 92, 35 82, 35 65 C 18 65, 8 58, 8 50 C 8 42, 18 35, 35 35 Z" fill="url(#g)"></path>
+    </g>
+  </svg>
+  <text x="82" y="58" font-family="Manrope, system-ui, sans-serif" font-weight="800" font-size="56" fill="#FFFFFF" letter-spacing="-2">Béni</text>
+</svg>

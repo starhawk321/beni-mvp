@@ -1,5 +1,6 @@
 import WaitlistForm from '@/components/WaitlistForm'
 import MarkStage from '@/components/MarkStage'
+import GradientField from '@/components/GradientField'
 import Image from 'next/image'
 
 export default function StealthPage() {
@@ -12,13 +13,7 @@ export default function StealthPage() {
           -webkit-font-smoothing: antialiased;
           overflow: hidden;
         }
-        .field {
-          position: fixed; inset: 0; pointer-events: none; z-index: 0;
-          background:
-            radial-gradient(900px 600px at 18% 28%, rgba(122,231,255,0.18), transparent 60%),
-            radial-gradient(900px 600px at 82% 22%, rgba(155,91,255,0.18), transparent 62%),
-            radial-gradient(900px 700px at 50% 110%, rgba(229,91,184,0.16), transparent 60%);
-        }
+
         .grid {
           position: fixed; inset: 0; z-index: 0; pointer-events: none;
           background-image:
@@ -27,6 +22,7 @@ export default function StealthPage() {
           background-size: 88px 88px;
           mask-image: radial-gradient(900px 600px at 50% 40%, #000 60%, transparent 100%);
         }
+
         .mark-stage {
           position: relative;
           width: 100%;
@@ -35,11 +31,29 @@ export default function StealthPage() {
           justify-self: end;
           animation: float 9s ease-in-out infinite;
         }
+
         @keyframes float {
           0%,100% { transform: translateY(0) rotate(0deg); }
           50%      { transform: translateY(-12px) rotate(-1.5deg); }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Entrance animations */
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+
+        .enter-logo    { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+        .enter-tagline { animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.28s both; }
+        .enter-form    { animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.46s both; }
+        .enter-mark    { animation: fadeIn 1.2s ease 0.6s both; }
+        .enter-footer  { animation: fadeIn 0.8s ease 0.8s both; }
+
         @media (max-width: 980px) {
           .mark-stage { display: none !important; }
           .hero { grid-template-columns: 1fr !important; }
@@ -47,7 +61,8 @@ export default function StealthPage() {
         }
       `}</style>
 
-      <div className="field" />
+      {/* Mouse-tracking gradient field */}
+      <GradientField />
       <div className="grid" />
 
       <div style={{
@@ -58,7 +73,7 @@ export default function StealthPage() {
         padding: '24px 36px 28px',
       }}>
         {/* Header */}
-        <header style={{ display: 'flex', alignItems: 'center' }}>
+        <header className="enter-logo" style={{ display: 'flex', alignItems: 'center' }}>
           <Image src="/assets/beni-logo-wordmark-dark.svg" alt="Béni" width={144} height={48} priority />
         </header>
 
@@ -70,7 +85,7 @@ export default function StealthPage() {
           alignItems: 'center',
         }} className="hero">
           <div>
-            <h1 style={{
+            <h1 className="enter-tagline" style={{
               margin: 0,
               fontFamily: 'var(--font-manrope), sans-serif',
               fontWeight: 700,
@@ -94,19 +109,19 @@ export default function StealthPage() {
               <br/>way to healthcare.
             </h1>
 
-            <div style={{ marginTop: 36 }}>
+            <div className="enter-form" style={{ marginTop: 36 }}>
               <WaitlistForm />
             </div>
           </div>
 
           {/* Interactive mark */}
-          <div className="mark-stage">
+          <div className="mark-stage enter-mark">
             <MarkStage />
           </div>
         </main>
 
         {/* Footer */}
-        <footer style={{
+        <footer className="enter-footer" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)',
           color: 'rgba(241,237,226,0.42)', fontSize: 12, letterSpacing: '0.02em',

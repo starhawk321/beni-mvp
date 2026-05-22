@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.redirect(new URL('/login', request.url))
 
   const state = base64url(randomBytes(12))
+  const nonce = base64url(randomBytes(16))
 
   await supabase.from('bcbs_oauth_state').upsert({
     user_id:    user.id,
@@ -26,8 +27,9 @@ export async function GET(request: NextRequest) {
     client_id:     process.env.FHIR_BCBS_CLIENT_ID!,
     redirect_uri:  process.env.FHIR_BCBS_REDIRECT_URI!,
     response_type: 'code',
-    scope:         'openid fhirUser patient/*.read offline_access',
+    scope:         'launch/patient patient/*.read offline_access fhirUser openid',
     state,
+    nonce,
     aud:           'https://preview-api.bluecrossmn.com/fhir',
   })}`
 

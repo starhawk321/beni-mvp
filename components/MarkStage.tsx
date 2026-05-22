@@ -89,13 +89,28 @@ export default function MarkStage() {
             <stop offset="40%" stopColor="rgba(255,255,255,0)"/>
           </radialGradient>
         </defs>
+        <style>{`
+          /* All petals start at 0deg (closed bud pointing up), then rotate to final positions */
+          @keyframes unfurl-0   { from { transform: rotate(0deg)   scale(0.12); opacity:0.4; } 70% { transform: rotate(0deg)   scale(1.06); opacity:1; } to { transform: rotate(0deg)   scale(1); opacity:1; } }
+          @keyframes unfurl-90  { from { transform: rotate(0deg)   scale(0.12); opacity:0.4; } 70% { transform: rotate(92deg)  scale(1.06); opacity:1; } to { transform: rotate(90deg)  scale(1); opacity:1; } }
+          @keyframes unfurl-180 { from { transform: rotate(0deg)   scale(0.12); opacity:0.4; } 70% { transform: rotate(182deg) scale(1.06); opacity:1; } to { transform: rotate(180deg) scale(1); opacity:1; } }
+          @keyframes unfurl-270 { from { transform: rotate(0deg)   scale(0.12); opacity:0.4; } 70% { transform: rotate(272deg) scale(1.06); opacity:1; } to { transform: rotate(270deg) scale(1); opacity:1; } }
+          .petal { transform-origin: 50px 50px; transform-box: view-box; animation-duration: 1.2s; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); animation-fill-mode: both; }
+          .p0 { animation-name: unfurl-0;   animation-delay: 0.5s; }
+          .p1 { animation-name: unfurl-90;  animation-delay: 0.65s; }
+          .p2 { animation-name: unfurl-180; animation-delay: 0.8s; }
+          .p3 { animation-name: unfurl-270; animation-delay: 0.95s; }
+          @keyframes budFade { 0% { opacity:0.95; r:7; } 60% { opacity:0.5; } 100% { opacity:0; r:0; } }
+          .bud { animation: budFade 1.5s ease-out 0.5s both; }
+        `}</style>
         <circle cx="50" cy="50" r="50" fill="url(#mark-glow)" opacity="0.45"/>
         <g fill="url(#mark-g)">
-          <path transform="rotate(0 50 50)"   d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(90 50 50)"  d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(180 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(270 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path className="petal p0" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path className="petal p1" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path className="petal p2" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
+          <path className="petal p3" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
         </g>
+        <circle className="bud" cx="50" cy="50" r="7" fill="url(#mark-g)"/>
       </svg>
     </div>
   )

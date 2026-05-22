@@ -1,6 +1,7 @@
 import type {
   FHIRCoverage, FHIRExplanationOfBenefit, FHIRPatient,
   FHIRCondition, FHIRMedicationRequest, FHIRObservation, FHIRImmunization,
+  FHIRCoverageEligibilityResponse,
 } from './client'
 
 export type ParsedCoverage = {
@@ -80,8 +81,7 @@ export function parseEOB(resource: FHIRExplanationOfBenefit): ParsedClaim {
   const rawDate = resource.billablePeriod?.start ?? resource.created ?? null
   const serviceDate = rawDate ? rawDate.split('T')[0] : null
 
-  // Provider — use insurer display as fallback since practitioner is a reference
-  const provider = insurerName
+  const provider = resolveProvider(resource) ?? insurerName
 
   // Amounts — try multiple category codes since CMS and standard FHIR differ
   const totalCode = (t: { category?: { coding?: Array<{ code?: string }> } }) =>
@@ -168,6 +168,57 @@ export function calculateSpending(claims: ParsedClaim[]) {
     totalPatient: round2(totalPatient),
     claimCount:   claims.length,
   }
+}
+
+function formatContainedName(contained: NonNullable<FHIRExplanationOfBenefit['contained']>[number]): string | null {
+  if (!contained.name) return null
+  if (typeof contained.name === 'string') return contained.name
+  const first = contained.name[0]
+  if (!first) return null
+  if (first.text) return first.text
+  const given = first.given?.join(' ') ?? ''
+  return [given, first.family].filter(Boolean).join(' ').trim() || null
+}
+
+function resolveContainedRef(eob: FHIRExplanationOfBenefit, ref: string | undefined): string | null {
+  if (!ref?.startsWith('#')) return null
+  const containedId = ref.slice(1)
+  const contained = eob.contained?.find(c => c.id === containedId)
+  if (!contained) return null
+  return formatContainedName(contained)
+}
+
+function resolveProvider(eob: FHIRExplanationOfBenefit): string | null {
+  // 1. EOB.provider — typically a Practitioner or Organization reference
+  if (eob.provider?.display) return eob.provider.display
+  if (eob.provider?.reference) {
+    const name = resolveContainedRef(eob, eob.provider.reference)
+    if (name) return name
+  }
+
+  // 2. EOB.facility — often the hospital/clinic
+  if (eob.facility?.display) return eob.facility.display
+  if (eob.facility?.reference) {
+    const name = resolveContainedRef(eob, eob.facility.reference)
+    if (name) return name
+  }
+
+  // 3. EOB.careTeam[] — first member with a display name
+  for (const member of eob.careTeam ?? []) {
+    if (member.provider?.display) return member.provider.display
+    if (member.provider?.reference) {
+      const name = resolveContainedRef(eob, member.provider.reference)
+      if (name) return name
+    }
+  }
+
+  // 4. Any contained Practitioner or Organization as last resort
+  const containedProvider = eob.contained?.find(c =>
+    c.resourceType === 'Practitioner' || c.resourceType === 'Organization'
+  )
+  if (containedProvider) return formatContainedName(containedProvider)
+
+  return null
 }
 
 function resolveContainedCoverage(eob: FHIRExplanationOfBenefit): string | null {
@@ -313,4 +364,49 @@ export function parseImmunizations(resources: FHIRImmunization[]): ParsedImmuniz
       if (!b.date) return -1
       return b.date.localeCompare(a.date)
     })
+}
+
+export type ParsedEligibility = {
+  id: string
+  inforce: boolean
+  outcome: string
+  servicedDate: string | null
+  periodStart: string | null
+  periodEnd: string | null
+  benefits: Array<{
+    category: string
+    network: string | null
+    allowed: string | null
+    used:    string | null
+  }>
+}
+
+export function parseEligibility(resources: FHIRCoverageEligibilityResponse[]): ParsedEligibility | null {
+  if (!resources.length) return null
+  const sorted = [...resources].sort((a, b) => (b.created ?? '').localeCompare(a.created ?? ''))
+  const r = sorted[0]
+  const ins = r.insurance?.[0]
+
+  const benefits: ParsedEligibility['benefits'] = []
+  for (const item of ins?.item ?? []) {
+    const category = item.category?.text ?? item.category?.coding?.[0]?.display ?? item.productOrService?.text ?? 'Benefit'
+    const network  = item.network?.coding?.[0]?.display ?? null
+    for (const b of item.benefit ?? []) {
+      const allowed = b.allowedMoney
+        ? `$${b.allowedMoney.value.toLocaleString()}`
+        : b.allowedString ?? null
+      const used = b.usedMoney ? `$${b.usedMoney.value.toLocaleString()}` : null
+      benefits.push({ category, network, allowed, used })
+    }
+  }
+
+  return {
+    id:           r.id,
+    inforce:      ins?.inforce ?? r.outcome === 'complete',
+    outcome:      r.outcome ?? r.disposition ?? 'unknown',
+    servicedDate: r.servicedDate ?? r.servicedPeriod?.start ?? null,
+    periodStart:  ins?.benefitPeriod?.start ?? null,
+    periodEnd:    ins?.benefitPeriod?.end ?? null,
+    benefits,
+  }
 }

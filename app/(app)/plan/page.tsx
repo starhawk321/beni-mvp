@@ -2,8 +2,11 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { createClient } from '@/lib/supabase/server'
-import { fetchCMSCoverage, fetchCMSEOBs } from '@/lib/fhir/client'
-import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance } from '@/lib/fhir/parsers'
+import {
+  fetchCMSCoverage, fetchCMSEOBs,
+  fetchCMSEligibility, fetchCignaEligibility, fetchBCBSEligibility,
+} from '@/lib/fhir/client'
+import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance, parseEligibility } from '@/lib/fhir/parsers'
 import { getValidAccessToken } from '@/lib/fhir/token'
 import { decryptToken } from '@/lib/fhir/crypto'
 
@@ -78,31 +81,54 @@ export default async function PlanPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [{ data: tokenRow }, { data: profile }] = await Promise.all([
-    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cms').single(),
+  const [{ data: tokenRows }, { data: profile }] = await Promise.all([
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at, payer').eq('user_id', user!.id),
     supabase.from('profiles').select('selected_insurer').eq('id', user!.id).single(),
   ])
+
+  // Use first available token for plan details (CMS preferred for backward compat)
+  const tokenRow = tokenRows?.find(t => t.payer === 'cms')
+                 ?? tokenRows?.find(t => t.payer === 'cigna')
+                 ?? tokenRows?.find(t => t.payer === 'bcbs')
+                 ?? null
+  const activePayer = (tokenRow?.payer ?? null) as 'cms' | 'cigna' | 'bcbs' | null
 
   let coverage = null
   let claims: ReturnType<typeof parseEOBs> = []
   let benefitBalance: ReturnType<typeof parseBenefitBalance> = {
     deductibleMet: null, deductibleTotal: null, oopMet: null, oopTotal: null,
   }
+  let eligibility: ReturnType<typeof parseEligibility> = null
 
-  if (tokenRow) {
+  if (tokenRow && activePayer) {
     try {
-      const accessToken = await getValidAccessToken(tokenRow)
+      const accessToken = await getValidAccessToken(tokenRow, activePayer)
       const patientId   = decryptToken(tokenRow.patient_id)
       if (accessToken && patientId) {
-        const [coverageBundle, eobBundle] = await Promise.all([
+        const eligibilityFetch =
+          activePayer === 'cigna' ? fetchCignaEligibility(patientId, accessToken) :
+          activePayer === 'bcbs'  ? fetchBCBSEligibility(patientId, accessToken)  :
+                                    fetchCMSEligibility(patientId, accessToken)
+
+        const [coverageBundle, eobBundle, eligibilityResult] = await Promise.allSettled([
           fetchCMSCoverage(patientId, accessToken),
           fetchCMSEOBs(patientId, accessToken),
+          eligibilityFetch,
         ])
-        const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
-        const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []
-        coverage       = coverageResources[0] ? parseCoverage(coverageResources[0]) : null
-        claims         = parseEOBs(eobResources)
-        benefitBalance = parseBenefitBalance(eobResources)
+
+        if (coverageBundle.status === 'fulfilled') {
+          const coverageResources = coverageBundle.value.entry?.map(e => e.resource) ?? []
+          coverage = coverageResources[0] ? parseCoverage(coverageResources[0]) : null
+        }
+        if (eobBundle.status === 'fulfilled') {
+          const eobResources = eobBundle.value.entry?.map(e => e.resource) ?? []
+          claims         = parseEOBs(eobResources)
+          benefitBalance = parseBenefitBalance(eobResources)
+        }
+        if (eligibilityResult.status === 'fulfilled') {
+          const eligResources = eligibilityResult.value.entry?.map(e => e.resource) ?? []
+          eligibility = parseEligibility(eligResources)
+        }
       }
     } catch (err) {
       console.error('Plan page FHIR fetch failed:', err)
@@ -155,7 +181,26 @@ export default async function PlanPage() {
 
       <main className="beni-main">
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>Plan details</h1>
-        <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 36 }}>{subtitle}</p>
+        <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 24 }}>{subtitle}</p>
+
+        {eligibility && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '10px 16px', borderRadius: 'var(--r-pill)',
+            background: eligibility.inforce ? 'var(--status-positive-bg)' : 'var(--bg-sunken)',
+            color: eligibility.inforce ? 'var(--status-positive)' : 'var(--fg-3)',
+            marginBottom: 28, alignSelf: 'flex-start', width: 'fit-content',
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: eligibility.inforce ? 'var(--status-positive)' : 'var(--fg-4)',
+            }} />
+            <span className="t-caption" style={{ fontWeight: 600 }}>
+              {eligibility.inforce ? 'Coverage active' : `Coverage ${eligibility.outcome}`}
+              {eligibility.periodEnd && ` · through ${new Date(eligibility.periodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+            </span>
+          </div>
+        )}
 
         {/* Progress bars */}
         <div className="beni-progress-grid" style={{ marginBottom: 40 }}>

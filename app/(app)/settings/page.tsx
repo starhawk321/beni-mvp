@@ -4,7 +4,14 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 import ThemeToggle from '@/components/ThemeToggle'
 import DeleteAccountButton from '@/components/DeleteAccountButton'
+import ConnectedInsurers, { type ConnectedInsurer } from '@/components/ConnectedInsurers'
 import Link from 'next/link'
+
+const INSURER_META: Record<string, Omit<ConnectedInsurer, 'payer'>> = {
+  cms:   { displayName: 'Medicare (CMS)',          color: '#1565C0', initials: 'Mc' },
+  cigna: { displayName: 'Cigna',                   color: '#FF7A00', initials: 'Ci' },
+  bcbs:  { displayName: 'BlueCross BlueShield MN', color: '#005EB8', initials: 'BC' },
+}
 
 const navTabs = [
   { label: 'Overview', href: '/dashboard', active: false },
@@ -17,10 +24,14 @@ const navTabs = [
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const [{ data: profile }, { data: fhirToken }] = await Promise.all([
+  const [{ data: profile }, { data: fhirTokens }] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user!.id).single(),
-    supabase.from('fhir_tokens').select('payer').eq('user_id', user!.id).single(),
+    supabase.from('fhir_tokens').select('payer').eq('user_id', user!.id),
   ])
+
+  const connectedInsurers: ConnectedInsurer[] = (fhirTokens ?? [])
+    .filter(t => INSURER_META[t.payer])
+    .map(t => ({ payer: t.payer as ConnectedInsurer['payer'], ...INSURER_META[t.payer] }))
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
@@ -78,37 +89,11 @@ export default async function SettingsPage() {
           </div>
         </section>
 
-        {/* Connected insurer section */}
+        {/* Connected insurers */}
         <section style={{ marginBottom: 28 }}>
-          <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Insurance connection</p>
+          <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Connected insurers</p>
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: 'var(--border-hairline)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Connected insurer</p>
-                <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>
-                  {fhirToken ? (profile?.selected_insurer ?? 'Connected') : 'None connected'}
-                </p>
-              </div>
-              {fhirToken
-                ? <span className="badge badge-positive">Active</span>
-                : <Link href="/onboarding" style={{ fontSize: 13, fontWeight: 600, color: 'var(--beni-sky)', textDecoration: 'none', fontFamily: 'var(--font-manrope), sans-serif' }}>Connect →</Link>
-              }
-            </div>
-            <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p className="t-caption" style={{ color: 'var(--fg-4)', marginBottom: 4 }}>Access type</p>
-                <p className="t-body-s" style={{ color: 'var(--fg-2)' }}>Read-only · FHIR Patient Access API</p>
-              </div>
-              <Link href="/onboarding" style={{
-                height: 32, padding: '0 14px', borderRadius: 'var(--r-pill)',
-                border: 'var(--border-strong)', background: 'transparent',
-                fontSize: 13, fontWeight: 600, color: 'var(--fg-2)',
-                display: 'flex', alignItems: 'center', textDecoration: 'none',
-                fontFamily: 'var(--font-manrope), sans-serif',
-              }}>
-                Reconnect
-              </Link>
-            </div>
+            <ConnectedInsurers insurers={connectedInsurers} />
           </div>
         </section>
 

@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { friendlyAuthError } from '@/lib/auth/errors'
 import Logo from '@/components/Logo'
 
-export default function LoginPage() {
-  const router = useRouter()
+function LoginInner() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const deleted      = searchParams.get('deleted') === 'true'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -44,6 +46,19 @@ export default function LoginPage() {
         </div>
 
         <h1 className="t-h2" style={{ color: 'var(--fg-1)', marginBottom: 24 }}>Welcome back</h1>
+
+        {deleted && (
+          <div style={{
+            background: 'var(--status-positive-bg)',
+            color: 'var(--status-positive)',
+            borderRadius: 'var(--r-3)',
+            padding: '12px 14px',
+            fontSize: 14, fontWeight: 500,
+            marginBottom: 16,
+          }}>
+            Your account has been deleted.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
@@ -136,5 +151,13 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginInner />
+    </Suspense>
   )
 }

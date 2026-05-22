@@ -151,6 +151,20 @@ export async function fetchBCBSImmunizations(patientId: string, token: string) {
   return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: BCBS_BASE, token })
 }
 
+// ── CoverageEligibilityResponse ──────────────────────────────────────────────
+
+export async function fetchCMSEligibility(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverageEligibilityResponse>(`CoverageEligibilityResponse?patient=${patientId}&_count=10`, { base: CMS_BASE, token })
+}
+
+export async function fetchCignaEligibility(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverageEligibilityResponse>(`CoverageEligibilityResponse?patient=${patientId}&_count=10`, { base: CIGNA_BASE, token })
+}
+
+export async function fetchBCBSEligibility(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverageEligibilityResponse>(`CoverageEligibilityResponse?patient=${patientId}&_count=10`, { base: BCBS_BASE, token })
+}
+
 export async function fetchCMSPatient(patientId: string, token: string) {
   const res = await fetch(`${CMS_BASE}/Patient/${patientId}`, {
     headers: {
@@ -191,6 +205,15 @@ export type FHIRItem = {
   adjudication?: FHIRAdjudication[]
 }
 
+export type FHIRContainedResource = {
+  resourceType: string
+  id: string
+  type?: { text?: string }
+  payor?: Array<{ display?: string }>
+  name?: string | Array<{ family?: string; given?: string[]; text?: string }>
+  alias?: string[]
+}
+
 export type FHIRExplanationOfBenefit = {
   resourceType: 'ExplanationOfBenefit'
   id: string
@@ -201,8 +224,11 @@ export type FHIRExplanationOfBenefit = {
   billablePeriod?: { start?: string; end?: string }
   created?: string
   insurer?: { reference?: string; display?: string; identifier?: { value?: string } }
+  provider?: { reference?: string; display?: string; identifier?: { value?: string } }
+  facility?: { reference?: string; display?: string }
+  careTeam?: Array<{ sequence: number; provider: { reference?: string; display?: string }; role?: { coding?: Array<{ code?: string; display?: string }> } }>
   outcome?: string
-  contained?: Array<{ resourceType: string; id: string; type?: { text?: string }; payor?: Array<{ display?: string }> }>
+  contained?: FHIRContainedResource[]
   insurance?: Array<{ focal: boolean; coverage: { reference: string; display?: string } }>
   item?: FHIRItem[]
   total?: Array<{ category: { coding: Array<{ code: string; display?: string }> }; amount: { value: number; currency: string } }>
@@ -269,4 +295,34 @@ export type FHIRImmunization = {
   vaccineCode?: { coding?: Array<{ code: string; display?: string }>; text?: string }
   occurrenceDateTime?: string
   occurrenceString?: string
+}
+
+export type FHIRCoverageEligibilityResponse = {
+  resourceType: 'CoverageEligibilityResponse'
+  id: string
+  status: string
+  outcome?: string
+  disposition?: string
+  servicedDate?: string
+  servicedPeriod?: { start?: string; end?: string }
+  created?: string
+  insurer?: { display?: string; reference?: string }
+  insurance?: Array<{
+    coverage?: { display?: string; reference?: string }
+    inforce?: boolean
+    benefitPeriod?: { start?: string; end?: string }
+    item?: Array<{
+      category?:    { coding?: Array<{ code?: string; display?: string }>; text?: string }
+      productOrService?: { coding?: Array<{ code?: string; display?: string }>; text?: string }
+      network?:     { coding?: Array<{ code?: string; display?: string }> }
+      unit?:        { coding?: Array<{ code?: string; display?: string }> }
+      term?:        { coding?: Array<{ code?: string; display?: string }> }
+      benefit?: Array<{
+        type?:           { coding?: Array<{ code?: string; display?: string }> }
+        allowedMoney?:   { value: number; currency: string }
+        allowedString?:  string
+        usedMoney?:      { value: number; currency: string }
+      }>
+    }>
+  }>
 }

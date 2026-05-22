@@ -26,9 +26,8 @@ export async function GET(request: NextRequest) {
     client_id:     process.env.FHIR_BCBS_CLIENT_ID!,
     redirect_uri:  process.env.FHIR_BCBS_REDIRECT_URI!,
     response_type: 'code',
-    scope:         process.env.FHIR_BCBS_SCOPE!,
+    scope:         'openid fhirUser patient/*.read offline_access',
     state,
-    aud:           'https://preview-api.bluecrossmn.com/fhir',
   })}`
 
   return NextResponse.redirect(redirectUrl)

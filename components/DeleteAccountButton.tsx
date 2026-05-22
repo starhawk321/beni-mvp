@@ -30,7 +30,7 @@ export default function DeleteAccountButton() {
           border: '1px solid var(--status-critical)',
           background: 'transparent', cursor: 'pointer',
           fontSize: 13, fontWeight: 600, color: 'var(--status-critical)',
-          fontFamily: 'var(--font-manrope), sans-serif',
+          fontFamily: 'var(--font-manrope), sans-serif', whiteSpace: 'nowrap',
         }}
       >
         Delete account

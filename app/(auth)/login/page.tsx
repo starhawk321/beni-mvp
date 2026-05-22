@@ -104,6 +104,13 @@ export default function LoginPage() {
           </Link>
         </p>
 
+        <p className="t-caption" style={{ color: 'var(--fg-4)', textAlign: 'center', marginTop: 16 }}>
+          By signing up you agree to our{' '}
+          <Link href="/privacy" style={{ color: 'var(--fg-3)', textDecoration: 'underline' }}>
+            Privacy Policy
+          </Link>
+        </p>
+
       </div>
 
       <style>{`

@@ -136,6 +136,17 @@ export default async function SettingsPage() {
           </div>
         </section>
 
+        {/* Legal */}
+        <section style={{ marginBottom: 28 }}>
+          <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 12 }}>Legal</p>
+          <div className="card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p className="t-body-strong" style={{ color: 'var(--fg-1)' }}>Privacy Policy</p>
+            <Link href="/privacy" style={{ fontSize: 13, fontWeight: 600, color: 'var(--beni-sky)', textDecoration: 'none', fontFamily: 'var(--font-manrope), sans-serif' }}>
+              View →
+            </Link>
+          </div>
+        </section>
+
         {/* Danger zone */}
         <section>
           <p className="t-overline" style={{ color: 'var(--status-critical)', marginBottom: 12 }}>Danger zone</p>

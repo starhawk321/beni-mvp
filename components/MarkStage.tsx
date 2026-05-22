@@ -89,13 +89,35 @@ export default function MarkStage() {
             <stop offset="40%" stopColor="rgba(255,255,255,0)"/>
           </radialGradient>
         </defs>
+        <style>{`
+          @keyframes petalBloom {
+            0%   { transform: rotate(var(--r)) scale(0);    opacity: 0; }
+            55%  { transform: rotate(var(--r)) scale(1.18); opacity: 1; }
+            75%  { transform: rotate(var(--r)) scale(0.94); }
+            90%  { transform: rotate(var(--r)) scale(1.04); }
+            100% { transform: rotate(var(--r)) scale(1);    opacity: 1; }
+          }
+          .petal {
+            transform-origin: 50px 50px;
+            transform-box: view-box;
+            animation: petalBloom 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay) both;
+          }
+        `}</style>
         <circle cx="50" cy="50" r="50" fill="url(#mark-glow)" opacity="0.45"/>
         <g fill="url(#mark-g)">
-          <path transform="rotate(0 50 50)"   d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(90 50 50)"  d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(180 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-          <path transform="rotate(270 50 50)" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
-        </g>
+          {[
+            { r: '0deg',   delay: '0.6s'  },
+            { r: '90deg',  delay: '0.72s' },
+            { r: '180deg', delay: '0.84s' },
+            { r: '270deg', delay: '0.96s' },
+          ].map(({ r, delay }) => (
+            <path
+              key={r}
+              className="petal"
+              style={{ '--r': r, '--delay': delay } as React.CSSProperties}
+              d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"
+            />
+          ))}</g>
       </svg>
     </div>
   )

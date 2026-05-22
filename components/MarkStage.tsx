@@ -100,8 +100,6 @@ export default function MarkStage() {
           .p1 { animation-name: unfurl-90;  animation-delay: 0.65s; }
           .p2 { animation-name: unfurl-180; animation-delay: 0.8s; }
           .p3 { animation-name: unfurl-270; animation-delay: 0.95s; }
-          @keyframes budFade { 0% { opacity:0.95; r:7; } 60% { opacity:0.5; } 100% { opacity:0; r:0; } }
-          .bud { animation: budFade 1.5s ease-out 0.5s both; }
         `}</style>
         <circle cx="50" cy="50" r="50" fill="url(#mark-glow)" opacity="0.45"/>
         <g fill="url(#mark-g)">
@@ -110,7 +108,6 @@ export default function MarkStage() {
           <path className="petal p2" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
           <path className="petal p3" d="M50 50 C 34 38, 30 16, 50 8 C 70 16, 66 38, 50 50 Z"/>
         </g>
-        <circle className="bud" cx="50" cy="50" r="7" fill="url(#mark-g)"/>
       </svg>
     </div>
   )

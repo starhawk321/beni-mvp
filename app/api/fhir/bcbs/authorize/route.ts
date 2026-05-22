@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     response_type: 'code',
     scope:         'openid fhirUser patient/*.read offline_access',
     state,
+    aud:           'https://preview-api.bluecrossmn.com/fhir/',
   })}`
 
   return NextResponse.redirect(redirectUrl)

@@ -4,7 +4,7 @@ import https from 'node:https'
 const CMS_TOKEN_URL   = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
 const CIGNA_TOKEN_HOST = 'r-hi2.cigna.com'
 const CIGNA_TOKEN_PATH = '/mga/sps/oauth/oauth20/token'
-const BCBS_TOKEN_URL  = 'https://preview-api.bluecrossmn.com/fhir/token'
+const BCBS_TOKEN_URL  = 'https://interop-preview.bluecrossmn.com/fhir/token'
 
 export type StoredToken = {
   access_token: string

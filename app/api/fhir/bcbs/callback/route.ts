@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { encryptToken } from '@/lib/fhir/crypto'
 
-const BCBS_TOKEN_URL = 'https://preview-api.bluecrossmn.com/fhir/token'
+const BCBS_TOKEN_URL = 'https://interop-preview.bluecrossmn.com/fhir/token'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)

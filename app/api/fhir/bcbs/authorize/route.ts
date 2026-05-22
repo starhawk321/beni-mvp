@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { randomBytes } from 'crypto'
 
-const BCBS_AUTH_URL = 'https://preview-api.bluecrossmn.com/fhir/authorize'
+const BCBS_AUTH_URL = 'https://interop-preview.bluecrossmn.com/fhir/authorize'
 
 function base64url(buf: Buffer): string {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     response_type: 'code',
     scope:         'openid fhirUser patient/*.read offline_access',
     state,
-    aud:           'https://preview-api.bluecrossmn.com/fhir/',
+    aud:           'https://preview-api.bluecrossmn.com/fhir',
   })}`
 
   return NextResponse.redirect(redirectUrl)

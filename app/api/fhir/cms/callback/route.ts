@@ -52,6 +52,15 @@ export async function GET(request: NextRequest) {
 
   const token = await tokenRes.json()
 
+  if (!token.access_token || !token.patient) {
+    console.error('CMS token response missing required fields:', {
+      hasAccessToken: !!token.access_token,
+      hasPatient:     !!token.patient,
+      keys:           Object.keys(token),
+    })
+    return NextResponse.redirect(new URL('/dashboard?error=cms_missing_fields', request.url))
+  }
+
   // Store tokens and patient_id encrypted — patient_id is a healthcare identifier
   await supabase.from('fhir_tokens').upsert({
     user_id:       user.id,

@@ -5,12 +5,12 @@ import { createClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
 
 const insurers = [
-  { name: 'Medicare (CMS)',      color: '#1565C0', initials: 'Mc', recommended: true,  oauthPath: '/api/fhir/cms/authorize'   },
-  { name: 'Cigna',               color: '#FF7A00', initials: 'Ci', recommended: true,  oauthPath: '/api/fhir/cigna/authorize' },
-  { name: 'Aetna',               color: '#7B2D8E', initials: 'Ae', recommended: true,  oauthPath: null },
-  { name: 'UnitedHealthcare',    color: '#002677', initials: 'U',  recommended: false, oauthPath: null },
-  { name: 'Anthem / Blue Cross', color: '#005EB8', initials: 'An', recommended: false, oauthPath: null },
-  { name: 'Humana',              color: '#5C9A1B', initials: 'H',  recommended: false, oauthPath: null },
+  { name: 'Medicare (CMS)',          color: '#1565C0', initials: 'Mc', recommended: true,  oauthPath: '/api/fhir/cms/authorize'   },
+  { name: 'Cigna',                   color: '#FF7A00', initials: 'Ci', recommended: true,  oauthPath: '/api/fhir/cigna/authorize' },
+  { name: 'BlueCross BlueShield MN', color: '#005EB8', initials: 'BC', recommended: true,  oauthPath: '/api/fhir/bcbs/authorize'  },
+  { name: 'Aetna',                   color: '#7B2D8E', initials: 'Ae', recommended: true,  oauthPath: null },
+  { name: 'UnitedHealthcare',        color: '#002677', initials: 'U',  recommended: false, oauthPath: null },
+  { name: 'Humana',                  color: '#5C9A1B', initials: 'H',  recommended: false, oauthPath: null },
 ]
 
 export default function OnboardingPage() {

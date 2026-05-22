@@ -6,6 +6,7 @@ import DashboardInteractive from '@/components/DashboardInteractive'
 import {
   fetchCMSCoverage, fetchCMSEOBs,
   fetchCignaCoverage, fetchCignaEOBs,
+  fetchBCBSCoverage, fetchBCBSEOBs,
 } from '@/lib/fhir/client'
 import { parseCoverage, parseEOBs, calculateSpending, parseBenefitBalance } from '@/lib/fhir/parsers'
 import { getValidAccessToken } from '@/lib/fhir/token'
@@ -26,14 +27,15 @@ export default async function DashboardPage() {
 
   const email = user?.email ?? ''
 
-  const [{ data: cmsToken }, { data: cignaToken }, { data: profile }] = await Promise.all([
+  const [{ data: cmsToken }, { data: cignaToken }, { data: bcbsToken }, { data: profile }] = await Promise.all([
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cms').single(),
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cigna').single(),
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'bcbs').single(),
     supabase.from('profiles').select('selected_insurer, first_name').eq('id', user!.id).single(),
   ])
 
-  const tokenRow   = cmsToken ?? cignaToken
-  const activePayer = cmsToken ? 'cms' : cignaToken ? 'cigna' : null
+  const tokenRow   = cmsToken ?? cignaToken ?? bcbsToken
+  const activePayer = cmsToken ? 'cms' : cignaToken ? 'cigna' : bcbsToken ? 'bcbs' : null
   const isConnected = !!activePayer || !!profile?.selected_insurer
 
   let coverage      = null
@@ -60,7 +62,9 @@ export default async function DashboardPage() {
         const [coverageBundle, eobBundle] = await Promise.all(
           activePayer === 'cigna'
             ? [fetchCignaCoverage(patientId, accessToken), fetchCignaEOBs(patientId, accessToken)]
-            : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
+            : activePayer === 'bcbs'
+              ? [fetchBCBSCoverage(patientId, accessToken), fetchBCBSEOBs(patientId, accessToken)]
+              : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
         )
 
         const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []

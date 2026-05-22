@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   fetchCMSConditions, fetchCMSMedications, fetchCMSObservations, fetchCMSImmunizations,
   fetchCignaConditions, fetchCignaMedications, fetchCignaObservations, fetchCignaImmunizations,
+  fetchBCBSConditions, fetchBCBSMedications, fetchBCBSObservations, fetchBCBSImmunizations,
 } from '@/lib/fhir/client'
 import {
   parseConditions, parseMedications, parseObservations, parseImmunizations,
@@ -38,13 +39,14 @@ export default async function HealthPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [{ data: cmsToken }, { data: cignaToken }] = await Promise.all([
+  const [{ data: cmsToken }, { data: cignaToken }, { data: bcbsToken }] = await Promise.all([
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cms').single(),
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'cigna').single(),
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user!.id).eq('payer', 'bcbs').single(),
   ])
 
-  const tokenRow    = cmsToken ?? cignaToken
-  const activePayer = cmsToken ? 'cms' : cignaToken ? 'cigna' : null
+  const tokenRow    = cmsToken ?? cignaToken ?? bcbsToken
+  const activePayer = cmsToken ? 'cms' : cignaToken ? 'cigna' : bcbsToken ? 'bcbs' : null
 
   let conditions    = parseConditions([])
   let medications   = parseMedications([])
@@ -57,13 +59,13 @@ export default async function HealthPage() {
       const patientId   = accessToken ? decryptToken(tokenRow.patient_id) : null
 
       if (accessToken && patientId) {
-        const isCigna = activePayer === 'cigna'
-        const [condBundle, medBundle, obsBundle, immBundle] = await Promise.allSettled([
-          isCigna ? fetchCignaConditions(patientId, accessToken)    : fetchCMSConditions(patientId, accessToken),
-          isCigna ? fetchCignaMedications(patientId, accessToken)   : fetchCMSMedications(patientId, accessToken),
-          isCigna ? fetchCignaObservations(patientId, accessToken)  : fetchCMSObservations(patientId, accessToken),
-          isCigna ? fetchCignaImmunizations(patientId, accessToken) : fetchCMSImmunizations(patientId, accessToken),
-        ])
+        const [condBundle, medBundle, obsBundle, immBundle] = await Promise.allSettled(
+          activePayer === 'cigna'
+            ? [fetchCignaConditions(patientId, accessToken), fetchCignaMedications(patientId, accessToken), fetchCignaObservations(patientId, accessToken), fetchCignaImmunizations(patientId, accessToken)]
+            : activePayer === 'bcbs'
+              ? [fetchBCBSConditions(patientId, accessToken), fetchBCBSMedications(patientId, accessToken), fetchBCBSObservations(patientId, accessToken), fetchBCBSImmunizations(patientId, accessToken)]
+              : [fetchCMSConditions(patientId, accessToken), fetchCMSMedications(patientId, accessToken), fetchCMSObservations(patientId, accessToken), fetchCMSImmunizations(patientId, accessToken)]
+        )
 
         if (condBundle.status === 'fulfilled') conditions   = parseConditions(condBundle.value.entry?.map(e => e.resource) ?? [])
         if (medBundle.status  === 'fulfilled') medications  = parseMedications(medBundle.value.entry?.map(e => e.resource) ?? [])

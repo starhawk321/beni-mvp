@@ -4,6 +4,7 @@ import https from 'node:https'
 const CMS_TOKEN_URL   = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
 const CIGNA_TOKEN_HOST = 'r-hi2.cigna.com'
 const CIGNA_TOKEN_PATH = '/mga/sps/oauth/oauth20/token'
+const BCBS_TOKEN_URL  = 'https://preview-api.bluecrossmn.com/fhir/token'
 
 export type StoredToken = {
   access_token: string
@@ -78,10 +79,33 @@ export function refreshCignaToken(refreshToken: string): Promise<RefreshedToken 
   })
 }
 
+export async function refreshBCBSToken(refreshToken: string): Promise<RefreshedToken | null> {
+  const credentials = Buffer.from(
+    `${process.env.FHIR_BCBS_CLIENT_ID}:${process.env.FHIR_BCBS_CLIENT_SECRET}`
+  ).toString('base64')
+
+  const res = await fetch(BCBS_TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${credentials}`,
+    },
+    body: new URLSearchParams({
+      grant_type:    'refresh_token',
+      refresh_token: refreshToken,
+    }),
+  })
+
+  if (!res.ok) return null
+  const data = await res.json()
+  if (!data.access_token) return null
+  return { access_token: data.access_token, expires_in: data.expires_in ?? 3600 }
+}
+
 // Returns a valid access token — decrypts, refreshes silently if expired.
 export async function getValidAccessToken(
   tokenRow: StoredToken,
-  payer: 'cms' | 'cigna' = 'cms'
+  payer: 'cms' | 'cigna' | 'bcbs' = 'cms'
 ): Promise<string | null> {
   const isExpired = tokenRow.expires_at
     ? new Date(tokenRow.expires_at) <= new Date(Date.now() + 60_000)
@@ -98,7 +122,9 @@ export async function getValidAccessToken(
 
   const refreshed = payer === 'cigna'
     ? await refreshCignaToken(refreshToken)
-    : await refreshCMSToken(refreshToken)
+    : payer === 'bcbs'
+      ? await refreshBCBSToken(refreshToken)
+      : await refreshCMSToken(refreshToken)
 
   return refreshed?.access_token ?? null
 }

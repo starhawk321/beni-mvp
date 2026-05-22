@@ -1,6 +1,7 @@
 const SMART_BASE  = 'https://r4.smarthealthit.org'
 const CMS_BASE    = 'https://sandbox.bluebutton.cms.gov/v2/fhir'
 const CIGNA_BASE  = 'https://fhir.cigna.com/PatientAccess/v1-devportal'
+const BCBS_BASE   = 'https://preview-api.bluecrossmn.com/fhir'
 
 // Test patient IDs with confirmed data in the SMART sandbox
 export const SANDBOX_PATIENTS = {
@@ -122,6 +123,32 @@ export async function fetchCignaObservations(patientId: string, token: string) {
 
 export async function fetchCignaImmunizations(patientId: string, token: string) {
   return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: CIGNA_BASE, token })
+}
+
+// ── BCBS Minnesota ────────────────────────────────────────────────────────────
+
+export async function fetchBCBSCoverage(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverage>(`Coverage?patient=${patientId}&_count=10`, { base: BCBS_BASE, token })
+}
+
+export async function fetchBCBSEOBs(patientId: string, token: string) {
+  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit?patient=${patientId}&_count=10`, { base: BCBS_BASE, token })
+}
+
+export async function fetchBCBSConditions(patientId: string, token: string) {
+  return fetchFHIR<FHIRCondition>(`Condition?patient=${patientId}&_count=50`, { base: BCBS_BASE, token })
+}
+
+export async function fetchBCBSMedications(patientId: string, token: string) {
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=${patientId}&_count=50`, { base: BCBS_BASE, token })
+}
+
+export async function fetchBCBSObservations(patientId: string, token: string) {
+  return fetchFHIR<FHIRObservation>(`Observation?patient=${patientId}&category=laboratory&_count=50`, { base: BCBS_BASE, token })
+}
+
+export async function fetchBCBSImmunizations(patientId: string, token: string) {
+  return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: BCBS_BASE, token })
 }
 
 export async function fetchCMSPatient(patientId: string, token: string) {

@@ -103,7 +103,7 @@ export default async function HealthPage() {
         </div>
       </header>
 
-      <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
+      <main className="beni-main">
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>Health records</h1>
         <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 8 }}>
           Pulled directly from your insurer. Beni never stores this data.

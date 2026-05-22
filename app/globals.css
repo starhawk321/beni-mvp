@@ -295,6 +295,13 @@ body {
 /* Nav pills — hide on small screens */
 .beni-nav-pills { display: flex; }
 
+/* 2-column progress bar grid (deductible + OOP) */
+.beni-progress-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 @media (max-width: 768px) {
   .beni-main { padding: 20px 16px; }
 
@@ -302,8 +309,9 @@ body {
   .beni-accounts-grid  { grid-template-columns: 1fr; }
   .beni-insurer-grid   { grid-template-columns: 1fr; max-width: 100%; }
   .beni-features-grid  { grid-template-columns: 1fr; }
-  .beni-nav-pills  { display: none !important; }
-  .beni-hamburger        { display: flex !important; }
+  .beni-progress-grid  { grid-template-columns: 1fr; }
+  .beni-nav-pills      { display: none !important; }
+  .beni-hamburger      { display: flex !important; }
 
   .auth-card { padding: 24px 20px; }
 

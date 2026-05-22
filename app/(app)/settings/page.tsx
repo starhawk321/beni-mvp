@@ -50,7 +50,7 @@ export default async function SettingsPage() {
           <HamburgerMenu />
         </div>
       </header>
-      <main style={{ maxWidth: 640, margin: '0 auto', padding: '40px 28px' }}>
+      <main className="beni-main" style={{ maxWidth: 640 }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 32 }}>Settings</h1>
 
         {/* Account section */}

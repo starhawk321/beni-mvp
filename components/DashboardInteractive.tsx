@@ -70,7 +70,7 @@ export default function DashboardInteractive({
         </h1>
 
         {/* Hero balance card */}
-        <div style={{
+        <div className="beni-hero-card" style={{
           background: 'var(--beni-navy)', borderRadius: 'var(--r-6)',
           padding: '32px 36px', marginBottom: 32, position: 'relative', overflow: 'hidden',
         }}>

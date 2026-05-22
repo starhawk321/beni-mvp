@@ -98,7 +98,7 @@ export default function TermsPage() {
           <HamburgerMenu />
         </div>
       </header>
-      <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
+      <main className="beni-main">
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 8 }}>Insurance terms, plain English</h1>
         <p className="t-body" style={{ color: 'var(--fg-3)', marginBottom: 40 }}>
           No jargon. Just clear explanations of what your plan actually means.

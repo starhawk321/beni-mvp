@@ -153,12 +153,12 @@ export default async function PlanPage() {
         </div>
       </header>
 
-      <main style={{ maxWidth: 'var(--container-web)', margin: '0 auto', padding: '40px 28px' }}>
+      <main className="beni-main">
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>Plan details</h1>
         <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 36 }}>{subtitle}</p>
 
         {/* Progress bars */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 40 }}>
+        <div className="beni-progress-grid" style={{ marginBottom: 40 }}>
           {[
             { label: 'Deductible',      ...deductible, color: 'var(--beni-sky)' },
             { label: 'Out-of-pocket max', ...oop,      color: '#9B5BFF'         },

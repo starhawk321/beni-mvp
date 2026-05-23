@@ -53,7 +53,7 @@ export default function ClaimDetailDrawer({ claim, rawEob, open, onClose }: Prop
       {/* Summary */}
       <div className="card" style={{ padding: '16px', marginBottom: 20 }}>
         <Row label="Date"        value={formatDate(claim.serviceDate)} />
-        <Row label="Provider"    value={claim.insurerName} />
+        <Row label="Provider"    value={claim.provider} />
         <Row label="Type"        value={label} />
         <Row label="Status"      value={claim.status.charAt(0).toUpperCase() + claim.status.slice(1)} />
         <Row label="Total charged" value={fmt(claim.amountCharged)} />

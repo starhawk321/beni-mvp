@@ -71,7 +71,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
 
-      if (onboardingComplete && pathname.startsWith('/onboarding')) {
+      // Let completed users into /onboarding when adding another insurer (?add=true)
+      const isAddingInsurer = request.nextUrl.searchParams.get('add') === 'true'
+      if (onboardingComplete && pathname.startsWith('/onboarding') && !isAddingInsurer) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
     }

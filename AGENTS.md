@@ -42,7 +42,19 @@ When your changes create orphans:
 
 Test: Every changed line should trace directly to the user's request.
 
-### 4. Goal-driven execution
+### 4. Commit messages are documentation
+
+Write the *why* and the *lesson*, not just the *what*.
+
+- Bug fixes: explain what was wrong, the root cause, and the constraint someone reading `git log` six months from now needs to know.
+- Don't restate the diff. The diff is in the diff.
+- Capture the discovery — if it took an hour to figure out, the lesson belongs in the commit body.
+- Reference issues with `#NN` so context survives across compactions.
+
+Good: `Fix BCBS auth/token URLs — SMART config shows the correct endpoints are on interop-preview, not preview-api`
+Bad: `Update BCBS URLs`
+
+### 5. Goal-driven execution
 
 Define success criteria. Loop until verified.
 

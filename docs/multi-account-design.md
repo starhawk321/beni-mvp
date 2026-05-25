@@ -357,7 +357,14 @@ guiding them to add additional plans. Same picker is reused for the
 2. **Title** — "Pick your insurer. We'll do the rest."
 3. **Subtitle** — "We use read-only access to fetch your plan details and spending history."
 4. **Insurer grid** — recommended insurers first, then less-common
-5. **Trust footer** — "Béni never stores your health records"
+5. **Co-equal demo CTA** (below grid, before footer):
+   ```
+   Or see a sample dashboard first →
+   Explore Béni with example data before connecting.
+   ```
+   Clicking this sets `connection_skipped = true` and routes to the dashboard
+   (with mock data + disclaimer bar). User can come back to OAuth anytime.
+6. **Trust footer** — "Béni never stores your health records"
 
 #### Mode B — Add another (existing user, from Settings)
 
@@ -554,17 +561,36 @@ We've logged it and we're looking into it.
 
 ---
 
-### Skip path — "I don't have insurance to connect"
+### Skip path — "I don't have insurance to connect" / "See a sample first"
 
 Today, users are trapped in onboarding if they can't or won't connect a payer.
 This locks out the biggest segment: people whose insurer isn't yet supported
 (Anthem, UHC, most BCBS, etc.). We need an escape hatch.
 
-**Trigger:** small link at bottom of the insurer picker:
-```
-Don't see your insurer or not ready to connect?
-[Skip for now →]
-```
+The escape hatch doubles as the **value-preview path** — letting curious or
+hesitant users explore Béni with mock data before committing to OAuth.
+
+**Two triggers, same destination:**
+
+1. **Below the insurer picker** — co-equal CTA framed as exploration:
+   ```
+   Or see a sample dashboard first →
+   Explore Béni with example data before connecting.
+   ```
+
+2. **Inside the picker grid** — fallback for "my insurer isn't here":
+   ```
+   Don't see your insurer? [Continue without connecting →]
+   ```
+
+Both set `connection_skipped = true` and route to the mock-data dashboard.
+
+**Why a co-equal CTA instead of a small skip link:**
+- Doesn't slow down committed users — picker is still the primary UI
+- Dignified option for hesitant users (not framed as "giving up")
+- Real demo > passive tour screens — the mock dashboard IS the product walkthrough
+- Disclaimer bar does the conversion work once they're in the app
+- Cleaner funnel analytics: explicit "demo" clicks reveal hesitant-user volume
 
 **What happens on skip:**
 1. Set `profiles.connection_skipped = true`

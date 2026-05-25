@@ -552,6 +552,124 @@ We've logged it and we're looking into it.
   helper link on the error page: "Trouble logging in to Medicare?
   [Reset your password at Medicare.gov →]"
 
+---
+
+### Skip path — "I don't have insurance to connect"
+
+Today, users are trapped in onboarding if they can't or won't connect a payer.
+This locks out the biggest segment: people whose insurer isn't yet supported
+(Anthem, UHC, most BCBS, etc.). We need an escape hatch.
+
+**Trigger:** small link at bottom of the insurer picker:
+```
+Don't see your insurer or not ready to connect?
+[Skip for now →]
+```
+
+**What happens on skip:**
+1. Set `profiles.connection_skipped = true`
+2. Set `profiles.onboarding_complete = true` (so middleware lets them through)
+3. Land on dashboard with mock data + disclaimer bar
+
+When the user later connects a real insurer:
+- `connection_skipped` flips back to `false`
+- Mock data path is no longer used; real FHIR data is fetched
+
+**Schema change:**
+```sql
+alter table profiles
+  add column connection_skipped boolean default false;
+```
+
+---
+
+### Mock data — for skip-path users
+
+A single canned dataset, same for every skip-mode user. Designed to showcase
+multi-payer value: 60-year-old with Medicare + Cigna Medigap, 10 mixed claims,
+realistic chronic-condition health profile.
+
+**File:** `lib/mock-data.ts` — exports `MOCK_PAYERS`, `MOCK_HEALTH_RECORDS`,
+`MOCK_FOR_YOU_ITEMS` shaped exactly like the real parser output, so the rest
+of the code path is unchanged. Pages check `profile.connection_skipped` and
+swap data sources.
+
+**Dataset summary:**
+
+| Plan | Insurance paid YTD | OOP YTD | Claims | Deductible | OOP max |
+|---|---|---|---|---|---|
+| Medicare Part A+B | $5,840 | $480 | 6 | met | $480 / $6,700 |
+| Cigna Medigap Plan G | $1,425 | $233 | 4 | $233 / $250 | met |
+| **Aggregate (hero)** | **$7,265** | **$713** | **10** | — | — |
+
+**Claims feed (10 items spanning 4 months):**
+```
+🏥 Memorial Hospital · Medicare · Sep 12 — paid $2,340, OOP $0 (outpatient surgery)
+👨‍⚕️ Dr. Patel Cardiology · Medicare · Sep 5 — paid $385, OOP $0 (specialist)
+💊 CVS Pharmacy · Medicare · Aug 28 — paid $32, OOP $8 (Atorvastatin refill)
+👨‍⚕️ Dr. Sarah Chen · Cigna Medigap · Aug 24 — paid $0, OOP $135 (annual physical)
+🔬 Quest Diagnostics · Cigna Medigap · Aug 18 — paid $95, OOP $42 (lab panel)
+🏥 Baptist Health Imaging · Medicare · Aug 5 — paid $1,820, OOP $230 (MRI)
+💊 Walgreens · Cigna Medigap · Jul 22 — paid $18, OOP $4 (Lisinopril)
+👨‍⚕️ Dr. Patel Cardiology · Medicare · Jul 8 — paid $215, OOP $0 (follow-up)
+🔬 LabCorp · Cigna Medigap · Jun 30 — paid $72, OOP $18 (cholesterol)
+🏥 Memorial Hospital ER · Medicare · May 14 — paid $1,420, OOP $180 (ER visit)
+```
+
+**For You items:**
+- "Your annual wellness visit is covered — schedule yours"
+- "Cigna Medigap deductible: $17 from being met"
+- "1 claim under review — Memorial Hospital, Sep 12"
+
+**Health records:**
+```
+Conditions: Hypertension (2018), Type 2 diabetes (2020),
+            Lumbar disc herniation (2024)
+Medications: Metformin 500mg, Lisinopril 10mg, Atorvastatin 20mg
+Lab results: HbA1c 6.8%, LDL 118, BP 128/82, HDL 52
+Immunizations: Influenza (Oct 2025), COVID booster (Sep 2024),
+               Pneumococcal (Aug 2023), Shingles (Jan 2022)
+```
+
+---
+
+### Disclaimer bar — when showing mock data
+
+Persistent, full-width, sticky at the top of every page when
+`profile.connection_skipped = true`:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 👁 Sample data shown for illustration. Connect your insurance   │
+│   to see your real coverage. [Connect now →]                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Rules:**
+- Sticky at top of viewport, above the app's regular nav header
+- Distinct background — warm yellow or soft pastel — so it's never missed
+- **NOT dismissible.** Honesty over UX comfort. Users must connect to remove it.
+- "Connect now →" link routes to `/onboarding`
+- On mobile, copy may wrap but the bar stays visible
+
+**Component:** `components/MockDataBanner.tsx`, conditionally rendered in
+the root layout based on `profile.connection_skipped`.
+
+---
+
+### Empty state vs mock data — when do we use which?
+
+| User state | Dashboard shows |
+|---|---|
+| Never connected, never skipped (mid-onboarding) | Bounced back to /onboarding by middleware |
+| Connected at least one payer | Real FHIR data |
+| Skipped explicitly | Mock dataset + disclaimer bar |
+| Was connected, disconnected all (different from skip) | Empty state with clear "Reconnect" CTA — no mock data, because they explicitly removed real data |
+
+This means we have THREE dashboard states: real data, mock data, true empty.
+Disconnect ≠ skip — a user who deliberately removed their connection should
+not be shown mock data.
+
 ## Phased roadmap
 
 ### Now (MVP)

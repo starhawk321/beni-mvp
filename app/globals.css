@@ -397,4 +397,27 @@ body {
 
   /* Greeting size */
   .t-display-l { font-size: 28px !important; }
+
+  /* Redesign dashboard — mobile overrides */
+  .beni-hero-title { font-size: 30px !important; }
+  .beni-hero-stats {
+    grid-template-columns: 1fr !important;
+    row-gap: 18px;
+  }
+  .beni-hero-stats > div {
+    padding-left: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 18px;
+  }
+  .beni-hero-stats > div:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+  .beni-spending-power { flex-direction: column !important; align-items: flex-start !important; }
+  .beni-activity-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .beni-activity-row > span:last-child { display: none !important; }
 }

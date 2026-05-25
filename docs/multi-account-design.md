@@ -348,27 +348,45 @@ First-time setup connecting the user's primary insurer, then optionally
 guiding them to add additional plans. Same picker is reused for the
 "add another" path from Settings.
 
-**Two modes:**
+**Two modes — same picker, different framing:**
 
 #### Mode A — First-time (no insurers connected)
 
-**Sections**
-1. **Sticky header** — Logo + "Step 1 of 2" progress indicator (was "Step 1 of 3" before)
+**Picker page sections**
+1. **Sticky header** — Logo + progress indicator
 2. **Title** — "Pick your insurer. We'll do the rest."
 3. **Subtitle** — "We use read-only access to fetch your plan details and spending history."
 4. **Insurer grid** — recommended insurers first, then less-common
 5. **Trust footer** — "Béni never stores your health records"
 
-**Flow:**
-- Pick insurer → OAuth → callback writes token, marks profile.onboarding_complete = true
-- After successful callback, land on **Step 2: "Add another?"** soft-prompt page (NEW)
+#### Mode B — Add another (existing user, from Settings)
 
-**Step 2 — Soft prompt page (new)**
+**Picker page sections**
+1. **Sticky header** — Logo + "← Back to settings" link (no progress indicator)
+2. **Title** — "Add another insurer."
+3. **Subtitle** — "Connect any additional plans you have. Béni will show data from all of them together."
+4. **Insurer grid** — same picker, already-connected payers hidden
 
-Shown after each successful OAuth callback during the first-time flow,
-until the user clicks "I'm all set" or reaches 3 connected payers.
+**Empty states**
+- Add mode with all payers connected → "You've connected all supported insurers" + back-to-settings link
 
-Copy template (first iteration, single payer connected):
+---
+
+### Post-OAuth interstitial — `/onboarding/connected`
+
+After EVERY successful OAuth callback (both first-time and add-another),
+the user lands here. The callback never goes straight to dashboard or
+settings — it always routes through this interstitial.
+
+**Why interstitial:**
+- Explicit "✓ Cigna connected" feedback (no silent success)
+- Routes the "where next?" decision into one place, not the callback
+- Naturally supports the Step 2 soft prompt loop
+- Solves the OAuth-state-loss problem: callback only needs to know "first vs add"
+
+**Page content varies by flow context:**
+
+##### First-time flow (single iteration, just connected first plan)
 ```
 You've connected
   ✓ Medicare
@@ -384,7 +402,7 @@ your full coverage in one place.
 [Add another insurer]   [I'm all set — take me to my dashboard]
 ```
 
-Copy template (subsequent iterations, 2+ payers connected):
+##### Subsequent iterations (2+ payers, either flow)
 ```
 You've connected
   ✓ Medicare
@@ -395,44 +413,53 @@ Anything else? You can always add more later in Settings.
 [Add another]   [I'm done — take me to my dashboard]
 ```
 
-**Rules:**
+##### Add-another flow (came from Settings)
+Same prompt as above, but "I'm done" CTA returns to `/settings` instead of dashboard.
+
+##### Cap
+After 3rd connection, skip the prompt entirely and auto-redirect:
+- First-time flow → dashboard
+- Add-another flow → settings
+
+---
+
+**Soft prompt rules:**
 - "Most people also have" suggestions only list FHIR-capable plans we can
   actually connect right now. Do not list dental/vision while those are
   manual-entry-only — that promises something we can't deliver.
 - Show the running list of what's already connected for context.
-- Loop until user clicks "I'm all set" / "I'm done" or reaches 3 connections.
-  After 3rd, skip the prompt and go to dashboard.
-- The CTA wording matters: "I'm all set" is more permissive than "Take me to
-  my dashboard" — gives explicit permission to skip without feeling abandoned.
+- The CTA wording matters: "I'm all set" / "I'm done" are more permissive
+  than "Take me to my dashboard" — gives explicit permission to skip without
+  feeling abandoned.
 
-#### Mode B — Add another (existing user, `?add=true`)
+---
 
-**Sections**
-1. **Sticky header** — Logo + "← Back to settings" link (no progress indicator)
-2. **Title** — "Add another insurer."
-3. **Subtitle** — "Connect any additional plans you have. Béni will show data from all of them together."
-4. **Insurer grid** — same picker, but already-connected payers are hidden
+### Implementation: how the callback knows the flow
 
-**Flow:**
-- Pick insurer → OAuth → callback writes token → redirects to dashboard
-- TODO: ideally callback should redirect back to settings, but OAuth round-trip loses the `add=true` context (acceptable MVP gap)
+The OAuth `state` parameter is the carrier for app context through the
+round-trip, but state itself is just a CSRF token. To preserve flow context:
 
-**Empty states**
-- Add mode with all payers connected → "You've connected all supported insurers" + back-to-settings link
+**Schema change:** add a `flow_intent text` column to the per-payer
+oauth_state tables (`cms_oauth_state`, `cigna_oauth_state`, `bcbs_oauth_state`).
+Values: `'first'` (first-time onboarding) or `'add'` (from Settings).
 
-**Multi-payer behavior**
-- This whole flow IS the multi-payer onramp
-- After connecting, user can come back to Settings to add more via Mode B
+**Authorize route:**
+- Reads `?add=true` from URL → sets `flow_intent = 'add'`
+- Otherwise `flow_intent = 'first'`
+- Stores in oauth_state row alongside the CSRF token
 
-**Real data sample (Mode A Step 2 soft prompt)**
-```
-✓ Medicare connected
+**Callback route:**
+- Validates CSRF state as today
+- Reads `flow_intent` from oauth_state row
+- Exchanges code for token, stores fhir_tokens, deletes oauth_state row
+- Redirects to `/onboarding/connected?payer=<name>&flow=<intent>`
 
-Got it. Most people have more than one plan — want to connect another?
-Common: dental, vision, secondary insurance, spouse's plan, supplement plan
-
-[Add another insurer]   [Take me to my dashboard]
-```
+**Interstitial page (`/onboarding/connected`):**
+- Reads `payer` and `flow` from query params
+- Renders soft prompt with appropriate copy
+- "Add another" CTA → `/onboarding?add=true` (always uses add mode now)
+- "I'm done" CTA → `/dashboard` if `flow=first`, `/settings` if `flow=add`
+- If user has 3+ connections, auto-redirects after 2s (no manual click needed)
 
 ## Phased roadmap
 

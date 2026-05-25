@@ -1,6 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import Logo from '@/components/Logo'
-import HamburgerMenu from '@/components/HamburgerMenu'
 import Link from 'next/link'
 import {
   fetchCMSConditions, fetchCMSMedications, fetchCMSObservations, fetchCMSImmunizations,
@@ -13,14 +11,6 @@ import {
 import { getValidAccessToken } from '@/lib/fhir/token'
 import { decryptToken } from '@/lib/fhir/crypto'
 import { formatDate } from '@/lib/utils/format'
-
-const navTabs = [
-  { label: 'Overview', href: '/dashboard', active: false },
-  { label: 'Plan',     href: '/plan',      active: false },
-  { label: 'Health',   href: '/health',    active: true  },
-  { label: 'Terms',    href: '/terms',     active: false },
-  { label: 'Settings', href: '/settings',  active: false },
-]
 
 function EmptySection({ label }: { label: string }) {
   return (
@@ -78,33 +68,7 @@ export default async function HealthPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
-        borderBottom: 'var(--border-hairline)',
-        padding: '0 28px', height: 64,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logo height={28} />
-        <nav className="beni-nav-pills" style={{ gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
-          {navTabs.map((tab) => (
-            <Link key={tab.label} href={tab.href} style={{
-              height: 32, padding: '0 16px', borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 600, fontSize: 13,
-              background: tab.active ? 'var(--beni-ink)' : 'transparent',
-              color: tab.active ? '#fff' : 'var(--fg-3)',
-              textDecoration: 'none', display: 'flex', alignItems: 'center',
-            }}>
-              {tab.label}
-            </Link>
-          ))}
-        </nav>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <HamburgerMenu />
-        </div>
-      </header>
-
+    <div>
       <main className="beni-main">
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 6 }}>Health records</h1>
         <p className="t-body-s" style={{ color: 'var(--fg-3)', marginBottom: 8 }}>

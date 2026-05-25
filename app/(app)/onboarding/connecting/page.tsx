@@ -91,7 +91,7 @@ function ConnectingScreen() {
     }
 
     // Trigger FHIR sync — check for conflicts in response
-    let destination = '/dashboard'
+    let destination = '/home'
     try {
       const res  = await fetch('/api/fhir/sync', { method: 'POST' })
       const data = await res.json()

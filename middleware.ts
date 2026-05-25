@@ -40,11 +40,11 @@ export async function middleware(request: NextRequest) {
   if (user) {
     // Logged in — don't show auth pages
     if (pathname === '/login' || pathname === '/signup') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/home', request.url))
     }
 
     // Check onboarding status for app routes
-    const appPaths = ['/dashboard', '/plan', '/terms', '/settings']
+    const appPaths = ['/home', '/plans', '/claims', '/records', '/terms', '/settings']
     const isAppPath = appPaths.some(p => pathname.startsWith(p))
     const isConnecting = pathname.startsWith('/onboarding/connecting')
     const isVerifying  = pathname.startsWith('/onboarding/verify')
@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
       // Let completed users into /onboarding when adding another insurer (?add=true)
       const isAddingInsurer = request.nextUrl.searchParams.get('add') === 'true'
       if (onboardingComplete && pathname.startsWith('/onboarding') && !isAddingInsurer) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+        return NextResponse.redirect(new URL('/home', request.url))
       }
     }
   }

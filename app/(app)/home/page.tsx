@@ -1,19 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import Logo from '@/components/Logo'
-import HamburgerMenu from '@/components/HamburgerMenu'
-import Link from 'next/link'
 import DashboardInteractive from '@/components/DashboardInteractive'
 import { calculateSpending } from '@/lib/fhir/parsers'
 import { fetchAllPayersData, aggregateBenefitBalances } from '@/lib/fhir/multi-payer'
 import { fmt } from '@/lib/utils/format'
-
-const navTabs = [
-  { label: 'Overview', href: '/dashboard', active: true  },
-  { label: 'Plan',     href: '/plan',      active: false },
-  { label: 'Health',   href: '/health',    active: false },
-  { label: 'Terms',    href: '/terms',     active: false },
-  { label: 'Settings', href: '/settings',  active: false },
-]
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -70,34 +59,7 @@ export default async function DashboardPage() {
       ]
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
-      {/* Top nav */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
-        borderBottom: 'var(--border-hairline)',
-        padding: '0 28px', height: 64,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logo height={28} />
-        <nav className="beni-nav-pills" style={{ gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
-          {navTabs.map((tab) => (
-            <Link key={tab.label} href={tab.href} style={{
-              height: 32, padding: '0 16px', borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 600, fontSize: 13,
-              background: tab.active ? 'var(--beni-ink)' : 'transparent',
-              color: tab.active ? '#fff' : 'var(--fg-3)',
-              textDecoration: 'none', display: 'flex', alignItems: 'center',
-            }}>
-              {tab.label}
-            </Link>
-          ))}
-        </nav>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <HamburgerMenu />
-        </div>
-      </header>
-
+    <div>
       <DashboardInteractive
         greeting={greeting}
         claims={claims}

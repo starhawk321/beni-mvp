@@ -363,6 +363,10 @@ body {
 /* Nav pills — hide on small screens */
 .beni-nav-pills { display: flex; }
 
+/* Redesign nav — desktop top nav shown ≥769px, mobile tab bar shown ≤768px */
+.beni-topnav { display: flex; }
+.beni-tabbar { display: none; }
+
 /* 2-column progress bar grid (deductible + OOP) */
 .beni-progress-grid {
   display: grid;
@@ -380,6 +384,8 @@ body {
   .beni-progress-grid  { grid-template-columns: 1fr; }
   .beni-nav-pills      { display: none !important; }
   .beni-hamburger      { display: flex !important; }
+  .beni-topnav         { display: none !important; }
+  .beni-tabbar         { display: flex !important; }
 
   .auth-card { padding: 24px 20px; }
 

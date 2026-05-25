@@ -28,7 +28,7 @@ export default function VerifyPage() {
       const pending: Conflict[] = profile?.pending_conflicts ?? []
 
       if (pending.length === 0) {
-        router.push('/dashboard')
+        router.push('/home')
         return
       }
 
@@ -64,7 +64,7 @@ export default function VerifyPage() {
     })
 
     await supabase.from('profiles').update(updates).eq('id', user.id)
-    router.push('/dashboard')
+    router.push('/home')
     router.refresh()
   }
 

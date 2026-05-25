@@ -1,6 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import Logo from '@/components/Logo'
-import HamburgerMenu from '@/components/HamburgerMenu'
 import SignOutButton from '@/components/SignOutButton'
 import ThemeToggle from '@/components/ThemeToggle'
 import DeleteAccountButton from '@/components/DeleteAccountButton'
@@ -12,14 +10,6 @@ const INSURER_META: Record<string, Omit<ConnectedInsurer, 'payer'>> = {
   cigna: { displayName: 'Cigna',                   color: '#FF7A00', initials: 'Ci' },
   bcbs:  { displayName: 'BlueCross BlueShield MN', color: '#005EB8', initials: 'BC' },
 }
-
-const navTabs = [
-  { label: 'Overview', href: '/dashboard', active: false },
-  { label: 'Plan',     href: '/plan',      active: false },
-  { label: 'Health',   href: '/health',    active: false },
-  { label: 'Terms',    href: '/terms',     active: false },
-  { label: 'Settings', href: '/settings',  active: true  },
-]
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -34,33 +24,7 @@ export default async function SettingsPage() {
     .map(t => ({ payer: t.payer as ConnectedInsurer['payer'], ...INSURER_META[t.payer] }))
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
-      {/* Nav */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
-        borderBottom: 'var(--border-hairline)',
-        padding: '0 28px', height: 64,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logo height={28} />
-        <nav className="beni-nav-pills" style={{ gap: 2, background: 'var(--bg-sunken)', borderRadius: 'var(--r-pill)', padding: 3 }}>
-          {navTabs.map((tab) => (
-            <Link key={tab.label} href={tab.href} style={{
-              height: 32, padding: '0 16px', borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 600, fontSize: 13,
-              background: tab.active ? 'var(--beni-ink)' : 'transparent',
-              color: tab.active ? '#fff' : 'var(--fg-3)',
-              textDecoration: 'none', display: 'flex', alignItems: 'center',
-            }}>
-              {tab.label}
-            </Link>
-          ))}
-        </nav>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <HamburgerMenu />
-        </div>
-      </header>
+    <div>
       <main className="beni-main" style={{ maxWidth: 640 }}>
         <h1 className="t-h1" style={{ color: 'var(--fg-1)', marginBottom: 32 }}>Settings</h1>
 

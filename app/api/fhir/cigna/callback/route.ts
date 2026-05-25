@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state')
 
   if (!code || !state) {
-    return NextResponse.redirect(new URL('/dashboard?error=missing_params', request.url))
+    return NextResponse.redirect(new URL('/home?error=missing_params', request.url))
   }
 
   const supabase = await createClient()
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     .single()
 
   if (!oauthState || oauthState.state !== state) {
-    return NextResponse.redirect(new URL('/dashboard?error=invalid_state', request.url))
+    return NextResponse.redirect(new URL('/home?error=invalid_state', request.url))
   }
 
   const credentials = Buffer.from(
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     token = await cignaTokenExchange(body, `Basic ${credentials}`)
   } catch (err) {
     console.error('Cigna token exchange failed:', err)
-    return NextResponse.redirect(new URL('/dashboard?error=token_exchange_failed', request.url))
+    return NextResponse.redirect(new URL('/home?error=token_exchange_failed', request.url))
   }
 
   // Extract patient ID — Cigna returns it in token.patient or JWT sub claim
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
 
   if (!patientId) {
     console.error('Cigna: could not determine patient ID', token)
-    return NextResponse.redirect(new URL('/dashboard?error=no_patient_id', request.url))
+    return NextResponse.redirect(new URL('/home?error=no_patient_id', request.url))
   }
 
   await supabase.from('fhir_tokens').upsert({
@@ -119,5 +119,5 @@ export async function GET(request: NextRequest) {
 
   await supabase.from('cigna_oauth_state').delete().eq('user_id', user.id)
 
-  return NextResponse.redirect(new URL('/dashboard', request.url))
+  return NextResponse.redirect(new URL('/home', request.url))
 }

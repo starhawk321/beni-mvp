@@ -152,7 +152,7 @@ export default function DashboardInteractive({
               {isConnected ? (
                 <div className="beni-accounts-grid">
                   {accountCards.map((acct) => (
-                    <Link key={acct.label} href="/plan" style={{ textDecoration: 'none' }}>
+                    <Link key={acct.label} href="/plans" style={{ textDecoration: 'none' }}>
                       <div className="card" style={{ padding: 22, borderLeft: `6px solid ${acct.color}`, cursor: 'pointer' }}>
                         <p className="t-overline" style={{ color: 'var(--fg-3)', marginBottom: 8 }}>{acct.label}</p>
                         <p className="t-numeric-l" style={{ color: 'var(--fg-1)', marginBottom: 4 }}>{acct.balance}</p>
@@ -281,7 +281,7 @@ export default function DashboardInteractive({
             <div className="card" style={{ padding: 22 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                 <p className="t-overline" style={{ color: 'var(--fg-3)' }}>Your plan</p>
-                <Link href="/plan" className="t-caption" style={{ color: 'var(--beni-sky)', textDecoration: 'none', fontWeight: 600 }}>View details →</Link>
+                <Link href="/plans" className="t-caption" style={{ color: 'var(--beni-sky)', textDecoration: 'none', fontWeight: 600 }}>View details →</Link>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[

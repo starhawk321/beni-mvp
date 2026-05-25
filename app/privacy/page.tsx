@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         <Link href="/" style={{ textDecoration: 'none' }}>
           <Logo height={28} />
         </Link>
-        <Link href="/dashboard" style={{
+        <Link href="/home" style={{
           fontFamily: 'var(--font-manrope), sans-serif',
           fontSize: 13, fontWeight: 600,
           color: 'var(--beni-sky)', textDecoration: 'none',

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state')
 
   if (!code || !state) {
-    return NextResponse.redirect(new URL('/dashboard?error=missing_params', request.url))
+    return NextResponse.redirect(new URL('/home?error=missing_params', request.url))
   }
 
   const supabase = await createClient()
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     .single()
 
   if (!oauthState || oauthState.state !== state) {
-    return NextResponse.redirect(new URL('/dashboard?error=invalid_state', request.url))
+    return NextResponse.redirect(new URL('/home?error=invalid_state', request.url))
   }
 
   // Exchange code for access token
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
   if (!tokenRes.ok) {
     console.error('CMS token exchange failed:', await tokenRes.text())
-    return NextResponse.redirect(new URL('/dashboard?error=token_exchange_failed', request.url))
+    return NextResponse.redirect(new URL('/home?error=token_exchange_failed', request.url))
   }
 
   const token = await tokenRes.json()
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       hasPatient:     !!token.patient,
       keys:           Object.keys(token),
     })
-    return NextResponse.redirect(new URL('/dashboard?error=cms_missing_fields', request.url))
+    return NextResponse.redirect(new URL('/home?error=cms_missing_fields', request.url))
   }
 
   // Store tokens and patient_id encrypted — patient_id is a healthcare identifier
@@ -82,5 +82,5 @@ export async function GET(request: NextRequest) {
   // Clean up oauth state
   await supabase.from('cms_oauth_state').delete().eq('user_id', user.id)
 
-  return NextResponse.redirect(new URL('/dashboard', request.url))
+  return NextResponse.redirect(new URL('/home', request.url))
 }

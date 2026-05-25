@@ -592,6 +592,29 @@ Both set `connection_skipped = true` and route to the mock-data dashboard.
 - Disclaimer bar does the conversion work once they're in the app
 - Cleaner funnel analytics: explicit "demo" clicks reveal hesitant-user volume
 
+---
+
+### Decisions deferred to post-MVP
+
+**Situation-based onboarding ("What's your coverage situation?" gate)**
+
+Considered: asking the user to classify themselves upfront — Medicare only,
+Medicare + supplement, employer + spouse, etc. — to tailor the picker and
+"For You" items.
+
+Deferred because:
+- Adds friction before any value is delivered
+- Most users don't know the terminology (Medigap, secondary, supplemental)
+- The Step 2 soft prompt already collects this signal at the right moment
+  (after they've seen value)
+- Even after classification we'd show the same picker — the question doesn't
+  change what we display
+
+Revisit when:
+- Signup-funnel data shows drop-off concentrated at the picker
+- Waitlist functionality for unsupported payers becomes a feature
+- Personalized "For You" recommendations need richer coverage signal
+
 **What happens on skip:**
 1. Set `profiles.connection_skipped = true`
 2. Set `profiles.onboarding_complete = true` (so middleware lets them through)

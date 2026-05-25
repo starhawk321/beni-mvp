@@ -367,6 +367,27 @@ body {
 .beni-topnav { display: flex; }
 .beni-tabbar { display: none; }
 
+/* Gentle page entrance — fade + rise on load */
+@keyframes beni-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.beni-main { animation: beni-enter 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .beni-main { animation: none; }
+}
+
+/* Loading skeleton shimmer */
+@keyframes beni-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.85; } }
+.beni-skel {
+  background: var(--surface-2);
+  border-radius: var(--r-3);
+  animation: beni-pulse 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .beni-skel { animation: none; }
+}
+
 /* 2-column progress bar grid (deductible + OOP) */
 .beni-progress-grid {
   display: grid;

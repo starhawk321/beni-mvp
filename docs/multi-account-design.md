@@ -461,6 +461,97 @@ Values: `'first'` (first-time onboarding) or `'add'` (from Settings).
 - "I'm done" CTA → `/dashboard` if `flow=first`, `/settings` if `flow=add`
 - If user has 3+ connections, auto-redirects after 2s (no manual click needed)
 
+---
+
+### Connection failure handling — `/onboarding/connection-error`
+
+Every callback error path routes through this page. No more silent failures
+where the user lands on `/dashboard?error=...` with the param stripped by
+middleware.
+
+URL: `/onboarding/connection-error?reason=<code>&payer=<name>&flow=<first|add>`
+
+**Reason codes and copy:**
+
+`cancelled` — fires for both literal user cancellation AND wrong-credentials/
+locked-account scenarios at the payer. We cannot distinguish these from the
+OAuth spec; the payer returns `error=access_denied` in all three cases.
+```
+You stopped before finishing
+
+That's OK — no progress lost. Connecting {Payer} takes
+about 30 seconds when you're ready.
+
+[Try again]   [Skip for now]
+```
+
+`token_exchange_failed` — payer rejected our credentials during code-for-token
+exchange. Usually our config issue (wrong client secret, expired credentials).
+```
+Couldn't complete the connection
+
+Something went wrong on our side completing the secure
+handshake with {Payer}. This is usually temporary.
+
+[Try again]   [Email support]
+```
+
+`missing_fields` — token came back without patient_id or access_token. Often
+a sandbox or new-account issue at the payer.
+```
+{Payer} didn't return everything we need
+
+Sometimes test or new accounts don't have a member ID
+linked yet. Try a different account, or come back later.
+
+[Try again]   [Skip for now]
+```
+
+`invalid_state` — CSRF state mismatch, typically stale cookies or replay.
+```
+Your session expired
+
+Security check timed out. This usually fixes itself
+on the next try.
+
+[Try again]
+```
+
+`server_error` — generic catchall for our 500s or network timeouts.
+```
+Something didn't work
+
+We hit an unexpected error connecting to {Payer}.
+We've logged it and we're looking into it.
+
+[Try again]   [Email support]
+```
+
+**Behavior rules:**
+- "Try again" → `/onboarding?add=true` if `flow=add`, else `/onboarding`
+- "Skip for now" → `/dashboard` if `flow=first`, else `/settings`
+- Every error case logs a structured entry: `{ reason, payer, user_id, timestamp }`
+  for trend monitoring (e.g., "CMS missing_fields spiking" = sandbox is broken)
+
+**What we can't and shouldn't try to handle:**
+- Wrong password / locked account — handled by the payer's own login page,
+  we never see the failed credentials
+- All three of "user cancelled", "wrong password", "account locked" come back
+  to us as `error=access_denied` indistinguishably — we treat all as `cancelled`
+- The gentle, non-blaming copy works for all three
+
+**Stale oauth_state rows:**
+- If user abandons OAuth mid-flow (closes tab), the oauth_state row sits orphaned
+- The authorize route uses `upsert({ onConflict: 'user_id' })` so the next attempt
+  overwrites the stale row — self-healing
+- Periodic cleanup job to age out rows older than 1 hour is a post-MVP nice-to-have
+
+**Future enhancement (post-MVP):**
+- Track failed attempts per payer in localStorage or DB
+- After 2+ `cancelled` events for the same payer, show a payer-specific
+  helper link on the error page: "Trouble logging in to Medicare?
+  [Reset your password at Medicare.gov →]"
+
 ## Phased roadmap
 
 ### Now (MVP)

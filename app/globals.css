@@ -108,6 +108,52 @@
 
   /* Nav */
   --nav-bg: rgba(251,246,238,0.88);
+
+  /* ── Redesign 5/24 tokens — theme-aware ───────────────────────────── */
+  /* Light theme defaults — overridden in [data-theme="dark"] below */
+  --page-bg:        #fbf6ee;   /* same as canvas in light */
+  --surface-1:      #ffffff;   /* hero card on light */
+  --surface-2:      #f3ede1;   /* activity cards on light */
+  --ink:            #0d1b2a;   /* primary text on surfaces */
+  --ink-soft:       #2a3a4d;
+  --ink-dim:        #5b6b7d;
+  --hair:           rgba(13,27,42,0.08);   /* card hairline border */
+  --divider:        rgba(13,27,42,0.08);
+  --btn-ghost-border: rgba(13,27,42,0.18);
+
+  /* ── Redesign tokens — theme-independent constants ────────────────── */
+  /* Cream tones (used on dark surfaces) */
+  --ink-cream:      #f4ecde;
+  --ink-cream-soft: #fbf6ee;
+
+  /* Pastel surfaces — anchor colors, same in both themes */
+  --pastel-cyan-light: #C7E5F2;   /* Medicare card */
+  --pastel-cyan:       #B8D0E8;   /* reserved additional plan */
+  --pastel-peach:      #FFC4BE;   /* Cigna card, OOP accent */
+  --pastel-purple:     #D8CDF2;   /* For You card 1 */
+
+  /* Inks for pastel surfaces */
+  --ink-navy:    #0B2A3D;   /* text on cyan-light */
+  --ink-plum:    #3D1612;   /* text on peach */
+  --ink-violet:  #1A0E2E;   /* text on purple */
+
+  /* Accent gradient stops */
+  --accent-sky:    #7AE7FF;
+  --accent-blue:   #5BA8FF;
+  --accent-purple: #9B5BFF;
+  --accent-coral:  #E55BB8;
+
+  /* Brand gradient (for headlines, CTAs, active-tab pills) */
+  --brand-gradient: linear-gradient(92deg, #7AE7FF 0%, #5BA8FF 32%, #9B5BFF 65%, #E55BB8 100%);
+  --brand-gradient-corner: linear-gradient(135deg, #7AE7FF 0%, #5BA8FF 32%, #9B5BFF 65%, #E55BB8 100%);
+
+  /* Payer-tag tones */
+  --tag-cyan-bg:   rgba(122,231,255,0.14);
+  --tag-cyan-fg:   #5BA8FF;
+  --tag-cyan-dot:  #7AE7FF;
+  --tag-peach-bg:  rgba(255,196,190,0.20);
+  --tag-peach-fg:  #C53A8E;
+  --tag-peach-dot: #E55BB8;
 }
 
 /* ── Dark mode token overrides ──────────────────────────────────────── */
@@ -153,6 +199,28 @@ html[data-theme="dark"] {
   --status-warning-bg:  rgba(181,106,22,.2);
   --status-critical-bg: rgba(179,50,42,.2);
   --status-info-bg:     rgba(5,134,195,.2);
+
+  /* ── Redesign 5/24 dark theme overrides ─────────────────────────── */
+  --page-bg:        #07101C;   /* deep navy — design's primary bg */
+  --surface-1:      #0F1A2C;   /* hero card surface */
+  --surface-2:      #141E33;   /* activity cards, spending power */
+  --ink:            #F4ECDE;   /* primary text on dark */
+  --ink-soft:       rgba(244,236,222,0.66);
+  --ink-dim:        rgba(244,236,222,0.45);
+  --hair:           rgba(255,255,255,0.06);
+  --divider:        rgba(255,255,255,0.10);
+  --btn-ghost-border: rgba(244,236,222,0.18);
+
+  /* Cream tones override slightly in dark so cream-soft hits a touch brighter */
+  --ink-cream-soft: #FBF6EE;
+
+  /* Payer-tag tones tweaked for dark backgrounds */
+  --tag-cyan-bg:   rgba(122,231,255,0.14);
+  --tag-cyan-fg:   #7AE7FF;
+  --tag-cyan-dot:  #7AE7FF;
+  --tag-peach-bg:  rgba(255,196,190,0.16);
+  --tag-peach-fg:  #FFC4BE;
+  --tag-peach-dot: #E55BB8;
 }
 
 /* ── Tailwind theme bridge ───────────────────────────────────────────── */

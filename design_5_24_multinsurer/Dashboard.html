@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Beni — Dashboard</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #0a1320; }
+  body {
+    font-family: var(--font-sans);
+    color: #F4ECDE;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  .dc-root { background: #0a1320; }
+
+  /* ========== Theme tokens ========== */
+  [data-theme="dark"] {
+    --bg-page: #07101C;
+    --bg-card: #141E33;
+    --bg-card-2: #1A2640;
+    --bg-sunken: #0F1A2C;
+    --ink: #F4ECDE;
+    --ink-ultra: #FBF6EE;
+    --ink-soft: rgba(244,236,222,0.72);
+    --ink-mute: rgba(244,236,222,0.55);
+    --ink-dim:  rgba(244,236,222,0.42);
+    --ink-faint: rgba(244,236,222,0.30);
+    --hair: rgba(255,255,255,0.06);
+    --hair-strong: rgba(255,255,255,0.12);
+    --hair-stronger: rgba(255,255,255,0.20);
+    --link: #7AE7FF;
+    --link-soft: rgba(122,231,255,0.12);
+    --meter-track: rgba(255,255,255,0.16);
+    --btn-ghost-border: rgba(244,236,222,0.18);
+    --nav-active-bg: rgba(255,255,255,0.06);
+    --nav-inactive: rgba(244,236,222,0.55);
+    --mob-nav-bg: rgba(20,30,51,0.92);
+    --mob-nav-border: rgba(255,255,255,0.08);
+    --mob-nav-inactive: rgba(244,236,222,0.7);
+    --chip-bg-active: rgba(244,236,222,0.08);
+    --chip-bd-active: rgba(244,236,222,0.30);
+    --chip-bd: rgba(244,236,222,0.10);
+    --chip-inactive: rgba(244,236,222,0.65);
+    --shadow-card: 0 0 0 1px rgba(255,255,255,0.04);
+    --avatar-ring: rgba(255,255,255,0.15);
+    --tone-cyan-bg:  rgba(122,231,255,0.14);
+    --tone-cyan-fg:  #7AE7FF;
+    --tone-cyan-dot: #7AE7FF;
+    --tone-peach-bg: rgba(255,196,190,0.16);
+    --tone-peach-fg: #FFC4BE;
+    --tone-peach-dot:#E55BB8;
+    --oop-accent: #FFC4BE;
+    /* aliases for compatibility across files */
+    --bg-stat: #0F1A2C;
+    --bg-stat-border: rgba(255,255,255,0.06);
+    --tag-cyan-bg:  rgba(122,231,255,0.14);
+    --tag-cyan-fg:  #7AE7FF;
+    --tag-cyan-dot: #7AE7FF;
+    --tag-peach-bg: rgba(255,196,190,0.16);
+    --tag-peach-fg: #FFC4BE;
+    --tag-peach-dot:#E55BB8;
+    --chip-bg: transparent;
+    --chip-border: rgba(244,236,222,0.10);
+    --chip-border-active: rgba(244,236,222,0.30);
+    --chip-fg: rgba(244,236,222,0.65);
+    --chip-fg-active: #F4ECDE;
+  }
+  [data-theme="light"] {
+    --bg-page: #FBF6EE;
+    --bg-card: #FFFFFF;
+    --bg-card-2: #FAF3E3;
+    --bg-sunken: #F3EDE1;
+    --ink: #0D1B2A;
+    --ink-ultra: #07101C;
+    --ink-soft: rgba(13,27,42,0.72);
+    --ink-mute: rgba(13,27,42,0.55);
+    --ink-dim:  rgba(13,27,42,0.42);
+    --ink-faint: rgba(13,27,42,0.30);
+    --hair: rgba(13,27,42,0.08);
+    --hair-strong: rgba(13,27,42,0.14);
+    --hair-stronger: rgba(13,27,42,0.24);
+    --link: #0586c3;
+    --link-soft: rgba(5,134,195,0.10);
+    --meter-track: rgba(13,27,42,0.10);
+    --btn-ghost-border: rgba(13,27,42,0.18);
+    --nav-active-bg: rgba(13,27,42,0.06);
+    --nav-inactive: rgba(13,27,42,0.55);
+    --mob-nav-bg: rgba(255,255,255,0.92);
+    --mob-nav-border: rgba(13,27,42,0.08);
+    --mob-nav-inactive: rgba(13,27,42,0.6);
+    --chip-bg-active: rgba(13,27,42,0.06);
+    --chip-bd-active: rgba(13,27,42,0.20);
+    --chip-bd: rgba(13,27,42,0.10);
+    --chip-inactive: rgba(13,27,42,0.62);
+    --shadow-card: 0 1px 2px rgba(13,27,42,0.04), 0 0 0 1px rgba(13,27,42,0.04);
+    --avatar-ring: rgba(13,27,42,0.10);
+    --tone-cyan-bg:  rgba(5,134,195,0.10);
+    --tone-cyan-fg:  #0570a3;
+    --tone-cyan-dot: #0586c3;
+    --tone-peach-bg: rgba(229,91,184,0.10);
+    --tone-peach-fg: #b13287;
+    --tone-peach-dot:#E55BB8;
+    --oop-accent: #b13287;
+    /* aliases for compatibility across files */
+    --bg-stat: #0F1A2C;   /* hero/stat strip stays dark in light mode too */
+    --bg-stat-border: rgba(255,255,255,0.06);
+    --tag-cyan-bg:  rgba(5,134,195,0.10);
+    --tag-cyan-fg:  #0570a3;
+    --tag-cyan-dot: #0586c3;
+    --tag-peach-bg: rgba(229,91,184,0.10);
+    --tag-peach-fg: #b13287;
+    --tag-peach-dot:#E55BB8;
+    --chip-bg: transparent;
+    --chip-border: rgba(13,27,42,0.10);
+    --chip-border-active: rgba(13,27,42,0.20);
+    --chip-fg: rgba(13,27,42,0.62);
+    --chip-fg-active: #0D1B2A;
+  }
+
+  /* Layout helper for the canvas — paired artboards side by side */
+  .pair-label {
+    font-family: var(--font-sans, "Manrope");
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #6f7787;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="dashboard.jsx"></script>
+<script type="text/babel" src="page_shell.jsx"></script>
+<script type="text/babel" src="page_plan.jsx"></script>
+<script type="text/babel" src="page_health.jsx"></script>
+<script type="text/babel" src="page_activity.jsx"></script>
+<script type="text/babel" src="page_settings.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+  const App = () => (
+    <DesignCanvas title="Beni — App" subtitle="5 pages × desktop + mobile × dark + light">
+      <DCSection id="home" title="Home" subtitle="Dashboard — Sarthak's plan year">
+        <DCArtboard id="home-d-dark"  label="Desktop · dark"  width={1280} height={2100}><BeniDashboard variant="desktop" theme="dark"  /></DCArtboard>
+        <DCArtboard id="home-d-light" label="Desktop · light" width={1280} height={2100}><BeniDashboard variant="desktop" theme="light" /></DCArtboard>
+        <DCArtboard id="home-m-dark"  label="Mobile · dark"   width={412}  height={2580}><BeniDashboard variant="mobile"  theme="dark"  /></DCArtboard>
+        <DCArtboard id="home-m-light" label="Mobile · light"  width={412}  height={2580}><BeniDashboard variant="mobile"  theme="light" /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="plan" title="Plan" subtitle="Per-plan terms — tabbed across carriers">
+        <DCArtboard id="plan-d-dark"  label="Desktop · dark"  width={1280} height={2150}><BeniPlanPage variant="desktop" theme="dark"  /></DCArtboard>
+        <DCArtboard id="plan-d-light" label="Desktop · light" width={1280} height={2150}><BeniPlanPage variant="desktop" theme="light" /></DCArtboard>
+        <DCArtboard id="plan-m-dark"  label="Mobile · dark"   width={412}  height={2750}><BeniPlanPage variant="mobile"  theme="dark"  /></DCArtboard>
+        <DCArtboard id="plan-m-light" label="Mobile · light"  width={412}  height={2750}><BeniPlanPage variant="mobile"  theme="light" /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="health" title="Health" subtitle="Clinical record — read-only, never stored">
+        <DCArtboard id="health-d-dark"  label="Desktop · dark"  width={1280} height={2050}><BeniHealthPage variant="desktop" theme="dark"  /></DCArtboard>
+        <DCArtboard id="health-d-light" label="Desktop · light" width={1280} height={2050}><BeniHealthPage variant="desktop" theme="light" /></DCArtboard>
+        <DCArtboard id="health-m-dark"  label="Mobile · dark"   width={412}  height={3000}><BeniHealthPage variant="mobile"  theme="dark"  /></DCArtboard>
+        <DCArtboard id="health-m-light" label="Mobile · light"  width={412}  height={3000}><BeniHealthPage variant="mobile"  theme="light" /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="activity" title="Activity" subtitle="All 14 claims — filterable, grouped by month">
+        <DCArtboard id="act-d-dark"  label="Desktop · dark"  width={1280} height={2200}><BeniActivityPage variant="desktop" theme="dark"  /></DCArtboard>
+        <DCArtboard id="act-d-light" label="Desktop · light" width={1280} height={2200}><BeniActivityPage variant="desktop" theme="light" /></DCArtboard>
+        <DCArtboard id="act-m-dark"  label="Mobile · dark"   width={412}  height={3260}><BeniActivityPage variant="mobile"  theme="dark"  /></DCArtboard>
+        <DCArtboard id="act-m-light" label="Mobile · light"  width={412}  height={3260}><BeniActivityPage variant="mobile"  theme="light" /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="settings" title="Settings" subtitle="Account, appearance, legal — toggle theme to see it flip live">
+        <DCArtboard id="set-d-dark"  label="Desktop · dark"  width={1280} height={2100}><BeniSettingsPage variant="desktop" theme="dark"  /></DCArtboard>
+        <DCArtboard id="set-d-light" label="Desktop · light" width={1280} height={2100}><BeniSettingsPage variant="desktop" theme="light" /></DCArtboard>
+        <DCArtboard id="set-m-dark"  label="Mobile · dark"   width={412}  height={2900}><BeniSettingsPage variant="mobile"  theme="dark"  /></DCArtboard>
+        <DCArtboard id="set-m-light" label="Mobile · light"  width={412}  height={2900}><BeniSettingsPage variant="mobile"  theme="light" /></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

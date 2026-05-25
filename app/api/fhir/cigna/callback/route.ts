@@ -46,29 +46,36 @@ function cignaTokenExchange(body: string, authHeader: string): Promise<Record<st
   })
 }
 
+const PAYER = 'cigna'
+
+function errorUrl(request: NextRequest, reason: string, flow: string) {
+  return new URL(`/onboarding/connection-error?reason=${reason}&payer=${PAYER}&flow=${flow}`, request.url)
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code  = searchParams.get('code')
   const state = searchParams.get('state')
-
-  if (!code || !state) {
-    return NextResponse.redirect(new URL('/home?error=missing_params', request.url))
-  }
+  const oauthError = searchParams.get('error')
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return NextResponse.redirect(new URL('/login', request.url))
 
-  // Verify CSRF state
   const { data: oauthState } = await supabase
     .from('cigna_oauth_state')
-    .select('state')
+    .select('state, flow_intent')
     .eq('user_id', user.id)
     .single()
 
+  const flow = oauthState?.flow_intent ?? 'first'
+
+  if (oauthError || !code || !state) {
+    return NextResponse.redirect(errorUrl(request, 'cancelled', flow))
+  }
   if (!oauthState || oauthState.state !== state) {
-    return NextResponse.redirect(new URL('/home?error=invalid_state', request.url))
+    return NextResponse.redirect(errorUrl(request, 'invalid_state', flow))
   }
 
   const credentials = Buffer.from(
@@ -85,25 +92,24 @@ export async function GET(request: NextRequest) {
   try {
     token = await cignaTokenExchange(body, `Basic ${credentials}`)
   } catch (err) {
-    console.error('Cigna token exchange failed:', err)
-    return NextResponse.redirect(new URL('/home?error=token_exchange_failed', request.url))
+    console.error('Cigna token exchange failed:', { reason: 'token_exchange_failed', payer: PAYER, user_id: user.id, err })
+    return NextResponse.redirect(errorUrl(request, 'token_exchange_failed', flow))
   }
 
-  // Extract patient ID — Cigna returns it in token.patient or JWT sub claim
   const patientId: string =
     (token.patient as string) ??
     (decodeJwtPayload(token.id_token as string ?? '').sub as string) ??
     (decodeJwtPayload(token.access_token as string ?? '').sub as string) ??
     ''
 
-  if (!patientId) {
-    console.error('Cigna: could not determine patient ID', token)
-    return NextResponse.redirect(new URL('/home?error=no_patient_id', request.url))
+  if (!token.access_token || !patientId) {
+    console.error('Cigna missing fields:', { reason: 'missing_fields', payer: PAYER, user_id: user.id })
+    return NextResponse.redirect(errorUrl(request, 'missing_fields', flow))
   }
 
   await supabase.from('fhir_tokens').upsert({
     user_id:       user.id,
-    payer:         'cigna',
+    payer:         PAYER,
     access_token:  encryptToken(token.access_token as string),
     refresh_token: token.refresh_token ? encryptToken(token.refresh_token as string) : null,
     patient_id:    encryptToken(patientId),
@@ -114,10 +120,11 @@ export async function GET(request: NextRequest) {
     id:                  user.id,
     email:               user.email ?? '',
     onboarding_complete: true,
+    connection_skipped:  false,
     selected_insurer:    'Cigna',
   }, { onConflict: 'id' })
 
   await supabase.from('cigna_oauth_state').delete().eq('user_id', user.id)
 
-  return NextResponse.redirect(new URL('/home', request.url))
+  return NextResponse.redirect(new URL(`/onboarding/connected?payer=${PAYER}&flow=${flow}`, request.url))
 }

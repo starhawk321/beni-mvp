@@ -48,10 +48,12 @@ export async function middleware(request: NextRequest) {
     const isAppPath = appPaths.some(p => pathname.startsWith(p))
     const isConnecting = pathname.startsWith('/onboarding/connecting')
     const isVerifying  = pathname.startsWith('/onboarding/verify')
+    // Post-OAuth interstitial + error pages handle their own routing — never bounce them
+    const isPostOauth  = pathname.startsWith('/onboarding/connected') || pathname.startsWith('/onboarding/connection-error')
 
     if (isAppPath || pathname.startsWith('/onboarding')) {
-      // Skip onboarding check while on connecting/verify — those pages handle their own redirects
-      if (isConnecting || isVerifying) return supabaseResponse
+      // Skip onboarding check while on connecting/verify/interstitial — those handle their own redirects
+      if (isConnecting || isVerifying || isPostOauth) return supabaseResponse
 
       const { data: profile, error: profileError } = await supabase
         .from('profiles')

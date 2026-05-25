@@ -15,11 +15,14 @@ const insurers = [
   { payer: null,    name: 'Humana',                  color: '#5C9A1B', initials: 'H',  recommended: false, oauthPath: null },
 ]
 
+const BRAND_GRADIENT = 'linear-gradient(92deg, #7AE7FF 0%, #5BA8FF 35%, #9B5BFF 75%, #E55BB8 100%)'
+
 function OnboardingInner() {
   const router       = useRouter()
   const searchParams = useSearchParams()
   const isAdding     = searchParams.get('add') === 'true'
   const [connectedPayers, setConnectedPayers] = useState<string[]>([])
+  const [skipping, setSkipping] = useState(false)
 
   useEffect(() => {
     if (!isAdding) return
@@ -34,10 +37,17 @@ function OnboardingInner() {
 
   function handleSelect(insurer: typeof insurers[0]) {
     if (insurer.oauthPath) {
-      window.location.href = insurer.oauthPath
+      window.location.href = isAdding ? `${insurer.oauthPath}?add=true` : insurer.oauthPath
     } else {
       router.push(`/onboarding/connecting?insurer=${encodeURIComponent(insurer.name)}`)
     }
+  }
+
+  async function handleSkip() {
+    setSkipping(true)
+    await fetch('/api/onboarding/skip', { method: 'POST' })
+    router.push('/home')
+    router.refresh()
   }
 
   const filtered = isAdding
@@ -45,55 +55,25 @@ function OnboardingInner() {
     : insurers
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
-      {/* Sticky header */}
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
-        borderBottom: 'var(--border-hairline)',
-        padding: '0 28px', height: 60,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logo height={28} />
-        {isAdding ? (
-          <Link href="/settings" style={{
-            fontSize: 13, fontWeight: 600,
-            color: 'var(--fg-3)', textDecoration: 'none',
-            fontFamily: 'var(--font-manrope), sans-serif',
-          }}>
+    <div style={{ minHeight: '100vh', background: 'var(--page-bg)' }}>
+      <header style={{ padding: '20px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Logo height={26} />
+        {isAdding && (
+          <Link href="/settings" style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-dim)', textDecoration: 'none', fontFamily: 'var(--font-manrope), sans-serif' }}>
             ← Back to settings
           </Link>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="t-caption" style={{ color: 'var(--fg-3)' }}>Step 1 of 3</span>
-            <div style={{ width: 80, height: 4, background: 'var(--beni-line)', borderRadius: 999 }}>
-              <div style={{ width: '33%', height: '100%', background: 'var(--beni-sky)', borderRadius: 999 }} />
-            </div>
-          </div>
         )}
       </header>
 
-      <main className="beni-main">
-        <h1 className="t-display-l" style={{ color: 'var(--fg-1)', marginBottom: 12, maxWidth: 600 }}>
+      <main className="beni-main" style={{ paddingBottom: 96 }}>
+        <h1 style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 36, letterSpacing: '-0.02em', lineHeight: 1.1, color: 'var(--ink)', marginBottom: 12, maxWidth: 600 }} className="beni-hero-title">
           {isAdding ? 'Add another insurer.' : "Pick your insurer. We'll do the rest."}
         </h1>
-        <p className="t-body" style={{ color: 'var(--fg-3)', marginBottom: 40 }}>
+        <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontSize: 16, color: 'var(--ink-soft)', marginBottom: 32, maxWidth: 560 }}>
           {isAdding
             ? 'Connect any additional plans you have. Béni will show data from all of them together.'
             : 'We use read-only access to fetch your plan details and spending history.'}
         </p>
-
-        <div style={{
-          background: 'var(--beni-sky-12)', borderRadius: 'var(--r-4)',
-          padding: '12px 16px', marginBottom: 32,
-          display: 'flex', alignItems: 'center', gap: 10,
-          maxWidth: 520,
-        }}>
-          <span style={{ fontSize: 16 }}>🔒</span>
-          <span className="t-body-s" style={{ color: 'var(--beni-sky)' }}>
-            Your health records stay with your insurer. We only read them, never copy them.
-          </span>
-        </div>
 
         <div className="beni-insurer-grid">
           {filtered.map((ins) => (
@@ -102,20 +82,9 @@ function OnboardingInner() {
               onClick={() => handleSelect(ins)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 14,
-                background: 'var(--bg-surface)', border: 'var(--border-hairline)',
+                background: 'var(--surface-2)', border: '1px solid var(--hair)',
                 borderRadius: 'var(--r-5)', padding: '18px 20px',
-                cursor: 'pointer', textAlign: 'left',
-                boxShadow: 'var(--shadow-1)',
-                transition: 'box-shadow 200ms, border-color 200ms',
-                width: '100%',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = 'var(--shadow-2)'
-                e.currentTarget.style.borderColor = 'var(--beni-line-strong)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = 'var(--shadow-1)'
-                e.currentTarget.style.borderColor = 'var(--beni-line)'
+                cursor: 'pointer', textAlign: 'left', width: '100%',
               }}
             >
               <div style={{
@@ -123,21 +92,41 @@ function OnboardingInner() {
                 background: ins.color, color: '#fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontWeight: 700, fontSize: 15, flexShrink: 0,
+                fontFamily: 'var(--font-manrope), sans-serif',
               }}>
                 {ins.initials}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                  <span className="t-body-strong" style={{ color: 'var(--fg-1)' }}>{ins.name}</span>
-                  {ins.recommended && (
-                    <span className="badge badge-info">Recommended</span>
-                  )}
+                  <span style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 600, fontSize: 15, color: 'var(--ink)' }}>{ins.name}</span>
                 </div>
-                <span className="t-caption" style={{ color: 'var(--fg-4)' }}>FHIR · SMART on FHIR</span>
+                <span style={{ fontFamily: 'var(--font-manrope), sans-serif', fontSize: 12, color: 'var(--ink-dim)' }}>
+                  {ins.oauthPath ? 'SMART on FHIR' : 'Coming soon'}
+                </span>
               </div>
             </button>
           ))}
         </div>
+
+        {!isAdding && (
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--hair)' }}>
+            <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontSize: 14, color: 'var(--ink-soft)', marginBottom: 12 }}>
+              Don&apos;t see your insurer, or not ready to connect?
+            </p>
+            <button onClick={handleSkip} disabled={skipping} style={{
+              height: 44, padding: '0 20px', borderRadius: 999,
+              border: '1px solid var(--btn-ghost-border)', background: 'transparent',
+              color: 'var(--ink)', cursor: skipping ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 600, fontSize: 14,
+              display: 'inline-flex', alignItems: 'center', gap: 6, opacity: skipping ? 0.6 : 1,
+            }}>
+              {skipping ? 'Loading sample…' : 'See a sample dashboard first →'}
+            </button>
+            <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontSize: 12.5, color: 'var(--ink-dim)', marginTop: 10 }}>
+              Explore Béni with example data. Connect your real insurer anytime.
+            </p>
+          </div>
+        )}
       </main>
     </div>
   )

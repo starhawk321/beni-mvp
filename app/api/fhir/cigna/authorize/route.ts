@@ -15,10 +15,12 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.redirect(new URL('/login', request.url))
 
   const state = base64url(randomBytes(12))
+  const flowIntent = new URL(request.url).searchParams.get('add') === 'true' ? 'add' : 'first'
 
   await supabase.from('cigna_oauth_state').upsert({
     user_id:    user.id,
     state,
+    flow_intent: flowIntent,
     created_at: new Date().toISOString(),
   }, { onConflict: 'user_id' })
 

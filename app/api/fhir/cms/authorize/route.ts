@@ -24,11 +24,15 @@ export async function GET(request: NextRequest) {
   // Generate state for CSRF
   const state = base64url(randomBytes(12))
 
+  // Preserve "first-time" vs "add another" intent through the OAuth round-trip
+  const flowIntent = new URL(request.url).searchParams.get('add') === 'true' ? 'add' : 'first'
+
   // Store verifier + state in Supabase for the callback to retrieve
   const { error: upsertError } = await supabase.from('cms_oauth_state').upsert({
     user_id:       user.id,
     state,
     code_verifier: codeVerifier,
+    flow_intent:   flowIntent,
     created_at:    new Date().toISOString(),
   }, { onConflict: 'user_id' })
 

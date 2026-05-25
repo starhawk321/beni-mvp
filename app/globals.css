@@ -425,4 +425,13 @@ body {
   .beni-plan-panel-head { flex-direction: column !important; }
   .beni-plan-meters { grid-template-columns: 1fr !important; gap: 24px !important; }
   .beni-benefit-row { grid-template-columns: 1fr !important; gap: 6px !important; }
+
+  /* Claims page — collapse the 5-col row to provider + figures */
+  .beni-claim-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+  .beni-claim-row > div:first-child { grid-column: 1 / -1; }
+  .beni-claim-fig { text-align: left !important; }
+  .beni-claim-status, .beni-claim-arrow { display: none !important; }
 }

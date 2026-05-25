@@ -353,7 +353,7 @@ guiding them to add additional plans. Same picker is reused for the
 #### Mode A — First-time (no insurers connected)
 
 **Picker page sections**
-1. **Sticky header** — Logo + progress indicator
+1. **Sticky header** — Logo only (no progress indicator — see "Progress indicator" note below)
 2. **Title** — "Pick your insurer. We'll do the rest."
 3. **Subtitle** — "We use read-only access to fetch your plan details and spending history."
 4. **Insurer grid** — recommended insurers first, then less-common

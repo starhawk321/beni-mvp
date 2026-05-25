@@ -364,10 +364,46 @@ guiding them to add additional plans. Same picker is reused for the
 - After successful callback, land on **Step 2: "Add another?"** soft-prompt page (NEW)
 
 **Step 2 — Soft prompt page (new)**
-- Title: "Got it. Most people have more than one plan — want to connect another?"
-- Common scenarios listed as helper text: "dental, vision, secondary insurance, spouse's plan"
-- Two CTAs: `Add another` (back to insurer picker in add mode) | `Maybe later, take me to my dashboard`
-- Either path leads to dashboard eventually
+
+Shown after each successful OAuth callback during the first-time flow,
+until the user clicks "I'm all set" or reaches 3 connected payers.
+
+Copy template (first iteration, single payer connected):
+```
+You've connected
+  ✓ Medicare
+
+Most people also have:
+  • Medicare supplement (Medigap)
+  • Part D prescription plan
+  • Spouse's employer plan
+
+If any of these apply, connect them now to see
+your full coverage in one place.
+
+[Add another insurer]   [I'm all set — take me to my dashboard]
+```
+
+Copy template (subsequent iterations, 2+ payers connected):
+```
+You've connected
+  ✓ Medicare
+  ✓ Cigna Medigap
+
+Anything else? You can always add more later in Settings.
+
+[Add another]   [I'm done — take me to my dashboard]
+```
+
+**Rules:**
+- "Most people also have" suggestions only list FHIR-capable plans we can
+  actually connect right now. Do not list dental/vision while those are
+  manual-entry-only — that promises something we can't deliver.
+- Show the running list of what's already connected for context.
+- Loop until user clicks "I'm all set" / "I'm done" or reaches 3 connections.
+  After 3rd, skip the prompt and go to dashboard.
+- The CTA wording matters: "I'm all set" is more permissive than "Take me to
+  my dashboard" — gives explicit permission to skip without feeling abandoned.
 
 #### Mode B — Add another (existing user, `?add=true`)
 

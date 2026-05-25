@@ -420,4 +420,9 @@ body {
     gap: 12px !important;
   }
   .beni-activity-row > span:last-child { display: none !important; }
+
+  /* Plans page */
+  .beni-plan-panel-head { flex-direction: column !important; }
+  .beni-plan-meters { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .beni-benefit-row { grid-template-columns: 1fr !important; gap: 6px !important; }
 }

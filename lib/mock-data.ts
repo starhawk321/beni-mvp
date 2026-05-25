@@ -186,6 +186,64 @@ export const MOCK_PAYERS: PayerData[] = [
   },
 ]
 
+// ── Plan-detail extras for the Plans page (designed data, not from FHIR) ──────
+
+export type MockBenefitRow = { label: string; sub: string; cost: string }
+export type MockBenefitSection = { section: string; rows: MockBenefitRow[] }
+export type MockPlanExtra = {
+  type: string
+  group: string | null
+  effective: string
+  coverageEnd: string
+  network: string
+  benefits: MockBenefitSection[]
+}
+
+export const MOCK_PLAN_EXTRAS: Record<string, MockPlanExtra> = {
+  cms: {
+    type:        'Federal · Original Medicare',
+    group:       null,
+    effective:   'Jan 1, 2026 — present',
+    coverageEnd: 'Dec 31, 2026',
+    network:     'Any provider that accepts Medicare assignment',
+    benefits: [
+      {
+        section: 'Medical',
+        rows: [
+          { label: 'Primary care visit', sub: 'After Part B deductible', cost: '20% coinsurance' },
+          { label: 'Specialist visit',   sub: 'Referral not required',    cost: '20% coinsurance' },
+          { label: 'Hospital inpatient', sub: 'Part A',                   cost: '$1,632 / benefit period' },
+          { label: 'Preventive care',    sub: 'Annual wellness visit',    cost: '$0' },
+        ],
+      },
+      {
+        section: 'Pharmacy',
+        rows: [
+          { label: 'Part D prescriptions', sub: 'Separate drug plan', cost: 'Varies by tier' },
+        ],
+      },
+    ],
+  },
+  cigna: {
+    type:        'Medigap · Plan G',
+    group:       'Group 4082991',
+    effective:   'Mar 14, 2024 — present',
+    coverageEnd: 'Dec 31, 2026',
+    network:     'Works alongside Medicare — any Medicare provider',
+    benefits: [
+      {
+        section: 'Supplement',
+        rows: [
+          { label: 'Part A coinsurance',  sub: 'Hospital costs',          cost: 'Covered 100%' },
+          { label: 'Part B coinsurance',  sub: 'After annual deductible', cost: 'Covered 100%' },
+          { label: 'Part B excess charges', sub: 'Above Medicare-approved', cost: 'Covered 100%' },
+          { label: 'Annual deductible',   sub: 'Plan G member responsibility', cost: '$250' },
+        ],
+      },
+    ],
+  },
+}
+
 // ── Health records (merged across both payers, deduplicated) ──────────────────
 
 export const MOCK_CONDITIONS: ParsedCondition[] = [

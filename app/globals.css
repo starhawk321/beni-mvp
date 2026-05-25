@@ -434,4 +434,7 @@ body {
   .beni-claim-row > div:first-child { grid-column: 1 / -1; }
   .beni-claim-fig { text-align: left !important; }
   .beni-claim-status, .beni-claim-arrow { display: none !important; }
+
+  /* Records page rows */
+  .beni-record-row { grid-template-columns: 1fr !important; gap: 6px !important; }
 }

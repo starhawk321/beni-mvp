@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
 
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('onboarding_complete')
+        .select('onboarding_complete, connection_skipped')
         .eq('id', user.id)
         .single()
 
@@ -68,14 +68,16 @@ export async function middleware(request: NextRequest) {
       }
 
       const onboardingComplete = profile.onboarding_complete ?? false
+      const connectionSkipped  = profile.connection_skipped === true
 
       if (!onboardingComplete && isAppPath) {
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
 
-      // Let completed users into /onboarding when adding another insurer (?add=true)
+      // Let completed users into /onboarding when adding another insurer (?add=true),
+      // and always let skip-mode users in so they can connect for real.
       const isAddingInsurer = request.nextUrl.searchParams.get('add') === 'true'
-      if (onboardingComplete && pathname.startsWith('/onboarding') && !isAddingInsurer) {
+      if (onboardingComplete && !connectionSkipped && pathname.startsWith('/onboarding') && !isAddingInsurer) {
         return NextResponse.redirect(new URL('/home', request.url))
       }
     }

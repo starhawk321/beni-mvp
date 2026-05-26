@@ -1,194 +1,225 @@
 import Link from 'next/link'
-import Logo from '@/components/Logo'
+import type { Metadata } from 'next'
 
+export const metadata: Metadata = {
+  title: 'Béni — the intelligence layer for your healthcare',
+  description:
+    'Béni connects to your insurers, makes sense of your plans and bills, and goes to work on your behalf.',
+}
+
+// Public marketing landing. Locked to the dark brand look (scoped under
+// .beni-landing in globals.css), independent of the app's next-themes.
 export default function LandingPage() {
-  const features = [
-    {
-      icon: '📋',
-      title: 'Your plan, plain English',
-      body: 'See exactly what your insurance covers — deductibles, copays, coinsurance — without the jargon.',
-    },
-    {
-      icon: '📊',
-      title: 'Track your spending',
-      body: 'Watch your deductible and out-of-pocket max fill up in real time as claims come in.',
-    },
-    {
-      icon: '🔗',
-      title: 'Connected, not copied',
-      body: 'We fetch directly from your insurer using secure, read-only access. Nothing to upload.',
-    },
-  ]
-
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', display: 'flex', flexDirection: 'column' }}>
-      {/* Nav */}
-      <header style={{
-        padding: '0 28px', height: 64,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: 'var(--border-hairline)',
-        background: 'var(--nav-bg)', backdropFilter: 'blur(12px)',
-        position: 'sticky', top: 0, zIndex: 10,
-      }}>
-        <Logo height={28} />
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Link href="/login" style={{
-            height: 36, padding: '0 18px', borderRadius: 'var(--r-pill)',
-            border: 'var(--border-strong)', background: 'transparent',
-            fontSize: 13, fontWeight: 600, color: 'var(--fg-2)',
-            display: 'flex', alignItems: 'center', textDecoration: 'none',
-            fontFamily: 'var(--font-manrope), sans-serif',
-          }}>
-            Log in
+    <div className="beni-landing">
+      {/* NAV */}
+      <nav className="lp-nav">
+        <div className="lp-nav__inner">
+          <Link href="/" className="lp-wordmark">
+            <span className="lp-wordmark__mark">+</span>
+            beni
           </Link>
-          <Link href="/signup" style={{
-            height: 36, padding: '0 18px', borderRadius: 'var(--r-pill)',
-            background: 'var(--action-primary)', color: '#ffe9cf',
-            fontSize: 13, fontWeight: 600,
-            display: 'flex', alignItems: 'center', textDecoration: 'none',
-            fontFamily: 'var(--font-manrope), sans-serif',
-          }}>
-            Get started
-          </Link>
+          <div className="lp-nav__cta">
+            <Link href="/login" className="lp-btn lp-btn--ghost">Log in</Link>
+            <Link href="/signup" className="lp-btn lp-btn--grad">Get started</Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <header className="lp-hero">
+        <div className="lp-container">
+          <div className="lp-hero__inner">
+            <span className="lp-pill">
+              <span className="lp-pill__dot" />
+              Connects to Medicare, Cigna, Aetna, UHC, Anthem &amp; more.
+            </span>
+            <h1 className="lp-hero__title">
+              The intelligence layer for your <span className="lp-grad">healthcare</span>.
+            </h1>
+            <p className="lp-hero__sub">
+              Béni connects to your insurers, makes sense of your plans and bills, and goes
+              to work on your behalf — so the most confusing part of your life finally runs
+              itself.
+            </p>
+            <div className="lp-hero__cta">
+              <Link href="/signup" className="lp-btn lp-btn--grad lp-btn--lg">Get started for free</Link>
+              <Link href="/login" className="lp-btn lp-btn--ghost lp-btn--lg">Log in</Link>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main style={{ flex: 1 }}>
-        {/* Hero */}
-        <section style={{
-          maxWidth: 'var(--container-web)', margin: '0 auto',
-          padding: '96px 28px 80px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-        }}>
-          {/* Wordmark */}
-          <div style={{ marginBottom: 40 }}>
-            <Logo height={92} />
-          </div>
-
-          {/* Pill badge */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'var(--beni-sky-12)', borderRadius: 'var(--r-pill)',
-            padding: '6px 14px', marginBottom: 32,
-          }}>
-            <span style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: 'var(--beni-sky)', display: 'inline-block',
-            }} />
-            <span className="t-caption" style={{ color: 'var(--beni-sky)' }}>
-              Now supporting Aetna, Cigna, UHC, Anthem &amp; Humana
-            </span>
-          </div>
-
-          <h1 className="t-display-xl" style={{
-            color: 'var(--fg-1)', maxWidth: 720, marginBottom: 24,
-          }}>
-            Understand your health insurance, finally.
-          </h1>
-
-          <p className="t-body" style={{
-            color: 'var(--fg-3)', maxWidth: 480, marginBottom: 48, fontSize: 18, lineHeight: 1.6,
-          }}>
-            Béni connects to your insurer and shows your plan details, deductible progress, and healthcare spending — all in one place.
-          </p>
-
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link href="/signup" style={{
-              height: 52, padding: '0 32px', borderRadius: 'var(--r-pill)',
-              background: 'var(--action-primary)', color: '#ffe9cf',
-              fontSize: 16, fontWeight: 700,
-              display: 'flex', alignItems: 'center', textDecoration: 'none',
-              fontFamily: 'var(--font-manrope), sans-serif',
-              boxShadow: 'var(--shadow-2)',
-            }}>
-              Get started for free
-            </Link>
-            <Link href="/login" style={{
-              height: 52, padding: '0 32px', borderRadius: 'var(--r-pill)',
-              background: 'var(--bg-surface)', color: 'var(--fg-1)',
-              border: 'var(--border-strong)',
-              fontSize: 16, fontWeight: 600,
-              display: 'flex', alignItems: 'center', textDecoration: 'none',
-              fontFamily: 'var(--font-manrope), sans-serif',
-            }}>
-              Log in
-            </Link>
-          </div>
-        </section>
-
-        {/* Mock dashboard preview */}
-        <section style={{
-          maxWidth: 900, margin: '0 auto 80px', padding: '0 28px',
-        }}>
-          <div style={{
-            background: 'var(--beni-navy)', borderRadius: 'var(--r-6)',
-            padding: '28px 32px', position: 'relative', overflow: 'hidden',
-            boxShadow: 'var(--shadow-4)',
-          }}>
-            <div style={{
-              position: 'absolute', top: -40, right: 60, width: 200, height: 200,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,161,153,0.35) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }} />
-            <div style={{
-              position: 'absolute', bottom: -60, right: -20, width: 240, height: 240,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,153,0.2) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }} />
-            <p className="t-overline" style={{ color: 'rgba(244,236,222,0.6)', marginBottom: 6 }}>Deductible progress</p>
-            <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontWeight: 700, fontSize: 48, color: '#fff', fontVariantNumeric: 'tabular-nums', marginBottom: 16 }}>$1,200 <span style={{ fontSize: 22, opacity: 0.5 }}>/ $3,000</span></p>
-            <div style={{ height: 8, background: 'rgba(255,255,255,0.15)', borderRadius: 999, maxWidth: 500 }}>
-              <div style={{ width: '40%', height: '100%', borderRadius: 999, background: 'linear-gradient(90deg, #7AE7FF, #9B5BFF)' }} />
+      {/* PREVIEW CARD */}
+      <section className="lp-section lp-section--snug" style={{ paddingTop: 24 }}>
+        <div className="lp-container">
+          <article className="lp-preview">
+            <div className="lp-preview__meta">
+              <span className="lp-preview__meta-dot" />
+              Cigna PPO Plus · live
             </div>
-            <p className="t-caption" style={{ color: 'rgba(244,236,222,0.5)', marginTop: 10 }}>40% met · $1,800 remaining until full coverage</p>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section style={{
-          maxWidth: 'var(--container-web)', margin: '0 auto',
-          padding: '0 28px 96px',
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24,
-        }}>
-          {features.map((f) => (
-            <div key={f.title} className="card" style={{ padding: 28 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: 'var(--r-3)',
-                background: 'var(--beni-navy-12)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22, marginBottom: 16,
-              }}>
-                {f.icon}
+            <div className="lp-preview__inner">
+              <div className="lp-overline">Deductible progress</div>
+              <div className="lp-preview__figure">
+                $1,200 <span className="lp-preview__slash">/ $3,000</span>
               </div>
-              <h3 className="t-h3" style={{ color: 'var(--fg-1)', marginBottom: 10 }}>{f.title}</h3>
-              <p className="t-body-s" style={{ color: 'var(--fg-3)', lineHeight: 1.6 }}>{f.body}</p>
+              <div className="lp-preview__bar">
+                <div className="lp-preview__bar-fill" />
+              </div>
+              <div className="lp-preview__caption">
+                <strong>40% met</strong>
+                <span>·</span>
+                <span>$1,800 until full coverage.</span>
+              </div>
             </div>
-          ))}
-        </section>
-      </main>
+          </article>
+        </div>
+      </section>
 
-      {/* Footer */}
-      {/* Privacy trust bar */}
-      <div style={{
-        background: 'var(--beni-sky-12)',
-        borderTop: 'var(--border-hairline)',
-        padding: '14px 28px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      }}>
-        <span style={{ fontSize: 15 }}>🔒</span>
-        <p className="t-caption" style={{ color: 'var(--beni-sky)', margin: 0 }}>
-          Your health records stay with your insurer. We only read them, never copy them.
+      {/* THREE LAYERS */}
+      <section className="lp-section">
+        <div className="lp-container">
+          <div className="lp-sect-head">
+            <div className="lp-eyebrow">How Béni works</div>
+            <h2 className="lp-sect-title">
+              Most apps stop at a dashboard. Béni does <span className="lp-grad">more</span>.
+            </h2>
+          </div>
+
+          <div className="lp-layers">
+            <article className="lp-layer lp-layer--data">
+              <span className="lp-layer__shape" />
+              <div className="lp-layer__top">
+                <span className="lp-layer__num">01 · DATA</span>
+                <span className="lp-layer__tag"><span className="lp-layer__tag-dot" />Available now</span>
+              </div>
+              <div>
+                <div className="lp-layer__name">
+                  Consolidate
+                  <span className="lp-layer__verb">in one place</span>
+                </div>
+                <p className="lp-layer__body">
+                  Pulls your medical, dental, and FSA accounts into one readable place.
+                  Browse your records, understand every bill.
+                </p>
+              </div>
+            </article>
+
+            <article className="lp-layer lp-layer--analytics">
+              <span className="lp-layer__shape" />
+              <div className="lp-layer__top">
+                <span className="lp-layer__num">02 · ANALYTICS</span>
+                <span className="lp-layer__tag"><span className="lp-layer__tag-dot" />Coming soon</span>
+              </div>
+              <div>
+                <div className="lp-layer__name">
+                  Understand
+                  <span className="lp-layer__verb">what you&apos;d miss</span>
+                </div>
+                <p className="lp-layer__body">
+                  Béni reads your plans, claims, and spending to surface what you&apos;d never
+                  catch — unused benefits, billing errors, coverage gaps.
+                </p>
+              </div>
+            </article>
+
+            <article className="lp-layer lp-layer--agentic">
+              <div className="lp-layer__top">
+                <span className="lp-layer__num">03 · AGENTIC</span>
+                <span className="lp-layer__tag"><span className="lp-layer__tag-dot" />Coming soon</span>
+              </div>
+              <div>
+                <div className="lp-layer__name">
+                  Act
+                  <span className="lp-layer__verb">on your behalf</span>
+                </div>
+                <p className="lp-layer__body">
+                  Béni&apos;s agents go to work for you — negotiating bills, submitting FSA
+                  expenses, supporting prior authorizations.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* SAVINGS TEASER */}
+      <section className="lp-section">
+        <div className="lp-container">
+          <article className="lp-savings">
+            <div>
+              <div className="lp-savings__flag">
+                Béni flagged a hospital bill ~40% above fair price.
+              </div>
+              <div className="lp-savings__flag-line">Baptist Health · billed Aug 31, 2026</div>
+            </div>
+            <div>
+              <div className="lp-savings__outcome">
+                <div className="lp-savings__outcome-label">Outcome</div>
+                <div className="lp-savings__outcome-figure">
+                  <span className="lp-savings__outcome-from">$1,374</span>
+                  <span className="lp-savings__outcome-arrow">→</span>
+                  <span>$890</span>
+                </div>
+                <div className="lp-savings__outcome-sub">
+                  You saved <strong>$484</strong>.
+                </div>
+              </div>
+
+              <div className="lp-timeline">
+                <div className="lp-timeline__step lp-timeline__step--done">Reviewing</div>
+                <div className="lp-timeline__step lp-timeline__step--done">Drafting</div>
+                <div className="lp-timeline__step lp-timeline__step--done">Submitted</div>
+                <div className="lp-timeline__step lp-timeline__step--done">Negotiating</div>
+                <div className="lp-timeline__step lp-timeline__step--current">Resolved</div>
+              </div>
+
+              <div className="lp-savings__caption">
+                This is where Béni is going. Bill negotiation, on your behalf.
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* HOOK */}
+      <section className="lp-hook">
+        <p className="lp-hook__line">
+          Banking got Plaid. Spending got Mint. Healthcare never got its{' '}
+          <span className="lp-grad">intelligence layer</span>.
         </p>
-      </div>
+      </section>
 
-      <footer style={{
-        borderTop: 'var(--border-hairline)', padding: '24px 28px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Logo height={22} />
-        <p className="t-caption" style={{ color: 'var(--fg-4)' }}>© 2026 Béni. Read-only access. Your data stays yours.</p>
+      {/* PRIVACY BAR */}
+      <section className="lp-privacy">
+        <div className="lp-privacy__inner">
+          <span className="lp-lock" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="11" width="16" height="10" rx="2" />
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+            </svg>
+          </span>
+          <span>
+            <strong>Read-only and ephemeral.</strong>{' '}
+            Your records stay with your insurer — Béni reads them, never copies them.
+          </span>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="lp-footer">
+        <div className="lp-footer__inner">
+          <Link href="/" className="lp-wordmark">
+            <span className="lp-wordmark__mark">+</span>
+            beni
+          </Link>
+          <div className="lp-footer__copy">
+            © 2026 Béni · Read-only access · Your data stays yours
+          </div>
+          <div className="lp-footer__links">
+            <Link href="/privacy">Privacy</Link>
+          </div>
+        </div>
       </footer>
     </div>
   )

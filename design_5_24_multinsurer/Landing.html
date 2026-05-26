@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Béni — the intelligence layer for healthcare</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  :root,
+  [data-theme="dark"] {
+    --page-bg: #07101C;
+    --surface-1: #0F1A2C;
+    --surface-2: #141E33;
+    --hair: rgba(255,255,255,0.06);
+    --hair-strong: rgba(255,255,255,0.12);
+    --ink: #F4ECDE;
+    --ink-soft: #B8C0CC;
+    --ink-dim: #6E7A8C;
+    --brand-gradient: linear-gradient(92deg, #7AE7FF 0%, #5BA8FF 32%, #9B5BFF 65%, #E55BB8 100%);
+    --pastel-cyan: #C7E5F2;
+    --pastel-peach: #FFC4BE;
+    --pastel-purple: #D8CDF2;
+
+    /* theme-adapting tokens */
+    --nav-bg: rgba(7,16,28,0.72);
+    --pill-bg: rgba(244,236,222,0.04);
+    --preview-track: rgba(255,255,255,0.06);
+    --timeline-track: rgba(255,255,255,0.08);
+    --layer-data-bg: rgba(199,229,242,0.04);
+    --layer-data-border: rgba(199,229,242,0.20);
+    --layer-data-num: var(--pastel-cyan);
+    --layer-data-tag-bg: rgba(199,229,242,0.10);
+    --layer-data-tag-fg: var(--pastel-cyan);
+    --layer-data-blob: rgba(122,231,255,0.45);
+    --layer-analytics-bg: rgba(255,196,190,0.06);
+    --layer-analytics-border: rgba(255,196,190,0.24);
+    --layer-analytics-num: var(--pastel-peach);
+    --layer-analytics-tag-bg: rgba(255,196,190,0.12);
+    --layer-analytics-tag-fg: var(--pastel-peach);
+    --layer-analytics-blob: rgba(229,91,184,0.32);
+    --privacy-bg-from: rgba(199,229,242,0.04);
+    --privacy-bg-to: rgba(199,229,242,0.02);
+    --privacy-border: rgba(199,229,242,0.10);
+    --lock-bg: rgba(199,229,242,0.08);
+    --lock-border: rgba(199,229,242,0.18);
+    --lock-fg: var(--pastel-cyan);
+    --hero-blob-1: radial-gradient(circle, rgba(155,91,255,0.40) 0%, rgba(229,91,184,0.18) 40%, transparent 70%);
+    --hero-blob-2: radial-gradient(circle, rgba(122,231,255,0.30) 0%, rgba(91,168,255,0.12) 40%, transparent 72%);
+    --preview-blob-1: radial-gradient(circle, rgba(255,196,190,0.28) 0%, rgba(229,91,184,0.14) 40%, transparent 72%);
+    --preview-blob-2: radial-gradient(circle, rgba(122,231,255,0.24) 0%, rgba(91,168,255,0.10) 42%, transparent 72%);
+    --savings-blob: radial-gradient(circle, rgba(155,91,255,0.22) 0%, rgba(229,91,184,0.10) 45%, transparent 72%);
+  }
+
+  [data-theme="light"] {
+    --page-bg: #FBF6EE;
+    --surface-1: #FFFFFF;
+    --surface-2: #F4ECDE;
+    --hair: rgba(13,27,42,0.08);
+    --hair-strong: rgba(13,27,42,0.16);
+    --ink: #0B1A2C;
+    --ink-soft: #3C4A5C;
+    --ink-dim: #6E7A8C;
+
+    --nav-bg: rgba(251,246,238,0.78);
+    --pill-bg: rgba(13,27,42,0.04);
+    --preview-track: rgba(13,27,42,0.08);
+    --timeline-track: rgba(13,27,42,0.10);
+    --layer-data-bg: #EAF4FA;
+    --layer-data-border: rgba(91,168,255,0.30);
+    --layer-data-num: #0570a3;
+    --layer-data-tag-bg: rgba(91,168,255,0.16);
+    --layer-data-tag-fg: #0570a3;
+    --layer-data-blob: rgba(91,168,255,0.30);
+    --layer-analytics-bg: #FBE7E4;
+    --layer-analytics-border: rgba(229,91,184,0.30);
+    --layer-analytics-num: #b13287;
+    --layer-analytics-tag-bg: rgba(229,91,184,0.14);
+    --layer-analytics-tag-fg: #b13287;
+    --layer-analytics-blob: rgba(229,91,184,0.28);
+    --privacy-bg-from: rgba(91,168,255,0.08);
+    --privacy-bg-to: rgba(91,168,255,0.04);
+    --privacy-border: rgba(91,168,255,0.20);
+    --lock-bg: rgba(91,168,255,0.14);
+    --lock-border: rgba(91,168,255,0.30);
+    --lock-fg: #0570a3;
+    --hero-blob-1: radial-gradient(circle, rgba(155,91,255,0.20) 0%, rgba(229,91,184,0.10) 40%, transparent 70%);
+    --hero-blob-2: radial-gradient(circle, rgba(122,231,255,0.30) 0%, rgba(91,168,255,0.14) 40%, transparent 72%);
+    --preview-blob-1: radial-gradient(circle, rgba(255,196,190,0.36) 0%, rgba(229,91,184,0.16) 40%, transparent 72%);
+    --preview-blob-2: radial-gradient(circle, rgba(122,231,255,0.30) 0%, rgba(91,168,255,0.14) 42%, transparent 72%);
+    --savings-blob: radial-gradient(circle, rgba(155,91,255,0.16) 0%, rgba(229,91,184,0.08) 45%, transparent 72%);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html, body { background: var(--page-bg); }
+  body {
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  /* Reusable gradient text */
+  .grad-word {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+
+  /* Nav */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--nav-bg);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid var(--hair);
+  }
+  .nav__inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .wordmark {
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink);
+    font-family: var(--font-display); font-style: italic; font-size: 26px;
+    letter-spacing: -0.02em;
+  }
+  .wordmark__mark {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: var(--brand-gradient);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #0F1A2C; font-family: var(--font-sans); font-style: normal;
+    font-weight: 800; font-size: 16px;
+  }
+  .nav__cta { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 38px; padding: 0 18px; border-radius: 999;
+    font-family: var(--font-sans); font-weight: 600; font-size: 13.5px;
+    border: 0; cursor: pointer; text-decoration: none;
+    white-space: nowrap;
+    transition: filter 160ms ease, transform 160ms ease;
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn--ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--hair-strong);
+  }
+  .btn--grad {
+    background: var(--brand-gradient);
+    color: #0F1A2C; font-weight: 700;
+  }
+  .btn--lg { height: 48px; padding: 0 22px; font-size: 15px; }
+
+  /* Layout containers */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+  .container--tight { max-width: 920px; }
+  .section { padding: 88px 0; }
+  .section--snug { padding: 56px 0; }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding: 96px 0 64px;
+    overflow: hidden;
+  }
+  .hero::before, .hero::after {
+    content: ""; position: absolute; pointer-events: none;
+    border-radius: 999px;
+  }
+  .hero::before {
+    width: 720px; height: 720px;
+    right: -260px; top: -240px;
+    background: var(--hero-blob-1);
+  }
+  .hero::after {
+    width: 560px; height: 560px;
+    left: -220px; top: 80px;
+    background: var(--hero-blob-2);
+  }
+  .hero__inner { position: relative; max-width: 760px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 32px; padding: 0 14px 0 12px; border-radius: 999;
+    background: var(--pill-bg);
+    border: 1px solid var(--hair-strong);
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
+    color: var(--ink-soft); letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .pill__dot {
+    width: 7px; height: 7px; border-radius: 999;
+    background: #7AE7FF;
+    box-shadow: 0 0 0 4px rgba(122,231,255,0.18);
+  }
+  .hero__title {
+    margin: 24px 0 0;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.04;
+    letter-spacing: -0.028em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .hero__title .grad-word {
+    font-size: 1.04em; /* serif optical bump */
+    line-height: 1;
+  }
+  .hero__sub {
+    margin: 22px 0 0; max-width: 540px;
+    font-family: var(--font-sans);
+    font-size: 18px; line-height: 1.5;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .hero__cta {
+    margin-top: 32px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+
+  /* Preview card */
+  .preview {
+    position: relative;
+    background: var(--surface-1);
+    border: 1px solid var(--hair);
+    border-radius: 28px;
+    overflow: hidden;
+    padding: 40px 44px 44px;
+  }
+  .preview::before, .preview::after {
+    content: ""; position: absolute; pointer-events: none; border-radius: 999px;
+  }
+  .preview::before {
+    width: 460px; height: 460px;
+    right: -120px; top: -200px;
+    background: var(--preview-blob-1);
+  }
+  .preview::after {
+    width: 380px; height: 380px;
+    left: -120px; bottom: -200px;
+    background: var(--preview-blob-2);
+  }
+  .preview__inner { position: relative; max-width: 720px; }
+  .overline {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .preview__figure {
+    margin: 14px 0 0;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(44px, 6vw, 64px);
+    letter-spacing: -0.028em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .preview__figure-slash { color: var(--ink-dim); font-weight: 600; }
+  .preview__bar {
+    margin-top: 26px; height: 10px; border-radius: 999;
+    background: var(--preview-track);
+    overflow: hidden;
+  }
+  .preview__bar-fill {
+    width: 40%; height: 100%;
+    background: var(--brand-gradient);
+    border-radius: 999px;
+  }
+  .preview__caption {
+    margin-top: 16px; display: flex; gap: 10px; align-items: baseline;
+    font-family: var(--font-sans); font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .preview__caption strong {
+    color: var(--ink); font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .preview__meta {
+    position: absolute; top: 32px; right: 32px;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-sans); font-size: 12px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+  .preview__meta-dot {
+    width: 6px; height: 6px; border-radius: 999;
+    background: #FFC4BE;
+    box-shadow: 0 0 0 3px rgba(255,196,190,0.18);
+  }
+
+  /* Section header (eyebrow + headline) */
+  .sect-head { max-width: 760px; }
+  .eyebrow {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .sect-title {
+    margin: 18px 0 0;
+    font-family: var(--font-sans);
+    font-weight: 700; font-size: clamp(32px, 4.4vw, 48px);
+    letter-spacing: -0.025em; line-height: 1.08;
+    color: var(--ink); text-wrap: balance;
+  }
+
+  /* Layers grid */
+  .layers {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 880px) {
+    .layers { grid-template-columns: 1fr; }
+  }
+  .layer {
+    position: relative;
+    border-radius: 26px;
+    padding: 28px 28px 26px;
+    overflow: hidden;
+    min-height: 340px;
+    display: flex; flex-direction: column; gap: 36px;
+    border: 1px solid var(--hair);
+  }
+  .layer__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .layer__num {
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.08em;
+    opacity: 0.6;
+  }
+  .layer__tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 24px; padding: 0 10px; border-radius: 999;
+    font-family: var(--font-sans); font-weight: 600; font-size: 11px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .layer__tag-dot {
+    width: 5px; height: 5px; border-radius: 999;
+  }
+  .layer__name {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 26px; letter-spacing: -0.018em;
+    line-height: 1.1;
+  }
+  .layer__verb {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-display); font-style: italic;
+    font-weight: 400; font-size: 20px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    opacity: 0.85;
+  }
+  .layer__body {
+    margin-top: 14px;
+    font-family: var(--font-sans); font-size: 14.5px; line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  /* Layer variants — increasing visual intensity Data → Analytics → Agentic */
+  .layer--data {
+    background: var(--layer-data-bg);
+    border-color: var(--layer-data-border);
+  }
+  .layer--data .layer__num { color: var(--layer-data-num); }
+  .layer--data .layer__name { color: var(--ink); }
+  .layer--data .layer__body { color: var(--ink-soft); }
+  .layer--data .layer__tag {
+    background: var(--layer-data-tag-bg); color: var(--layer-data-tag-fg);
+  }
+  .layer--data .layer__tag-dot { background: var(--layer-data-tag-fg); }
+
+  .layer--analytics {
+    background: var(--layer-analytics-bg);
+    border-color: var(--layer-analytics-border);
+  }
+  .layer--analytics .layer__num { color: var(--layer-analytics-num); }
+  .layer--analytics .layer__name { color: var(--ink); }
+  .layer--analytics .layer__body { color: var(--ink-soft); }
+  .layer--analytics .layer__tag {
+    background: var(--layer-analytics-tag-bg); color: var(--layer-analytics-tag-fg);
+  }
+  .layer--analytics .layer__tag-dot { background: #E55BB8; }
+
+  .layer--agentic {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: #0F1A2C;
+  }
+  .layer--agentic .layer__num { color: rgba(15,26,44,0.65); }
+  .layer--agentic .layer__name { color: #0F1A2C; }
+  .layer--agentic .layer__verb { color: rgba(15,26,44,0.85); }
+  .layer--agentic .layer__body { color: rgba(15,26,44,0.78); }
+  .layer--agentic .layer__tag {
+    background: rgba(15,26,44,0.14); color: #0F1A2C;
+  }
+  .layer--agentic .layer__tag-dot { background: #0F1A2C; }
+
+  /* tiny decorative shape per layer */
+  .layer__shape {
+    position: absolute; right: -40px; top: 40px;
+    width: 160px; height: 160px; border-radius: 999px;
+    opacity: 0.35; pointer-events: none;
+  }
+  .layer--data .layer__shape    { background: radial-gradient(circle, var(--layer-data-blob), transparent 70%); }
+  .layer--analytics .layer__shape { background: radial-gradient(circle, var(--layer-analytics-blob), transparent 70%); }
+
+  /* Savings teaser */
+  .savings {
+    background: var(--surface-1);
+    border: 1px solid var(--hair);
+    border-radius: 28px;
+    padding: 56px 56px 52px;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  @media (max-width: 920px) {
+    .savings { grid-template-columns: 1fr; padding: 40px 32px; gap: 32px; }
+  }
+  .savings::before {
+    content: ""; position: absolute; pointer-events: none;
+    right: -160px; top: -160px;
+    width: 540px; height: 540px; border-radius: 999px;
+    background: var(--savings-blob);
+  }
+  .savings__flag {
+    position: relative;
+    font-family: var(--font-display); font-style: italic;
+    font-size: 22px; line-height: 1.35;
+    color: var(--ink); letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .savings__flag-line {
+    margin-top: 12px;
+    font-family: var(--font-sans); font-size: 13.5px;
+    color: var(--ink-dim);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .savings__flag-line::before {
+    content: ""; width: 18px; height: 1px; background: var(--ink-dim);
+  }
+  .savings__outcome {
+    position: relative;
+    border-radius: 24px;
+    padding: 30px 32px 28px;
+    background: var(--brand-gradient);
+    color: #0F1A2C;
+  }
+  .savings__outcome-label {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(15,26,44,0.65);
+  }
+  .savings__outcome-figure {
+    margin-top: 10px;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(40px, 5.6vw, 60px);
+    letter-spacing: -0.028em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: #0F1A2C;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  .savings__outcome-from {
+    color: rgba(15,26,44,0.55);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+  .savings__outcome-arrow {
+    font-family: var(--font-sans); font-weight: 600;
+    color: rgba(15,26,44,0.65);
+    font-size: 0.55em;
+  }
+  .savings__outcome-sub {
+    margin-top: 8px;
+    font-family: var(--font-sans); font-size: 15px; font-weight: 600;
+    color: #0F1A2C;
+  }
+  .savings__outcome-sub strong {
+    font-weight: 700;
+  }
+  .timeline {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    position: relative;
+  }
+  .timeline__step {
+    text-align: left;
+    padding-top: 18px;
+    position: relative;
+    font-family: var(--font-sans); font-size: 11.5px; font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-dim);
+  }
+  .timeline__step::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 6px;
+    height: 4px; border-radius: 999px;
+    background: var(--timeline-track);
+  }
+  .timeline__step--done::before {
+    background: linear-gradient(92deg, #7AE7FF 0%, #9B5BFF 60%);
+  }
+  .timeline__step--current::before {
+    background: var(--brand-gradient);
+  }
+  .timeline__step--current { color: var(--ink); }
+  .timeline__step--done { color: var(--ink-soft); }
+  .timeline__step-dot {
+    display: none; /* keep clean — bar is the indicator */
+  }
+  .savings__caption {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+    font-family: var(--font-sans); font-size: 14px;
+    color: var(--ink-dim);
+    text-wrap: pretty;
+  }
+
+  /* Hook line */
+  .hook {
+    text-align: center;
+    padding: 96px 28px 80px;
+  }
+  .hook__line {
+    max-width: 900px; margin: 0 auto;
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: clamp(28px, 3.8vw, 42px);
+    line-height: 1.18; letter-spacing: -0.02em;
+    color: var(--ink-soft);
+    text-wrap: balance;
+  }
+  .hook__line .grad-word { font-weight: 400; }
+
+  /* Privacy bar */
+  .privacy {
+    background: linear-gradient(180deg, var(--privacy-bg-from) 0%, var(--privacy-bg-to) 100%);
+    border-top: 1px solid var(--privacy-border);
+    border-bottom: 1px solid var(--privacy-border);
+  }
+  .privacy__inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 22px 28px;
+    display: flex; align-items: center; gap: 16px;
+    font-family: var(--font-sans); font-size: 14px;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .lock {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--lock-bg);
+    border: 1px solid var(--lock-border);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--lock-fg);
+  }
+  .privacy__inner strong { color: var(--ink); font-weight: 700; }
+
+  /* Footer */
+  .footer {
+    padding: 56px 0 64px;
+  }
+  .footer__inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .footer__copy {
+    font-family: var(--font-sans); font-size: 13px;
+    color: var(--ink-dim);
+  }
+  .footer__links {
+    display: flex; gap: 22px;
+  }
+  .footer__links a {
+    font-family: var(--font-sans); font-size: 13px;
+    color: var(--ink-dim); text-decoration: none;
+    transition: color 140ms ease;
+  }
+  .footer__links a:hover { color: var(--ink); }
+
+  /* Theme toggle */
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 2px;
+    height: 38px; padding: 4px; border-radius: 999;
+    background: var(--pill-bg);
+    border: 1px solid var(--hair-strong);
+    margin-right: 4px;
+  }
+  .theme-toggle button {
+    width: 30px; height: 30px; border-radius: 999;
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--ink-dim);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background 160ms ease, color 160ms ease;
+  }
+  .theme-toggle button[aria-pressed="true"] {
+    background: var(--surface-1);
+    color: var(--ink);
+    box-shadow: 0 0 0 1px var(--hair) inset;
+  }
+  .theme-toggle button svg { display: block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="#" class="wordmark">
+      <span class="wordmark__mark">+</span>
+      beni
+    </a>
+    <div class="nav__cta">
+      <div class="theme-toggle" role="group" aria-label="Theme">
+        <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        </button>
+        <button type="button" data-theme-set="dark" aria-pressed="true" aria-label="Dark theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
+      <a href="#login" class="btn btn--ghost">Log in</a>
+      <a href="#signup" class="btn btn--grad">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero__inner">
+      <span class="pill">
+        <span class="pill__dot"></span>
+        Connects to Medicare, Cigna, Aetna, UHC, Anthem &amp; more.
+      </span>
+      <h1 class="hero__title">
+        The intelligence layer for your <span class="grad-word">healthcare</span>.
+      </h1>
+      <p class="hero__sub">
+        Béni connects to your insurers, makes sense of your plans and bills, and goes to work on your behalf — so the most confusing part of your life finally runs itself.
+      </p>
+      <div class="hero__cta">
+        <a href="#signup" class="btn btn--grad btn--lg">Get started for free</a>
+        <a href="#login" class="btn btn--ghost btn--lg">Log in</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PREVIEW CARD -->
+<section class="section section--snug" style="padding-top: 24px;">
+  <div class="container">
+    <article class="preview">
+      <div class="preview__meta">
+        <span class="preview__meta-dot"></span>
+        Cigna PPO Plus · live
+      </div>
+      <div class="preview__inner">
+        <div class="overline">Deductible progress</div>
+        <div class="preview__figure">
+          $1,200 <span class="preview__figure-slash">/ $3,000</span>
+        </div>
+        <div class="preview__bar">
+          <div class="preview__bar-fill"></div>
+        </div>
+        <div class="preview__caption">
+          <strong>40% met</strong>
+          <span>·</span>
+          <span>$1,800 until full coverage.</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- THREE LAYERS -->
+<section class="section">
+  <div class="container">
+    <div class="sect-head">
+      <div class="eyebrow">How Béni works</div>
+      <h2 class="sect-title">
+        Most apps stop at a dashboard. Béni does <span class="grad-word">more</span>.
+      </h2>
+    </div>
+
+    <div class="layers">
+      <article class="layer layer--data">
+        <span class="layer__shape"></span>
+        <div class="layer__top">
+          <span class="layer__num">01 · DATA</span>
+          <span class="layer__tag">
+            <span class="layer__tag-dot"></span>
+            Available now
+          </span>
+        </div>
+        <div>
+          <div class="layer__name">
+            Consolidate
+            <span class="layer__verb">in one place</span>
+          </div>
+          <p class="layer__body">
+            Pulls your medical, dental, and FSA accounts into one readable place. Browse your records, understand every bill.
+          </p>
+        </div>
+      </article>
+
+      <article class="layer layer--analytics">
+        <span class="layer__shape"></span>
+        <div class="layer__top">
+          <span class="layer__num">02 · ANALYTICS</span>
+          <span class="layer__tag">
+            <span class="layer__tag-dot"></span>
+            Coming soon
+          </span>
+        </div>
+        <div>
+          <div class="layer__name">
+            Understand
+            <span class="layer__verb">what you'd miss</span>
+          </div>
+          <p class="layer__body">
+            Béni reads your plans, claims, and spending to surface what you'd never catch — unused benefits, billing errors, coverage gaps.
+          </p>
+        </div>
+      </article>
+
+      <article class="layer layer--agentic">
+        <div class="layer__top">
+          <span class="layer__num">03 · AGENTIC</span>
+          <span class="layer__tag">
+            <span class="layer__tag-dot"></span>
+            Coming soon
+          </span>
+        </div>
+        <div>
+          <div class="layer__name">
+            Act
+            <span class="layer__verb">on your behalf</span>
+          </div>
+          <p class="layer__body">
+            Béni's agents go to work for you — negotiating bills, submitting FSA expenses, supporting prior authorizations.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- SAVINGS TEASER -->
+<section class="section">
+  <div class="container">
+    <article class="savings">
+      <div>
+        <div class="savings__flag">
+          Béni flagged a hospital bill ~40% above fair price.
+        </div>
+        <div class="savings__flag-line">Baptist Health · billed Aug 31, 2026</div>
+      </div>
+      <div>
+        <div class="savings__outcome">
+          <div class="savings__outcome-label">Outcome</div>
+          <div class="savings__outcome-figure">
+            <span class="savings__outcome-from">$1,374</span>
+            <span class="savings__outcome-arrow">→</span>
+            <span>$890</span>
+          </div>
+          <div class="savings__outcome-sub">
+            You saved <strong>$484</strong>.
+          </div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline__step timeline__step--done">Reviewing</div>
+          <div class="timeline__step timeline__step--done">Drafting</div>
+          <div class="timeline__step timeline__step--done">Submitted</div>
+          <div class="timeline__step timeline__step--done">Negotiating</div>
+          <div class="timeline__step timeline__step--current">Resolved</div>
+        </div>
+
+        <div class="savings__caption">
+          This is where Béni is going. Bill negotiation, on your behalf.
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- HOOK -->
+<section class="hook">
+  <p class="hook__line">
+    Banking got Plaid. Spending got Mint. Healthcare never got its
+    <span class="grad-word">intelligence layer</span>.
+  </p>
+</section>
+
+<!-- PRIVACY BAR -->
+<section class="privacy">
+  <div class="privacy__inner">
+    <span class="lock" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+      </svg>
+    </span>
+    <span>
+      <strong>Read-only and ephemeral.</strong>
+      Your records stay with your insurer — Béni reads them, never copies them.
+    </span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__inner">
+    <a href="#" class="wordmark">
+      <span class="wordmark__mark">+</span>
+      beni
+    </a>
+    <div class="footer__copy">
+      © 2026 Béni · Read-only access · Your data stays yours
+    </div>
+    <div class="footer__links">
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+    const stored = localStorage.getItem("beni-landing-theme");
+    const initial = stored || "dark";
+    root.setAttribute("data-theme", initial);
+
+    function syncPressed(theme) {
+      document.querySelectorAll("[data-theme-set]").forEach((btn) => {
+        btn.setAttribute("aria-pressed", btn.dataset.themeSet === theme ? "true" : "false");
+      });
+    }
+    syncPressed(initial);
+
+    document.querySelectorAll("[data-theme-set]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const theme = btn.dataset.themeSet;
+        root.setAttribute("data-theme", theme);
+        localStorage.setItem("beni-landing-theme", theme);
+        syncPressed(theme);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

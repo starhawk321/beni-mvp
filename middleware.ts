@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/', '/login', '/signup', '/auth/callback']
+  const publicPaths = ['/', '/login', '/signup', '/auth/callback', '/privacy']
   const isPublicPath = publicPaths.includes(pathname)
 
   // Logged out — block protected routes

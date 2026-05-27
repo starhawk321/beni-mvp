@@ -5,6 +5,7 @@ const PAYER_NAMES: Record<string, string> = {
   cms:   'Medicare',
   cigna: 'Cigna',
   bcbs:  'BlueCross BlueShield MN',
+  aetna: 'Aetna',
 }
 
 export default async function ConnectedPage({ searchParams }: { searchParams: Promise<{ payer?: string; flow?: string }> }) {

@@ -50,6 +50,7 @@ const PLAN_THEME: Record<string, { bg: string; ink: string; accent: string }> = 
   cms:   { bg: '#C7E5F2', ink: '#0B2A3D', accent: '#5BA8FF' },
   cigna: { bg: '#FFC4BE', ink: '#3D1612', accent: '#E55BB8' },
   bcbs:  { bg: '#B8D0E8', ink: '#0B2A3D', accent: '#5BA8FF' },
+  aetna: { bg: '#D8CDF2', ink: '#1A0E2E', accent: '#9B5BFF' },
 }
 const DEFAULT_THEME = { bg: '#D8CDF2', ink: '#1A0E2E', accent: '#9B5BFF' }
 

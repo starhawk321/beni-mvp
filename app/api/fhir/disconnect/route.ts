@@ -8,7 +8,7 @@ const CIGNA_REVOKE_HOST = 'r-hi2.cigna.com'
 const CIGNA_REVOKE_PATH = '/mga/sps/oauth/oauth20/revoke'
 const BCBS_REVOKE_URL  = 'https://bluecrossmn3.okta.com/oauth2/ausb48v7sRjhrmr4V4h6/v1/revoke'
 
-type Payer = 'cms' | 'cigna' | 'bcbs'
+type Payer = 'cms' | 'cigna' | 'bcbs' | 'aetna'
 
 // Cigna uses malformed HTTP headers — needs insecureHTTPParser
 function revokeCigna(token: string): Promise<boolean> {
@@ -37,6 +37,9 @@ function revokeCigna(token: string): Promise<boolean> {
 async function revokeWithPayer(payer: Payer, refreshToken: string): Promise<boolean> {
   try {
     if (payer === 'cigna') return await revokeCigna(refreshToken)
+    // Aetna sandbox issues no refresh token and documents no revoke endpoint —
+    // deleting the local token row is sufficient.
+    if (payer === 'aetna') return true
 
     const url = payer === 'bcbs' ? BCBS_REVOKE_URL : CMS_REVOKE_URL
     const clientId     = payer === 'bcbs' ? process.env.FHIR_BCBS_CLIENT_ID!     : process.env.FHIR_CMS_CLIENT_ID!
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { payer } = await request.json() as { payer: Payer }
-  if (!payer || !['cms', 'cigna', 'bcbs'].includes(payer)) {
+  if (!payer || !['cms', 'cigna', 'bcbs', 'aetna'].includes(payer)) {
     return NextResponse.json({ error: 'Invalid payer' }, { status: 400 })
   }
 

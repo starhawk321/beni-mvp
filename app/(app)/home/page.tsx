@@ -6,7 +6,7 @@ import {
   MOCK_PAYERS, MOCK_FOR_YOU_ITEMS, MOCK_USER_FIRST_NAME,
 } from '@/lib/mock-data'
 
-const PAYER_TONE: Record<string, 'cyan' | 'peach'> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan' }
+const PAYER_TONE: Record<string, 'cyan' | 'peach'> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan', aetna: 'peach' }
 
 const CLAIM_DETAIL: Record<string, string> = {
   institutional: 'Hospital / facility',

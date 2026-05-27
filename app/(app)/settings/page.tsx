@@ -9,6 +9,7 @@ const INSURER_META: Record<string, Omit<ConnectedInsurer, 'payer'>> = {
   cms:   { displayName: 'Medicare (CMS)',          color: '#1565C0', initials: 'Mc' },
   cigna: { displayName: 'Cigna',                   color: '#FF7A00', initials: 'Ci' },
   bcbs:  { displayName: 'BlueCross BlueShield MN', color: '#005EB8', initials: 'BC' },
+  aetna: { displayName: 'Aetna',                   color: '#7B2D8E', initials: 'Ae' },
 }
 
 function Card({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {

@@ -2,6 +2,7 @@ import {
   fetchCMSCoverage, fetchCMSEOBs,
   fetchCignaCoverage, fetchCignaEOBs,
   fetchBCBSCoverage, fetchBCBSEOBs,
+  fetchAetnaCoverage, fetchAetnaEOBs,
   type FHIRExplanationOfBenefit,
 } from '@/lib/fhir/client'
 import { parseCoverage, parseEOBs, parseBenefitBalance } from '@/lib/fhir/parsers'
@@ -9,7 +10,7 @@ import { getValidAccessToken } from '@/lib/fhir/token'
 import { encryptToken, decryptToken } from '@/lib/fhir/crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export type Payer = 'cms' | 'cigna' | 'bcbs'
+export type Payer = 'cms' | 'cigna' | 'bcbs' | 'aetna'
 
 export type PayerData = {
   payer: Payer
@@ -24,6 +25,7 @@ const PAYER_NAMES: Record<Payer, string> = {
   cms:   'Medicare',
   cigna: 'Cigna',
   bcbs:  'BlueCross BlueShield MN',
+  aetna: 'Aetna',
 }
 
 type TokenRow = {
@@ -54,7 +56,9 @@ async function fetchPayerData(supabase: SupabaseClient, userId: string, tokenRow
         ? [fetchCignaCoverage(patientId, accessToken), fetchCignaEOBs(patientId, accessToken)]
         : tokenRow.payer === 'bcbs'
           ? [fetchBCBSCoverage(patientId, accessToken), fetchBCBSEOBs(patientId, accessToken)]
-          : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
+          : tokenRow.payer === 'aetna'
+            ? [fetchAetnaCoverage(patientId, accessToken), fetchAetnaEOBs(patientId, accessToken)]
+            : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
     )
 
     const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
@@ -84,7 +88,7 @@ export async function fetchAllPayersData(supabase: SupabaseClient, userId: strin
 
   const results = await Promise.all(
     (tokens as TokenRow[])
-      .filter(t => ['cms', 'cigna', 'bcbs'].includes(t.payer))
+      .filter(t => ['cms', 'cigna', 'bcbs', 'aetna'].includes(t.payer))
       .map(t => fetchPayerData(supabase, userId, t))
   )
 

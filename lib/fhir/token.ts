@@ -5,6 +5,7 @@ const CMS_TOKEN_URL   = 'https://sandbox.bluebutton.cms.gov/v2/o/token/'
 const CIGNA_TOKEN_HOST = 'r-hi2.cigna.com'
 const CIGNA_TOKEN_PATH = '/mga/sps/oauth/oauth20/token'
 const BCBS_TOKEN_URL  = 'https://interop-preview.bluecrossmn.com/fhir/token'
+const AETNA_TOKEN_URL = 'https://vteapif1.aetna.com/fhirdemo/v1/fhirserver_auth/oauth2/token'
 
 export type StoredToken = {
   access_token: string
@@ -102,10 +103,36 @@ export async function refreshBCBSToken(refreshToken: string): Promise<RefreshedT
   return { access_token: data.access_token, expires_in: data.expires_in ?? 3600 }
 }
 
+// Aetna sandbox uses Basic auth, same shape as BCBS. Note: the sandbox scope
+// (launch/patient patient/*.read) has no offline_access, so it typically issues
+// no refresh token — this path only runs if Aetna ever returns one.
+export async function refreshAetnaToken(refreshToken: string): Promise<RefreshedToken | null> {
+  const credentials = Buffer.from(
+    `${process.env.FHIR_AETNA_CLIENT_ID}:${process.env.FHIR_AETNA_CLIENT_SECRET}`
+  ).toString('base64')
+
+  const res = await fetch(AETNA_TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${credentials}`,
+    },
+    body: new URLSearchParams({
+      grant_type:    'refresh_token',
+      refresh_token: refreshToken,
+    }),
+  })
+
+  if (!res.ok) return null
+  const data = await res.json()
+  if (!data.access_token) return null
+  return { access_token: data.access_token, expires_in: data.expires_in ?? 3600 }
+}
+
 // Returns a valid access token — decrypts, refreshes silently if expired.
 export async function getValidAccessToken(
   tokenRow: StoredToken,
-  payer: 'cms' | 'cigna' | 'bcbs' = 'cms'
+  payer: 'cms' | 'cigna' | 'bcbs' | 'aetna' = 'cms'
 ): Promise<string | null> {
   const isExpired = tokenRow.expires_at
     ? new Date(tokenRow.expires_at) <= new Date(Date.now() + 60_000)
@@ -124,7 +151,9 @@ export async function getValidAccessToken(
     ? await refreshCignaToken(refreshToken)
     : payer === 'bcbs'
       ? await refreshBCBSToken(refreshToken)
-      : await refreshCMSToken(refreshToken)
+      : payer === 'aetna'
+        ? await refreshAetnaToken(refreshToken)
+        : await refreshCMSToken(refreshToken)
 
   return refreshed?.access_token ?? null
 }

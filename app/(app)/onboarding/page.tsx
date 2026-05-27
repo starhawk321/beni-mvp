@@ -10,7 +10,7 @@ const insurers = [
   { payer: 'cms',   name: 'Medicare (CMS)',          color: '#1565C0', initials: 'Mc', recommended: true,  oauthPath: '/api/fhir/cms/authorize'   },
   { payer: 'cigna', name: 'Cigna',                   color: '#FF7A00', initials: 'Ci', recommended: true,  oauthPath: '/api/fhir/cigna/authorize' },
   { payer: 'bcbs',  name: 'BlueCross BlueShield MN', color: '#005EB8', initials: 'BC', recommended: true,  oauthPath: '/api/fhir/bcbs/authorize'  },
-  { payer: null,    name: 'Aetna',                   color: '#7B2D8E', initials: 'Ae', recommended: true,  oauthPath: null },
+  { payer: 'aetna', name: 'Aetna',                   color: '#7B2D8E', initials: 'Ae', recommended: true,  oauthPath: '/api/fhir/aetna/authorize' },
   { payer: null,    name: 'UnitedHealthcare',        color: '#002677', initials: 'U',  recommended: false, oauthPath: null },
   { payer: null,    name: 'Humana',                  color: '#5C9A1B', initials: 'H',  recommended: false, oauthPath: null },
 ]

@@ -2,6 +2,7 @@ const SMART_BASE  = 'https://r4.smarthealthit.org'
 const CMS_BASE    = 'https://sandbox.bluebutton.cms.gov/v2/fhir'
 const CIGNA_BASE  = 'https://fhir.cigna.com/PatientAccess/v1-devportal'
 const BCBS_BASE   = 'https://preview-api.bluecrossmn.com/fhir'
+const AETNA_BASE  = 'https://vteapif1.aetna.com/fhirdemo/v2/patientaccess'
 
 // Test patient IDs with confirmed data in the SMART sandbox
 export const SANDBOX_PATIENTS = {
@@ -149,6 +150,32 @@ export async function fetchBCBSObservations(patientId: string, token: string) {
 
 export async function fetchBCBSImmunizations(patientId: string, token: string) {
   return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: BCBS_BASE, token })
+}
+
+// ── Aetna (sandbox: vteapif1 / fhirdemo) ──────────────────────────────────────
+
+export async function fetchAetnaCoverage(patientId: string, token: string) {
+  return fetchFHIR<FHIRCoverage>(`Coverage?patient=${patientId}&_count=10`, { base: AETNA_BASE, token })
+}
+
+export async function fetchAetnaEOBs(patientId: string, token: string) {
+  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit?patient=${patientId}&_count=10`, { base: AETNA_BASE, token })
+}
+
+export async function fetchAetnaConditions(patientId: string, token: string) {
+  return fetchFHIR<FHIRCondition>(`Condition?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
+}
+
+export async function fetchAetnaMedications(patientId: string, token: string) {
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
+}
+
+export async function fetchAetnaObservations(patientId: string, token: string) {
+  return fetchFHIR<FHIRObservation>(`Observation?patient=${patientId}&category=laboratory&_count=50`, { base: AETNA_BASE, token })
+}
+
+export async function fetchAetnaImmunizations(patientId: string, token: string) {
+  return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
 }
 
 // ── CoverageEligibilityResponse ──────────────────────────────────────────────

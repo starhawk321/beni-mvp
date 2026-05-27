@@ -3,7 +3,7 @@ import ClaimsClient, { type ClaimEntry } from '@/components/ClaimsClient'
 import { fetchAllPayersData, type PayerData } from '@/lib/fhir/multi-payer'
 import { MOCK_PAYERS } from '@/lib/mock-data'
 
-const PAYER_TONE: Record<string, 'cyan' | 'peach'> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan' }
+const PAYER_TONE: Record<string, 'cyan' | 'peach'> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan', aetna: 'peach' }
 
 const CLAIM_DETAIL: Record<string, string> = {
   institutional: 'Hospital / facility',

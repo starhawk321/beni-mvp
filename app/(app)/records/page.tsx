@@ -7,6 +7,7 @@ import {
   fetchCMSConditions, fetchCMSMedications, fetchCMSObservations, fetchCMSImmunizations,
   fetchCignaConditions, fetchCignaMedications, fetchCignaObservations, fetchCignaImmunizations,
   fetchBCBSConditions, fetchBCBSMedications, fetchBCBSObservations, fetchBCBSImmunizations,
+  fetchAetnaConditions, fetchAetnaMedications, fetchAetnaObservations, fetchAetnaImmunizations,
 } from '@/lib/fhir/client'
 import { parseConditions, parseMedications, parseObservations, parseImmunizations } from '@/lib/fhir/parsers'
 import { getValidAccessToken } from '@/lib/fhir/token'
@@ -15,14 +16,15 @@ import {
   MOCK_CONDITIONS, MOCK_MEDICATIONS, MOCK_OBSERVATIONS, MOCK_IMMUNIZATIONS,
 } from '@/lib/mock-data'
 
-type Payer = 'cms' | 'cigna' | 'bcbs'
-const TONE: Record<Payer, Tone> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan' }
-const LABEL: Record<Payer, string> = { cms: 'Medicare', cigna: 'Cigna', bcbs: 'BlueCross BlueShield MN' }
+type Payer = 'cms' | 'cigna' | 'bcbs' | 'aetna'
+const TONE: Record<Payer, Tone> = { cms: 'cyan', cigna: 'peach', bcbs: 'cyan', aetna: 'peach' }
+const LABEL: Record<Payer, string> = { cms: 'Medicare', cigna: 'Cigna', bcbs: 'BlueCross BlueShield MN', aetna: 'Aetna' }
 
 const FETCHERS: Record<Payer, [typeof fetchCMSConditions, typeof fetchCMSMedications, typeof fetchCMSObservations, typeof fetchCMSImmunizations]> = {
   cms:   [fetchCMSConditions, fetchCMSMedications, fetchCMSObservations, fetchCMSImmunizations],
   cigna: [fetchCignaConditions, fetchCignaMedications, fetchCignaObservations, fetchCignaImmunizations],
   bcbs:  [fetchBCBSConditions, fetchBCBSMedications, fetchBCBSObservations, fetchBCBSImmunizations],
+  aetna: [fetchAetnaConditions, fetchAetnaMedications, fetchAetnaObservations, fetchAetnaImmunizations],
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
@@ -76,7 +78,7 @@ export default async function RecordsPage() {
     .select('access_token, refresh_token, patient_id, expires_at, payer')
     .eq('user_id', user!.id)
 
-  const payerRows = (tokens ?? []).filter(t => ['cms', 'cigna', 'bcbs'].includes(t.payer))
+  const payerRows = (tokens ?? []).filter(t => ['cms', 'cigna', 'bcbs', 'aetna'].includes(t.payer))
 
   const merged: RecordsData = { conditions: [], medications: [], labs: [], immunizations: [] }
   const sources: { tone: Tone; label: string }[] = []

@@ -4,6 +4,7 @@ const PAYER_NAMES: Record<string, string> = {
   cms:   'Medicare',
   cigna: 'Cigna',
   bcbs:  'BlueCross BlueShield MN',
+  aetna: 'Aetna',
 }
 
 type Reason = 'cancelled' | 'token_exchange_failed' | 'missing_fields' | 'invalid_state' | 'server_error'

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export type ConnectedInsurer = {
-  payer: 'cms' | 'cigna' | 'bcbs'
+  payer: 'cms' | 'cigna' | 'bcbs' | 'aetna'
   displayName: string
   color: string
   initials: string

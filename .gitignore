@@ -24,6 +24,11 @@
 .DS_Store
 *.pem
 
+# Aetna sandbox reference downloads (contain Aetna's internal session keys; keep local)
+Aetna_*.pdf
+Token_Generation_Process*.pdf
+_v1_fhirserver_auth_oauth2_*.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*

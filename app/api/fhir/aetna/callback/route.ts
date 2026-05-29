@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   const { data: oauthState } = await supabase
     .from('aetna_oauth_state')
-    .select('state, flow_intent')
+    .select('state, code_verifier, flow_intent')
     .eq('user_id', user.id)
     .single()
 
@@ -47,9 +47,10 @@ export async function GET(request: NextRequest) {
       'Authorization': `Basic ${credentials}`,
     },
     body: new URLSearchParams({
-      grant_type:   'authorization_code',
+      grant_type:    'authorization_code',
       code,
-      redirect_uri: process.env.FHIR_AETNA_REDIRECT_URI!,
+      redirect_uri:  process.env.FHIR_AETNA_REDIRECT_URI!,
+      code_verifier: oauthState.code_verifier ?? '',
     }),
   })
 

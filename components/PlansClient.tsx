@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { fmt } from '@/lib/utils/format'
+import TermTooltip from './TermTooltip'
 
 export type BenefitRow = { label: string; sub: string; cost: string }
 export type BenefitSection = { section: string; rows: BenefitRow[] }
@@ -38,7 +39,7 @@ function fmtDate(iso: string | null): string | null {
 }
 
 function BigMeter({ ink, accent, label, big, remaining, pct, cleared }: {
-  ink: string; accent: string; label: string; big: string; remaining: string; pct: number; cleared?: boolean
+  ink: string; accent: string; label: React.ReactNode; big: string; remaining: string; pct: number; cleared?: boolean
 }) {
   return (
     <div>
@@ -135,13 +136,13 @@ export default function PlansClient({ plans, initialPayer }: { plans: PlanDetail
         {(p.deductible || p.oopMax) ? (
           <div className="beni-plan-meters" style={{ marginTop: 30, background: 'rgba(255,255,255,0.46)', borderRadius: 18, padding: '26px 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
             {p.deductible && (
-              <BigMeter ink={theme.ink} accent={theme.accent} label="Deductible"
+              <BigMeter ink={theme.ink} accent={theme.accent} label={<TermTooltip term="deductible">Deductible</TermTooltip>}
                 big={p.deductible.met ? 'Met' : `${fmt(p.deductible.used)} of ${fmt(p.deductible.total)}`}
                 remaining={p.deductible.met ? `${fmt(p.deductible.total)} cleared` : `${fmt(p.deductible.total - p.deductible.used)} to go`}
                 pct={dedPct} cleared={p.deductible.met} />
             )}
             {p.oopMax && (
-              <BigMeter ink={theme.ink} accent={theme.accent} label="Out-of-pocket max"
+              <BigMeter ink={theme.ink} accent={theme.accent} label={<TermTooltip term="oop-max">Out-of-pocket max</TermTooltip>}
                 big={`${fmt(p.oopMax.used)} of ${fmt(p.oopMax.total)}`}
                 remaining={`${fmt(p.oopMax.total - p.oopMax.used)} remaining`}
                 pct={oopPct} />
@@ -150,7 +151,7 @@ export default function PlansClient({ plans, initialPayer }: { plans: PlanDetail
         ) : (
           <div style={{ marginTop: 24, background: 'rgba(255,255,255,0.46)', borderRadius: 18, padding: '18px 22px' }}>
             <p style={{ fontFamily: 'var(--font-manrope), sans-serif', fontSize: 13, color: theme.ink, opacity: 0.7, margin: 0, lineHeight: 1.5 }}>
-              Deductible and out-of-pocket limits aren&apos;t reported by your insurer via this connection. Check your plan documents for exact limits.
+              <TermTooltip term="deductible">Deductible</TermTooltip> and <TermTooltip term="oop-max">out-of-pocket</TermTooltip> limits aren&apos;t reported by your insurer via this connection. Check your plan documents for exact limits.
             </p>
           </div>
         )}

@@ -6,6 +6,7 @@ import ClaimDetailDrawer from './ClaimDetailDrawer'
 import type { ParsedClaim } from '@/lib/fhir/parsers'
 import type { FHIRExplanationOfBenefit } from '@/lib/fhir/client'
 import { fmt, formatDateShort } from '@/lib/utils/format'
+import TermTooltip from './TermTooltip'
 
 const BRAND_GRADIENT = 'linear-gradient(92deg, #7AE7FF 0%, #5BA8FF 35%, #9B5BFF 75%, #E55BB8 100%)'
 
@@ -97,7 +98,7 @@ function PayerTag({ tone, children }: { tone: 'cyan' | 'peach'; children: React.
 }
 
 function PlanMeter({ ink, accent, label, right, pct, met }: {
-  ink: string; accent: string; label: string; right: string; pct: number; met?: boolean
+  ink: string; accent: string; label: React.ReactNode; right: string; pct: number; met?: boolean
 }) {
   return (
     <div>
@@ -145,12 +146,12 @@ function PlanCard({ p }: { p: PlanCardData }) {
       {(p.deductible || p.oopMax) && (
         <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
           {p.deductible && (
-            <PlanMeter ink={theme.ink} accent={theme.accent} label="Deductible"
+            <PlanMeter ink={theme.ink} accent={theme.accent} label={<TermTooltip term="deductible">Deductible</TermTooltip>}
               right={p.deductible.met ? 'Met' : `${fmt(p.deductible.used)} of ${fmt(p.deductible.total)}`}
               pct={dedPct} met={p.deductible.met} />
           )}
           {p.oopMax && (
-            <PlanMeter ink={theme.ink} accent={theme.accent} label="Out-of-pocket max"
+            <PlanMeter ink={theme.ink} accent={theme.accent} label={<TermTooltip term="oop-max">Out-of-pocket max</TermTooltip>}
               right={`${fmt(p.oopMax.used)} of ${fmt(p.oopMax.total)}`} pct={oopPct} />
           )}
         </div>
@@ -184,12 +185,12 @@ export default function DashboardHome({ greeting, isConnected, totals, plans, fo
               Hello, {greeting}. Here&apos;s where your <GradientWord>coverage</GradientWord> stands.
             </h1>
             <div className="beni-hero-stats" style={{ marginTop: 36, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', columnGap: 36 }}>
-              {[
-                { label: 'Insurance paid', value: fmt(totals.insPaid), sub: `across ${plans.length} plan${plans.length !== 1 ? 's' : ''}`, first: true },
-                { label: 'Out of pocket', value: fmt(totals.oop), sub: `${oopPct}% of total cost` },
-                { label: 'Claims', value: String(totals.claims), sub: 'this plan year' },
-              ].map((s, i) => (
-                <div key={s.label} style={{
+              {([
+                { key: 'ins',    label: <>Insurance paid</>,                                                              value: fmt(totals.insPaid),     sub: `across ${plans.length} plan${plans.length !== 1 ? 's' : ''}` },
+                { key: 'oop',    label: <TermTooltip term="oop-max">Out of pocket</TermTooltip>,                          value: fmt(totals.oop),         sub: `${oopPct}% of total cost` },
+                { key: 'claims', label: <>Claims</>,                                                                      value: String(totals.claims),   sub: 'this plan year' },
+              ] as const).map((s, i) => (
+                <div key={s.key} style={{
                   paddingLeft: i === 0 ? 0 : 36,
                   borderLeft: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.10)',
                 }}>

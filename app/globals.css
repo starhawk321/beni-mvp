@@ -687,10 +687,12 @@ body:has(.beni-landing) { background: #07101C; }
 
 /* Landing animations — hero staggered entrance, scroll-driven reveals, card hover lift.
    Scroll-driven reveals use animation-timeline (Chromium + Safari 18+); browsers without
-   support just see static content. Reduced-motion users get no animation at all. */
+   support just see static content. Reduced-motion users get no animation at all.
+   The reveal keyframe animates `translate` (not transform) so hover's `transform:
+   translateY()` composes with it instead of being overridden by the animation origin. */
 @keyframes lp-fade-up {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; translate: 0 22px; }
+  to   { opacity: 1; translate: 0 0; }
 }
 @keyframes lp-bar-grow {
   from { transform: scaleX(0); }
@@ -698,17 +700,17 @@ body:has(.beni-landing) { background: #07101C; }
 }
 
 .beni-landing .lp-anim {
-  animation: lp-fade-up 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: lp-fade-up 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.beni-landing .lp-anim--1 { animation-delay:  80ms; }
-.beni-landing .lp-anim--2 { animation-delay: 180ms; }
-.beni-landing .lp-anim--3 { animation-delay: 320ms; }
-.beni-landing .lp-anim--4 { animation-delay: 440ms; }
-.beni-landing .lp-anim--5 { animation-delay: 560ms; animation-duration: 820ms; }
+.beni-landing .lp-anim--1 { animation-delay:  100ms; }
+.beni-landing .lp-anim--2 { animation-delay:  320ms; }
+.beni-landing .lp-anim--3 { animation-delay:  540ms; }
+.beni-landing .lp-anim--4 { animation-delay:  760ms; }
+.beni-landing .lp-anim--5 { animation-delay:  960ms; animation-duration: 1000ms; }
 
 .beni-landing .lp-preview__bar-fill {
   transform-origin: left center;
-  animation: lp-bar-grow 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) 920ms both;
+  animation: lp-bar-grow 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) 1500ms both;
 }
 
 @supports (animation-timeline: view()) {
@@ -720,19 +722,25 @@ body:has(.beni-landing) { background: #07101C; }
 }
 
 .beni-landing .lp-layer {
-  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              box-shadow 240ms ease;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 260ms ease,
+              box-shadow 260ms ease;
 }
 .beni-landing .lp-layer:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+.beni-landing .lp-layer--agentic:hover {
+  box-shadow: 0 18px 40px rgba(155, 91, 255, 0.32);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .beni-landing .lp-anim,
   .beni-landing .lp-preview__bar-fill,
-  .beni-landing .lp-reveal { animation: none !important; opacity: 1; transform: none; }
+  .beni-landing .lp-reveal { animation: none !important; opacity: 1; translate: none; transform: none; }
   .beni-landing .lp-layer { transition: none; }
-  .beni-landing .lp-layer:hover { transform: none; }
+  .beni-landing .lp-layer:hover { transform: none; box-shadow: none; }
 }
 
 /* Hook line */

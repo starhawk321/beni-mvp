@@ -28,7 +28,12 @@ async function fetchFHIR<T>(
     headers,
     next: { revalidate: 0 },
   })
-  if (!res.ok) throw new Error(`FHIR fetch failed: ${res.status} ${path}`)
+  if (!res.ok) {
+    // Include response body in the error — payer 4xx responses usually contain
+    // a FHIR OperationOutcome that names the bad parameter; without it we're guessing.
+    const body = await res.text().catch(() => '')
+    throw new Error(`FHIR fetch failed: ${res.status} ${path} — ${body.slice(0, 500)}`)
+  }
   return res.json()
 }
 
@@ -153,29 +158,32 @@ export async function fetchBCBSImmunizations(patientId: string, token: string) {
 }
 
 // ── Aetna (sandbox: vteapif1 / fhirdemo) ──────────────────────────────────────
+// Aetna's sandbox rejected `patient=<id>` with a 400; using the typed reference
+// `patient=Patient/<id>` (still a valid FHIR R4 search syntax) is what its
+// validator accepts.
 
 export async function fetchAetnaCoverage(patientId: string, token: string) {
-  return fetchFHIR<FHIRCoverage>(`Coverage?patient=${patientId}&_count=10`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRCoverage>(`Coverage?patient=Patient/${patientId}&_count=10`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaEOBs(patientId: string, token: string) {
-  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit?patient=${patientId}&_count=10`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit?patient=Patient/${patientId}&_count=10`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaConditions(patientId: string, token: string) {
-  return fetchFHIR<FHIRCondition>(`Condition?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRCondition>(`Condition?patient=Patient/${patientId}&_count=50`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaMedications(patientId: string, token: string) {
-  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?patient=Patient/${patientId}&_count=50`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaObservations(patientId: string, token: string) {
-  return fetchFHIR<FHIRObservation>(`Observation?patient=${patientId}&category=laboratory&_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRObservation>(`Observation?patient=Patient/${patientId}&category=laboratory&_count=50`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaImmunizations(patientId: string, token: string) {
-  return fetchFHIR<FHIRImmunization>(`Immunization?patient=${patientId}&_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRImmunization>(`Immunization?patient=Patient/${patientId}&_count=50`, { base: AETNA_BASE, token })
 }
 
 // ── CoverageEligibilityResponse ──────────────────────────────────────────────

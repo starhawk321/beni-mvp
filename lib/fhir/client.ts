@@ -158,37 +158,38 @@ export async function fetchBCBSImmunizations(patientId: string, token: string) {
 }
 
 // ── Aetna (sandbox: vteapif1 / fhirdemo) ──────────────────────────────────────
-// Aetna's Patient Access API binds the patient to the OAuth token and rejects
-// `?patient=...` with MSG_PARM_UNKNOWN. Hit the bare resource endpoint; the
-// server returns data scoped to the authenticated member. Their docs phrase it
-// as "for the authenticated user." Optional filters per the CARIN-BB IG (date
-// range, claim type) can be added later if needed; `_count` is standard FHIR.
-// Patient ID isn't used in the URL but kept in the signature for parity with
+// Aetna's Patient Access API binds the patient to the OAuth token and is
+// unusually strict about query parameters — even `_count` returns
+// MSG_PARM_UNKNOWN. Their Coverage doc describes the canonical access as
+// "Launch Coverage by calling the [FHIR Base]/Coverage *without any
+// identifier*." So we hit the bare resource endpoint; the server returns data
+// scoped to the authenticated member at its own default page size.
+// patientId is unused in the URL but kept in the signature for parity with
 // other payers and future use (e.g. /<Resource>/{id} reads).
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 export async function fetchAetnaCoverage(_patientId: string, token: string) {
-  return fetchFHIR<FHIRCoverage>(`Coverage?_count=10`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRCoverage>(`Coverage`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaEOBs(_patientId: string, token: string) {
-  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit?_count=10`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRExplanationOfBenefit>(`ExplanationOfBenefit`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaConditions(_patientId: string, token: string) {
-  return fetchFHIR<FHIRCondition>(`Condition?_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRCondition>(`Condition`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaMedications(_patientId: string, token: string) {
-  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest?_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRMedicationRequest>(`MedicationRequest`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaObservations(_patientId: string, token: string) {
-  return fetchFHIR<FHIRObservation>(`Observation?category=laboratory&_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRObservation>(`Observation`, { base: AETNA_BASE, token })
 }
 
 export async function fetchAetnaImmunizations(_patientId: string, token: string) {
-  return fetchFHIR<FHIRImmunization>(`Immunization?_count=50`, { base: AETNA_BASE, token })
+  return fetchFHIR<FHIRImmunization>(`Immunization`, { base: AETNA_BASE, token })
 }
 /* eslint-enable @typescript-eslint/no-unused-vars */
 

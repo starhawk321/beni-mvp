@@ -5,6 +5,7 @@ import { decryptToken } from '@/lib/fhir/crypto'
 import {
   fetchCMSCoverage, fetchCMSEOBs, fetchCMSPatient,
   fetchCignaCoverage, fetchCignaEOBs, fetchCignaPatient,
+  fetchAetnaCoverage, fetchAetnaEOBs,
 } from '@/lib/fhir/client'
 import {
   parseCoverage, parseEOBs, parsePatient, parseBenefitBalance, calculateSpending,
@@ -19,23 +20,30 @@ export default async function DebugPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) notFound()
 
-  const [{ data: cmsToken }, { data: cignaToken }] = await Promise.all([
+  const [{ data: cmsToken }, { data: cignaToken }, { data: aetnaToken }] = await Promise.all([
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user.id).eq('payer', 'cms').single(),
     supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user.id).eq('payer', 'cigna').single(),
+    supabase.from('fhir_tokens').select('access_token, refresh_token, patient_id, expires_at').eq('user_id', user.id).eq('payer', 'aetna').single(),
   ])
 
-  async function fetchPayer(tokenRow: typeof cmsToken, payer: 'cms' | 'cigna') {
+  async function fetchPayer(tokenRow: typeof cmsToken, payer: 'cms' | 'cigna' | 'aetna') {
     if (!tokenRow) return null
     try {
       const accessToken = await getValidAccessToken(tokenRow, payer)
       const patientId   = decryptToken(tokenRow.patient_id)
       if (!accessToken || !patientId) return { error: 'Could not decrypt token or patient ID' }
 
-      const isCigna = payer === 'cigna'
       const [coverageBundle, eobBundle, patientResource] = await Promise.all([
-        isCigna ? fetchCignaCoverage(patientId, accessToken) : fetchCMSCoverage(patientId, accessToken),
-        isCigna ? fetchCignaEOBs(patientId, accessToken)    : fetchCMSEOBs(patientId, accessToken),
-        (isCigna ? fetchCignaPatient(patientId, accessToken) : fetchCMSPatient(patientId, accessToken)).catch(() => null),
+        payer === 'cigna' ? fetchCignaCoverage(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaCoverage(patientId, accessToken)
+          : fetchCMSCoverage(patientId, accessToken),
+        payer === 'cigna' ? fetchCignaEOBs(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaEOBs(patientId, accessToken)
+          : fetchCMSEOBs(patientId, accessToken),
+        // Aetna doesn't have a Patient fetcher wired yet — skip (the debug view treats null as "not fetched")
+        (payer === 'cigna' ? fetchCignaPatient(patientId, accessToken)
+          : payer === 'aetna' ? Promise.resolve(null)
+          : fetchCMSPatient(patientId, accessToken)).catch(() => null),
       ])
 
       const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []
@@ -63,14 +71,16 @@ export default async function DebugPage() {
     }
   }
 
-  const [cmsData, cignaData] = await Promise.all([
+  const [cmsData, cignaData, aetnaData] = await Promise.all([
     fetchPayer(cmsToken, 'cms'),
     fetchPayer(cignaToken, 'cigna'),
+    fetchPayer(aetnaToken, 'aetna'),
   ])
 
   const sections = [
     { label: 'CMS (Medicare)', data: cmsData, connected: !!cmsToken },
     { label: 'Cigna',          data: cignaData, connected: !!cignaToken },
+    { label: 'Aetna',          data: aetnaData, connected: !!aetnaToken },
   ]
 
   return (

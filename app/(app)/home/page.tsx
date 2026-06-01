@@ -105,13 +105,23 @@ export default async function HomePage() {
   })
   const rawEobs = payers.flatMap(d => d.rawEobs)
 
+  // "Plan year so far" totals/plan cards filter to the current calendar year.
+  // Activity feed and drill-down claims stay unfiltered — those show history.
+  const currentYear = String(new Date().getFullYear())
+  const inCurrentYear = (c: ParsedClaim) => c.serviceDate?.startsWith(currentYear) ?? false
+  const payersThisYear: PayerData[] = payers.map(d => ({
+    ...d,
+    claims: d.claims.filter(inCurrentYear),
+  }))
+  const claimsThisYear = payersThisYear.flatMap(d => d.claims)
+
   const totals = {
-    insPaid: sum(allClaims, 'amountPaid'),
-    oop:     sum(allClaims, 'amountPatient'),
-    claims:  allClaims.length,
+    insPaid: sum(claimsThisYear, 'amountPaid'),
+    oop:     sum(claimsThisYear, 'amountPatient'),
+    claims:  claimsThisYear.length,
   }
 
-  const plans = payers.map(toPlanCard)
+  const plans = payersThisYear.map(toPlanCard)
 
   // Activity tagged by payer, merged + most recent first, top 4 on the dashboard
   const activity = payers

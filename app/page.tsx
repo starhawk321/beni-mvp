@@ -1,7 +1,6 @@
 import WaitlistForm from '@/components/WaitlistForm'
 import MarkStage from '@/components/MarkStage'
 import GradientField from '@/components/GradientField'
-import BloomField from '@/components/BloomField'
 import Image from 'next/image'
 
 export default function StealthPage() {
@@ -13,6 +12,21 @@ export default function StealthPage() {
           background: #07101C;
           -webkit-font-smoothing: antialiased;
           overflow: hidden;
+        }
+
+        /* Looping bloom video — full viewport, behind everything */
+        .bloom-video {
+          position: fixed; inset: 0; z-index: 0;
+          width: 100%; height: 100%;
+          object-fit: cover;
+          pointer-events: none;
+        }
+        /* Veil softens the video so the type stays readable */
+        .bloom-veil {
+          position: fixed; inset: 0; z-index: 1;
+          background:
+            radial-gradient(900px 600px at 50% 40%, rgba(7,16,28,0.35) 0%, rgba(7,16,28,0.78) 75%, rgba(7,16,28,0.92) 100%);
+          pointer-events: none;
         }
 
         .grid {
@@ -62,10 +76,21 @@ export default function StealthPage() {
         }
       `}</style>
 
-      {/* Mouse-tracking gradient field */}
+      {/* Ambient looping video — sits behind everything as the bloom field */}
+      <video
+        className="bloom-video"
+        src="/bloom-bg.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden
+      />
+      {/* Dark overlay to keep text contrast over the video */}
+      <div className="bloom-veil" aria-hidden />
+      {/* Mouse-tracking gradient field — sits above the video */}
       <GradientField />
-      {/* Ambient four-petal flowers blooming in the background */}
-      <BloomField />
       <div className="grid" />
 
       <div style={{

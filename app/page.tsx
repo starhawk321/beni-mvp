@@ -21,11 +21,12 @@ export default function StealthPage() {
           object-fit: cover;
           pointer-events: none;
         }
-        /* Veil softens the video so the type stays readable */
+        /* Veil softens the video so the type stays readable — kept very light
+           so the video remains clearly visible while we tune */
         .bloom-veil {
           position: fixed; inset: 0; z-index: 1;
           background:
-            radial-gradient(900px 600px at 50% 40%, rgba(7,16,28,0.35) 0%, rgba(7,16,28,0.78) 75%, rgba(7,16,28,0.92) 100%);
+            radial-gradient(1200px 800px at 50% 45%, rgba(7,16,28,0.08) 0%, rgba(7,16,28,0.32) 75%, rgba(7,16,28,0.45) 100%);
           pointer-events: none;
         }
 

@@ -1,6 +1,7 @@
 import WaitlistForm from '@/components/WaitlistForm'
 import MarkStage from '@/components/MarkStage'
 import GradientField from '@/components/GradientField'
+import BloomField from '@/components/BloomField'
 import Image from 'next/image'
 
 export default function StealthPage() {
@@ -63,6 +64,8 @@ export default function StealthPage() {
 
       {/* Mouse-tracking gradient field */}
       <GradientField />
+      {/* Ambient four-petal flowers blooming in the background */}
+      <BloomField />
       <div className="grid" />
 
       <div style={{

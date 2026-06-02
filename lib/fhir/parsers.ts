@@ -44,16 +44,26 @@ export function parseCoverage(resource: FHIRCoverage): ParsedCoverage {
   const planClass  = resource.class?.find(c => c.type?.coding?.[0]?.code === 'plan')
   const groupClass = resource.class?.find(c => c.type?.coding?.[0]?.code === 'group')
 
-  const planType = planClass?.value ?? resource.type?.text ?? resource.type?.coding?.[0]?.display ?? 'Health'
+  // class[].value is human-readable for CMS ("Part A") but a numeric internal
+  // ID for Aetna ("1660916487029") — skip the value when it looks like an ID.
+  const planClassValue = planClass?.value && !/^\d+$/.test(planClass.value) ? planClass.value : undefined
+  const planType  = planClassValue ?? resource.type?.text ?? resource.type?.coding?.[0]?.display ?? 'Health'
   const groupName = groupClass?.value ?? insurerName
   const planName  = planClass?.name ?? `${groupName} ${planType}`
+
+  // Some payers (Aetna sandbox) mask the subscriberId; fall back to
+  // identifier[0].value, which is typically the real membership/group ID.
+  const rawSubId = resource.subscriberId?.trim()
+  const subscriberId = (rawSubId && rawSubId.toLowerCase() !== 'masked')
+    ? rawSubId
+    : (resource.identifier?.[0]?.value ?? '—')
 
   return {
     id:           resource.id,
     insurerName,
     planName,
     planType,
-    subscriberId: resource.subscriberId ?? '—',
+    subscriberId,
     periodStart:  resource.period?.start ?? null,
     periodEnd:    resource.period?.end ?? null,
     status:       resource.status,

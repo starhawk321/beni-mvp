@@ -61,13 +61,23 @@ async function fetchPayerData(supabase: SupabaseClient, userId: string, tokenRow
             : [fetchCMSCoverage(patientId, accessToken),  fetchCMSEOBs(patientId, accessToken)]
     )
 
-    const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
-    const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []
+    // Aetna prepends an informational OperationOutcome as entry[0] in its
+    // bundles — filter by resourceType so we don't try to parse it as a
+    // Coverage/EOB. Harmless for CMS/Cigna (their bundles only contain
+    // matching resources).
+    const coverageResources = (coverageBundle.entry?.map(e => e.resource) ?? [])
+      .filter(r => r?.resourceType === 'Coverage')
+    const eobResources = (eobBundle.entry?.map(e => e.resource) ?? [])
+      .filter(r => r?.resourceType === 'ExplanationOfBenefit')
+
+    // When a member has many historical coverages (Aetna sandbox returns ~43,
+    // most cancelled), prefer the active one for plan-card display.
+    const primaryCoverage = coverageResources.find(c => c?.status === 'active') ?? coverageResources[0]
 
     return {
       payer:          tokenRow.payer,
       displayName:    PAYER_NAMES[tokenRow.payer],
-      coverage:       coverageResources[0] ? parseCoverage(coverageResources[0]) : null,
+      coverage:       primaryCoverage ? parseCoverage(primaryCoverage) : null,
       claims:         parseEOBs(eobResources),
       rawEobs:        eobResources,
       benefitBalance: parseBenefitBalance(eobResources),

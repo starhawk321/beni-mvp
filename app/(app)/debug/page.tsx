@@ -4,8 +4,11 @@ import { getValidAccessToken } from '@/lib/fhir/token'
 import { decryptToken } from '@/lib/fhir/crypto'
 import {
   fetchCMSCoverage, fetchCMSEOBs, fetchCMSPatient,
+  fetchCMSConditions, fetchCMSMedications, fetchCMSObservations, fetchCMSImmunizations,
   fetchCignaCoverage, fetchCignaEOBs, fetchCignaPatient,
+  fetchCignaConditions, fetchCignaMedications, fetchCignaObservations, fetchCignaImmunizations,
   fetchAetnaCoverage, fetchAetnaEOBs,
+  fetchAetnaConditions, fetchAetnaMedications, fetchAetnaObservations, fetchAetnaImmunizations,
 } from '@/lib/fhir/client'
 import {
   parseCoverage, parseEOBs, parsePatient, parseBenefitBalance, calculateSpending,
@@ -33,7 +36,10 @@ export default async function DebugPage() {
       const patientId   = decryptToken(tokenRow.patient_id)
       if (!accessToken || !patientId) return { error: 'Could not decrypt token or patient ID' }
 
-      const [coverageBundle, eobBundle, patientResource] = await Promise.all([
+      const [
+        coverageBundle, eobBundle, patientResource,
+        conditionsBundle, medicationsBundle, observationsBundle, immunizationsBundle,
+      ] = await Promise.all([
         payer === 'cigna' ? fetchCignaCoverage(patientId, accessToken)
           : payer === 'aetna' ? fetchAetnaCoverage(patientId, accessToken)
           : fetchCMSCoverage(patientId, accessToken),
@@ -44,22 +50,43 @@ export default async function DebugPage() {
         (payer === 'cigna' ? fetchCignaPatient(patientId, accessToken)
           : payer === 'aetna' ? Promise.resolve(null)
           : fetchCMSPatient(patientId, accessToken)).catch(() => null),
+        (payer === 'cigna' ? fetchCignaConditions(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaConditions(patientId, accessToken)
+          : fetchCMSConditions(patientId, accessToken)).catch(() => null),
+        (payer === 'cigna' ? fetchCignaMedications(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaMedications(patientId, accessToken)
+          : fetchCMSMedications(patientId, accessToken)).catch(() => null),
+        (payer === 'cigna' ? fetchCignaObservations(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaObservations(patientId, accessToken)
+          : fetchCMSObservations(patientId, accessToken)).catch(() => null),
+        (payer === 'cigna' ? fetchCignaImmunizations(patientId, accessToken)
+          : payer === 'aetna' ? fetchAetnaImmunizations(patientId, accessToken)
+          : fetchCMSImmunizations(patientId, accessToken)).catch(() => null),
       ])
 
-      const eobResources      = eobBundle.entry?.map(e => e.resource) ?? []
-      const coverageResources = coverageBundle.entry?.map(e => e.resource) ?? []
+      // Filter the bundles to actual matching resources — Aetna's bundles include
+      // an informational OperationOutcome as entry[0] that isn't a Coverage/EOB.
+      const coverageResources = (coverageBundle.entry?.map(e => e.resource) ?? [])
+        .filter(r => r?.resourceType === 'Coverage')
+      const eobResources = (eobBundle.entry?.map(e => e.resource) ?? [])
+        .filter(r => r?.resourceType === 'ExplanationOfBenefit')
+      const primaryCoverage = coverageResources.find(c => c?.status === 'active') ?? coverageResources[0]
 
       return {
         tokenPrefix: accessToken.slice(0, 16) + '...',
         patientId,
         expiresAt: tokenRow.expires_at,
         raw: {
-          coverage: coverageBundle,
-          eob:      eobBundle,
-          patient:  patientResource,
+          coverage:      coverageBundle,
+          eob:           eobBundle,
+          patient:       patientResource,
+          conditions:    conditionsBundle,
+          medications:   medicationsBundle,
+          observations:  observationsBundle,
+          immunizations: immunizationsBundle,
         },
         parsed: {
-          coverage:      coverageResources[0] ? parseCoverage(coverageResources[0]) : null,
+          coverage:      primaryCoverage ? parseCoverage(primaryCoverage) : null,
           claims:        parseEOBs(eobResources),
           spending:      calculateSpending(parseEOBs(eobResources)),
           benefitBalance: parseBenefitBalance(eobResources),
@@ -144,6 +171,10 @@ export default async function DebugPage() {
                   <JsonBlock title={`Raw — Coverage (total: ${d.raw.coverage.total})`} data={d.raw.coverage} collapsed />
                   <JsonBlock title={`Raw — EOBs (total: ${d.raw.eob.total})`} data={d.raw.eob} collapsed />
                   <JsonBlock title="Raw — Patient" data={d.raw.patient} collapsed />
+                  <JsonBlock title={`Raw — Conditions (total: ${d.raw.conditions?.total ?? '—'})`} data={d.raw.conditions} collapsed />
+                  <JsonBlock title={`Raw — Medications (total: ${d.raw.medications?.total ?? '—'})`} data={d.raw.medications} collapsed />
+                  <JsonBlock title={`Raw — Observations (total: ${d.raw.observations?.total ?? '—'})`} data={d.raw.observations} collapsed />
+                  <JsonBlock title={`Raw — Immunizations (total: ${d.raw.immunizations?.total ?? '—'})`} data={d.raw.immunizations} collapsed />
                 </div>
               )
             })()}

@@ -231,6 +231,7 @@ export type FHIRCoverage = {
   period?: { start?: string; end?: string }
   payor?: Array<{ reference?: string; display?: string; identifier?: { value?: string } }>
   class?: Array<{ type: { coding: Array<{ code: string }> }; value: string; name?: string }>
+  identifier?: Array<{ value?: string; system?: string }>
 }
 
 export type FHIRAdjudication = {

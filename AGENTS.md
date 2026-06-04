@@ -78,7 +78,7 @@ Strong success criteria enable independent looping. Weak criteria ("make it work
 - Next.js App Router — **breaking changes from training data; read `node_modules/next/dist/docs/` before writing**
 - Supabase (auth, profiles, fhir_tokens, `<payer>_oauth_state` per payer)
 - Vercel deploy: `main` → benihealth.app (stealth landing), `dev` → preview URL (full app)
-- Active MVP branch: `advantage` (off `dev`)
+- MVP work happens on `dev` (renamed from `advantage` on 2026-06-04; prior dev-branch work preserved on `dev_v1` for reference)
 
 ## Current product direction
 
@@ -88,7 +88,7 @@ The two problems we solve:
 1. **"I don't know what I actually owe"** → unified bill inbox + EOB-to-bill reconciliation (daily-use surface)
 2. **"I don't know if my insurer screwed me"** → AI claims audit + drafted appeal letters (episodic moment-of-magic)
 
-On `advantage`, old route surfaces (`/home`, `/plans`, `/claims`, `/records`) remain on disk but are disconnected from nav. They're reference material for the new inbox/findings surfaces being built around them. Don't re-link them in nav.
+On `dev`, old route surfaces (`/home`, `/plans`, `/claims`, `/records`) remain on disk but are disconnected from nav. They're reference material for the new inbox/findings surfaces being built around them. Don't re-link them in nav.
 
 See `docs/strategy.md` for the 8-week MVP plan, TAM picture, feature-by-feature FHIR dependency, and what was ruled out.
 
@@ -133,7 +133,7 @@ See `docs/strategy.md` for the 8-week MVP plan, TAM picture, feature-by-feature 
 - `docs/strategy.md` — current product direction, 8-week MVP plan, TAM, what was ruled out
 - `docs/bcbs-payer-apis.md` — state-by-state BCBS API reference
 - `docs/hipaa-compliance.md` — full HIPAA analysis
-- GitHub milestones (to be created on `advantage`):
+- GitHub milestones (to be created):
   - Closed Beta MVP — inbox + audit + appeals (8 weeks)
   - Billing Expansion — charity care, negotiation, Rx (post-beta)
   - Commercial Unlock — Cigna commercial via Patient Access goes live Jan 1, 2027

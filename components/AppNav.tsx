@@ -6,11 +6,19 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
 
-// Old routes (home/plans/claims/records) are kept on disk but disconnected from
-// nav while we rebuild around inbox + findings for the billing-focused MVP.
-// See docs/strategy.md. Add new routes here as they ship.
-const NAV_ITEMS: { label: string; href: string }[] = []
-const TAB_ITEMS: { label: string; href: string }[] = []
+const NAV_ITEMS = [
+  { label: 'Home',    href: '/home'    },
+  { label: 'Plans',   href: '/plans'   },
+  { label: 'Claims',  href: '/claims'  },
+  { label: 'Records', href: '/records' },
+]
+
+const TAB_ITEMS = [
+  { label: 'Home',    href: '/home'    },
+  { label: 'Plans',   href: '/plans'   },
+  { label: 'Claims',  href: '/claims'  },
+  { label: 'You',     href: '/settings' },
+]
 
 const BRAND_GRADIENT = 'linear-gradient(92deg, #7AE7FF 0%, #5BA8FF 35%, #9B5BFF 75%, #E55BB8 100%)'
 

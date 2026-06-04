@@ -103,6 +103,17 @@
   --dur-3: 320ms;
   --dur-4: 520ms;
 
+  /* Type family aliases — semantic names for the next/font/google vars.
+     The raw vars (--font-manrope etc.) are set on <html> in app/layout.tsx. */
+  --font-sans:    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-instrument-serif), "Iowan Old Style", Georgia, serif;
+  --font-mono:    var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Senior accessibility — text-size multiplier. Override on a parent
+     container (e.g. .senior-scope) to live-scale all type that uses
+     calc(var(--s) * <px>px). Default is 1 (no scaling). */
+  --s: 1;
+
   /* Layout */
   --container-web: 1200px;
 

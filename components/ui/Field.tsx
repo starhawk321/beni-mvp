@@ -86,7 +86,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
 // ── Combined helper for the common label+input pattern ───────────────────
 
-type LabeledInputProps = Omit<InputProps, 'id'> & {
+type LabeledInputProps = Omit<InputProps, 'id' | 'error'> & {
   label?: string
   hint?: string
   error?: string

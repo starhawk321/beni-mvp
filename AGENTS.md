@@ -78,6 +78,19 @@ Strong success criteria enable independent looping. Weak criteria ("make it work
 - Next.js App Router — **breaking changes from training data; read `node_modules/next/dist/docs/` before writing**
 - Supabase (auth, profiles, fhir_tokens, `<payer>_oauth_state` per payer)
 - Vercel deploy: `main` → benihealth.app (stealth landing), `dev` → preview URL (full app)
+- Active MVP branch: `advantage` (off `dev`)
+
+## Current product direction
+
+Béni is the financial layer for healthcare — bill inbox + AI claims audit + drafted appeal letters. Billing-focused wedge, healthcare-finance-broad destination.
+
+The two problems we solve:
+1. **"I don't know what I actually owe"** → unified bill inbox + EOB-to-bill reconciliation (daily-use surface)
+2. **"I don't know if my insurer screwed me"** → AI claims audit + drafted appeal letters (episodic moment-of-magic)
+
+On `advantage`, old route surfaces (`/home`, `/plans`, `/claims`, `/records`) remain on disk but are disconnected from nav. They're reference material for the new inbox/findings surfaces being built around them. Don't re-link them in nav.
+
+See `docs/strategy.md` for the 8-week MVP plan, TAM picture, feature-by-feature FHIR dependency, and what was ruled out.
 
 ## Ephemeral FHIR architecture (HIPAA stance)
 
@@ -111,9 +124,17 @@ Strong success criteria enable independent looping. Weak criteria ("make it work
 - Cookies from previous OAuth attempts can cause `invalid_client` — force fresh sandbox login when debugging
 - Supabase `.upsert()` doesn't throw on RLS errors — check the `error` field on the response
 - Cigna's token endpoint returns malformed HTTP headers — must use `insecureHTTPParser: true`
+- Aetna sandbox rejects ALL query params on FHIR resource calls (including `_count`). Use bare endpoint URLs (`Coverage`, not `Coverage?patient=X`). Patient context is bound to the OAuth token.
+- Aetna prepends `OperationOutcome` as `entry[0]` of every Bundle response — filter Bundle entries by `resourceType` before reading the first one. See `lib/fhir/multi-payer.ts`.
+- Aetna sandbox `subscriberId` may be the literal string `'masked'`; fall back to `identifier[0].value` for member ID.
 
 ## References
 
+- `docs/strategy.md` — current product direction, 8-week MVP plan, TAM, what was ruled out
 - `docs/bcbs-payer-apis.md` — state-by-state BCBS API reference
 - `docs/hipaa-compliance.md` — full HIPAA analysis
-- GitHub milestones: MVP Launch (June 2026), Financial Layer (Q3 2026), Intelligence (Q4 2026)
+- GitHub milestones (to be created on `advantage`):
+  - Closed Beta MVP — inbox + audit + appeals (8 weeks)
+  - Billing Expansion — charity care, negotiation, Rx (post-beta)
+  - Commercial Unlock — Cigna commercial via Patient Access goes live Jan 1, 2027
+  - 2027 API Wave — prior auth, provider access, payer-to-payer (CMS-0057-F)

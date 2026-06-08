@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
 
 const NAV_ITEMS = [
+  { label: 'Inbox',   href: '/inbox'   },
   { label: 'Home',    href: '/home'    },
   { label: 'Plans',   href: '/plans'   },
   { label: 'Claims',  href: '/claims'  },
@@ -14,9 +15,9 @@ const NAV_ITEMS = [
 ]
 
 const TAB_ITEMS = [
+  { label: 'Inbox',   href: '/inbox'   },
   { label: 'Home',    href: '/home'    },
   { label: 'Plans',   href: '/plans'   },
-  { label: 'Claims',  href: '/claims'  },
   { label: 'You',     href: '/settings' },
 ]
 
